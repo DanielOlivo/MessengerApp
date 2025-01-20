@@ -23,6 +23,11 @@ const model = {
         return all
     },
 
+    getByUsername: async(username: string) => {
+        const user = await db('users').where({username}).first() as DbUser
+        return user
+    },
+
     getById: async(userId: UserId) => {
         const user = await db('users')
             .where('id', userId)

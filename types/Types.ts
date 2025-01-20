@@ -55,3 +55,12 @@ export interface Message {
 
 }
 
+export interface Credentials {
+    username: string
+    password: string
+    
+}
+
+export interface RegCredentials extends Credentials {
+    bio?: string
+}
