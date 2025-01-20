@@ -2,8 +2,8 @@ import db from '../config/db'
 import { Chat, ChatId } from '../types/Types'
 
 const model = {
-    create: async (isDm: boolean = true) => {
-        const [chat] = await db('chats').insert({isDm}, ['*']) as Chat[]
+    create: async (isDm: boolean = true, created?: Date) => {
+        const [chat] = await db('chats').insert({isDm, created}, ['*']) as Chat[]
         return chat
     },
 

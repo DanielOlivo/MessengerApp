@@ -16,6 +16,7 @@ export async function up(knex: Knex): Promise<void> {
     await knex.schema.createTable('chats', table => {
         table.uuid('id').primary().defaultTo(knex.fn.uuid())
         table.boolean('isDm').notNullable()
+        table.timestamp('created').defaultTo(knex.fn.now())
     })
 
     await knex.schema.createTable('dms', table => {
@@ -48,6 +49,7 @@ export async function up(knex: Knex): Promise<void> {
         table.uuid('id').primary().defaultTo(knex.fn.uuid())
         table.uuid('groupId').notNullable()
         table.uuid('userId').notNullable()
+        table.boolean('isAdmin').defaultTo(false)
         table.timestamp('created').defaultTo(knex.fn.now())
 
         table.foreign('userId').references('id').inTable('users').onDelete('CASCADE')
@@ -55,7 +57,7 @@ export async function up(knex: Knex): Promise<void> {
     })
 
     await knex.schema.createTable('messages', table => {
-        table.uuid('id').notNullable().primary()
+        table.uuid('id').notNullable().primary().defaultTo(knex.fn.uuid())
 
         table.uuid('userId').notNullable()
         table.uuid('chatId').notNullable()

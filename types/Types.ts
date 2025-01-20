@@ -3,6 +3,7 @@ export type ChatId = string
 export type DmId = string
 export type GroupId = string
 export type MembershipId = string
+export type GroupRole = 'user' | 'admin'
 
 export interface DbUser {
 
@@ -41,14 +42,14 @@ export interface Membership {
     userId: UserId
     groupId: GroupId
     created: Date
-
+    isAdmin: boolean
 }
 
 export interface Message {
 
     id: string
     userId: UserId
-    chatId: DmId | GroupId
+    chatId: ChatId
     content: string
     created: Date
 
