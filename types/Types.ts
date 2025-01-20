@@ -64,3 +64,8 @@ export interface Credentials {
 export interface RegCredentials extends Credentials {
     bio?: string
 }
+
+export interface TokenPayload {
+    id: string 
+    username: string
+}

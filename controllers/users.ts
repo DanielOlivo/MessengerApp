@@ -3,7 +3,7 @@ import {Request, Response} from 'express'
 import { validationResult } from 'express-validator'
 import jwt from 'jsonwebtoken'
 
-import { UserId, Credentials, RegCredentials } from '../types/Types'
+import { UserId, Credentials, RegCredentials, TokenPayload } from '../types/Types'
 import userModel from '../models/users'
 
 const controller = {
@@ -55,7 +55,7 @@ const controller = {
             return
         }
 
-        const authPayload = {
+        const authPayload: TokenPayload = {
             id: dbUser.id,
             username
         }
