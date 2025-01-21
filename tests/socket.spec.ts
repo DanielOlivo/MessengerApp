@@ -287,8 +287,18 @@ describe("socket interactions", () => {
             await wait(300)
             expect(user2.socket.connect).toBeTruthy()
         },
-        '034 user2.getChats  - chatsRes (1 dm) (for user2)': function (): Promise<void> {
-            throw new Error('Function not implemented.')
+        '034 user2.getChats  - chatsRes (1 dm) (for user2)': async() => {
+            await waitWith((done) => {
+                user2.chatsRes = ({groups, dms}) => {
+                    expect(groups).toBeDefined()
+                    expect(dms).toBeDefined()
+                    expect(groups.length).toEqual(0)
+                    expect(dms.length).toEqual(1)
+                    done()
+                }
+            }, () => {
+                user2.socket.emit('getChats', '')
+            },10)            
         },
         '035 user2.getUnread - unreadRes (1 msg) (for user2)': function (): Promise<void> {
             throw new Error('Function not implemented.')
@@ -370,7 +380,7 @@ describe("socket interactions", () => {
     cases.sort()
     // console.log(cases.slice(0, 1))
 
-    cases.slice(0, 14).forEach((key) => {
+    cases.slice(0, 15).forEach((key) => {
         const k = key as keyof TestList
         // console.log(k)
         // console.log(tests[k])
