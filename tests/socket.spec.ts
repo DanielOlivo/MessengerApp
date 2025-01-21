@@ -10,7 +10,7 @@ import { AddressInfo } from 'net'
 import { Chats, ChatId, Message, SearchResult, 
     TokenPayload, DM, Group, Membership, DMPosted, 
     DMPostReq, MessageReadReq,
-    MessageReadRes} from '../types/Types'
+    MessageReadRes, UserId} from '../types/Types'
 
 // just to organize all socket tests in one place
 type TestCases = {[name: string]: () => Promise<void>}
@@ -23,7 +23,7 @@ type TestList = {
     "011 user1.msgRead msg.id - readNotRes (with unread) (for both)": () => Promise<void>
     "012 user2.msgRead msg.id - readNotRes (with unread) (for both)": () => Promise<void>
 
-    "020 user2.typesDm chatId - userTypes (with user2) (for both)": () => Promise<void>
+    "020 user2.types chatId - userTypes (with user2) (for both)": () => Promise<void>
     "021 user2.sendDm user1.id 'whats up' - dmPosted with (dm, Message) for both": () => Promise<void>
     "022 user2.msgRead msg.id - readNotRes (with unread) (for both)": () => Promise<void>
     "023 user1.msgRead msg.id - readNotRes (with unread) (for both)": () => Promise<void>
@@ -56,6 +56,8 @@ type Client = {
     dmRes: (dm: DM) => void
     dmPosted: (arg: DMPosted) => void
     messageReadRes: (arg: MessageReadRes) => void     
+    types: (arg: {userId: UserId, chatId: ChatId}) => void
+
 
     dm: (msg: Message) => void
     groupAdded: (arg: {group: Group, membership: Membership}) => void
@@ -173,8 +175,20 @@ describe("socket interactions", () => {
                 user2.socket.emit('msgRead', req)
             })
         },
-        '020 user2.typesDm chatId - userTypes (with user2) (for both)': function (): Promise<void> {
-            throw new Error('Function not implemented.')
+        '020 user2.types chatId - userTypes (with user2) (for both)': async() => {
+            await waitWith(async(done) => {
+                const [res1, res2] = await Promise.all([
+                    waitForType(user1),
+                    waitForType(user2)
+                ])
+                expect(res1).toBeDefined()
+                expect(res2).toBeDefined()
+                expect(res1.userId).toEqual(user2.tokenPayload.id)
+                expect(res1.chatId).toEqual(dm12.id)
+                done()
+            }, () => {
+                user2.socket.emit('types', dm12.id)
+            })
         },
         '021 user2.sendDm user1.id \'whats up\' - dmPosted with (dm, Message) for both': function (): Promise<void> {
             throw new Error('Function not implemented.')
@@ -425,7 +439,7 @@ async function getClient(username: string, password: string, port: number){
         dmRes: (arg) => {},
         dmPosted: (arg) => {},
         messageReadRes: (arg) => {},
-            
+        types: (arg) => {},            
 
 
         dm: (msg) => {},
@@ -438,6 +452,7 @@ async function getClient(username: string, password: string, port: number){
     user.socket.on('dmRes', (dm: DM) => user.dmRes(dm))
     user.socket.on('dmPosted', arg => user.dmPosted(arg))
     user.socket.on('messageReadRes', arg => user.messageReadRes(arg))
+    user.socket.on('types', arg => user.types(arg))
 
 
     user.socket.on('dm', (msg: Message) => user.dm(msg))
@@ -458,6 +473,14 @@ function waitForReadRes(client: Client): Promise<MessageReadRes> {
     return new Promise(resolve => {
         client.messageReadRes = res => {
             resolve(res)
+        }
+    })
+}
+
+function waitForType(client: Client): Promise<{userId: UserId, chatId: ChatId}> {
+    return new Promise(resolve => {
+        client.types = id => {
+            resolve(id)
         }
     })
 }

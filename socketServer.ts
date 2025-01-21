@@ -83,17 +83,15 @@ io.on('connection', (socket) => {
     })
 
     socket.on('msgRead', async(req: MessageReadReq) => {
-        // console.log('server')
         const {id}: TokenPayload = socket.data
         await unreadModel.remove(id, req.message.id)        
         const res: MessageReadRes = {userId: id, message: req.message}
-        // console.log('socket rooms:', socket.rooms)
-        // console.log('emitting to ', req.message.chatId)
         io.to(req.message.chatId).emit('messageReadRes', res)
     })
 
-    socket.on('typesDm', async(chatId: ChatId) => {
-
+    socket.on('types', async(chatId: ChatId) => {
+        const {id}: TokenPayload = socket.data
+        io.to(chatId).emit('types', {userId: id, chatId})
     })
 
     // groups
