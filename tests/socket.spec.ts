@@ -245,8 +245,24 @@ describe("socket interactions", () => {
             await wait(300)
             expect(user2.socket.connected).toBeFalsy()
         },
-        '031 user1.sendDm user2.id \'where are you?\'  - dmPosted (for user1)': function (): Promise<void> {
-            throw new Error('Function not implemented.')
+        '031 user1.sendDm user2.id \'where are you?\'  - dmPosted (for user1)': async() => {
+            await waitWith(async (done) =>{
+                user1.dmPosted = ({dm, message}) => {
+                    expect(dm).toBeDefined()
+                    expect(message).toBeDefined()
+                    expect(dm.id).toEqual(dm12.id)
+                    expect(message.userId).toEqual(user1.tokenPayload.id)
+                    expect(message.chatId).toEqual(dm12.id)
+                    expect(message.content).toEqual('where are you?')
+                    done()
+                }
+            }, () => {
+                const req = {
+                    userId: user2.tokenPayload.id,
+                    content: 'where are you?'
+                }
+                user1.socket.emit('sendDm', req)
+            }, 10)
         },
         '032 user1.msgRead msg.id - readNotRes (with unrea) (for user1)': function (): Promise<void> {
             throw new Error('Function not implemented.')
@@ -337,7 +353,7 @@ describe("socket interactions", () => {
     cases.sort()
     // console.log(cases.slice(0, 1))
 
-    cases.slice(0, 11).forEach((key) => {
+    cases.slice(0, 12).forEach((key) => {
         const k = key as keyof TestList
         // console.log(k)
         // console.log(tests[k])
