@@ -38,8 +38,8 @@ const model = {
 
     getAllByUser: async(userId: UserId) => {
         const groups = await db('memberships')
-            .join('groups', 'groups.id', '=', 'memberships.chatId')
-            .where('memberships.userId', userId)
+            .join('groups', 'groups.id', '=', 'memberships.groupId')
+            .where({userId})
             .select(['groupId', 'id', 'name', 'created'].map(n => 'groups.' + n)) as Group[]
         return groups
     },
@@ -61,7 +61,13 @@ const model = {
     count: async(groupId: ChatId) => {
         const [{count}] = await db('memberships').count('id').where({groupId})
         return Number(count)
-    }
+    },
+
+    // handleSearchByUser: async(userId: UserId) => {
+    //     const result = await db('memberships')
+    //         .join('groups', 'memberships.chatId', '=', 'groups.id')
+    //         .where({userId})
+    // }
     
 }
 

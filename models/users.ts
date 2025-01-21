@@ -41,6 +41,14 @@ const model = {
             .whereRaw('LOWER(username) LIKE LOWER( ? )', ["%".concat(username, '%')])
             .select('*') as DbUser[]
         return users
+    },
+
+    handleSearchBy: async(id: UserId, criteria: string) => {
+        const result = await db('users')
+            .whereRaw("LOWER(username) LIKE LOWER(?)", ['%' + criteria.toLowerCase() + '%'])
+            .andWhereNot({id})
+            .select('id', 'username', 'created', 'bio', ) as Omit<DbUser, 'hashed'>[]
+        return result
     }
 
 }

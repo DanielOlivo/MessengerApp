@@ -3,6 +3,7 @@ export type ChatId = string
 export type DmId = string
 export type GroupId = string
 export type MembershipId = string
+export type MessageId = string
 export type GroupRole = 'user' | 'admin'
 
 export interface DbUser {
@@ -47,7 +48,7 @@ export interface Membership {
 
 export interface Message {
 
-    id: string
+    id: MessageId
     userId: UserId
     chatId: ChatId
     content: string
@@ -68,4 +69,14 @@ export interface RegCredentials extends Credentials {
 export interface TokenPayload {
     id: string 
     username: string
+}
+
+export interface SearchResult {
+    users: Partial<DbUser>[],
+    groups: Group[]
+}
+
+export interface Chats {
+    dms: DM[]
+    groups: Group[]
 }
