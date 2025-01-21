@@ -90,3 +90,19 @@ export interface DMPosted {
     dm: DM
     message: Message
 }
+
+export interface MessageReadReq {
+    message: Message
+}
+
+export interface MessageReadRes {
+    userId: UserId,
+    message: Message
+}
+
+export interface Unread {
+    userId: UserId 
+    messageId: MessageId
+}
+
+// export interface Message

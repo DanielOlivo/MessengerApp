@@ -7,7 +7,12 @@ import userModel from './models/users'
 import groupModel from './models/groups'
 import messageModel from './models/messages'
 import dmModel from './models/dms'
-import { Chats, TokenPayload, ChatId, UserId, MessageId, SearchResult, DMPosted, DMPostReq } from './types/Types'
+import unreadModel from './models/unread'
+import { 
+    Chats, TokenPayload, ChatId, 
+    UserId, MessageId, SearchResult, DMPosted, 
+    DMPostReq, Unread, MessageReadReq, 
+    MessageReadRes} from './types/Types'
 import Sockets from './controllers/sockets'
 export const httpServer = createServer(app)
 export const io = new Server(httpServer)
@@ -64,16 +69,27 @@ io.on('connection', (socket) => {
 
     socket.on('sendDm', async({userId, content}: DMPostReq) => {
         const {id}: TokenPayload = socket.data
-        console.log('uuids', id, userId)
+        // console.log('uuids', id, userId)
         const dm = await dmModel.getByUserIds(id, userId)  
         const message = await messageModel.create(dm.id, id, content)
         const res: DMPosted = {dm, message}
 
+        await Promise.all([
+            unreadModel.createForUser(id, message.id),
+            unreadModel.createForUser(userId, message.id)
+        ])
+
         io.to(dm.id).emit('dmPosted', res) 
     })
 
-    socket.on('msgRead', async(msgId: MessageId) => {
-
+    socket.on('msgRead', async(req: MessageReadReq) => {
+        // console.log('server')
+        const {id}: TokenPayload = socket.data
+        await unreadModel.remove(id, req.message.id)        
+        const res: MessageReadRes = {userId: id, message: req.message}
+        // console.log('socket rooms:', socket.rooms)
+        // console.log('emitting to ', req.message.chatId)
+        io.to(req.message.chatId).emit('messageReadRes', res)
     })
 
     socket.on('typesDm', async(chatId: ChatId) => {
