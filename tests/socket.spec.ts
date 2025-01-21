@@ -68,6 +68,8 @@ type Client = {
 
 describe("socket interactions", () => {
 
+    let port: number
+
     let client: Client
     let user1: Client
     let user2: Client
@@ -280,8 +282,10 @@ describe("socket interactions", () => {
                 user1.socket.emit('msgRead', req)
             }, 10)
         },
-        '033 user2 reconnects (check the status)': function (): Promise<void> {
-            throw new Error('Function not implemented.')
+        '033 user2 reconnects (check the status)': async() => {
+            user2 = await getClient('user2','password', port!)
+            await wait(300)
+            expect(user2.socket.connect).toBeTruthy()
         },
         '034 user2.getChats  - chatsRes (1 dm) (for user2)': function (): Promise<void> {
             throw new Error('Function not implemented.')
@@ -317,7 +321,7 @@ describe("socket interactions", () => {
         await db.migrate.latest()
         await db.seed.run()
 
-        let port;
+        // let port;
         httpServer.listen(() => {
             const address = httpServer.address() as AddressInfo
             port = address.port
@@ -366,7 +370,7 @@ describe("socket interactions", () => {
     cases.sort()
     // console.log(cases.slice(0, 1))
 
-    cases.slice(0, 13).forEach((key) => {
+    cases.slice(0, 14).forEach((key) => {
         const k = key as keyof TestList
         // console.log(k)
         // console.log(tests[k])
