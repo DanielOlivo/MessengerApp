@@ -57,6 +57,7 @@ type Client = {
     dmPosted: (arg: DMPosted) => void
     messageReadRes: (arg: MessageReadRes) => void     
     types: (arg: {userId: UserId, chatId: ChatId}) => void
+    createGroup: (name: {group: Group, membership: Membership}) => void
 
 
     dm: (msg: Message) => void
@@ -190,8 +191,24 @@ describe("socket interactions", () => {
                 user2.socket.emit('types', dm12.id)
             })
         },
-        '021 user2.sendDm user1.id \'whats up\' - dmPosted with (dm, Message) for both': function (): Promise<void> {
-            throw new Error('Function not implemented.')
+        '021 user2.sendDm user1.id \'whats up\' - dmPosted with (dm, Message) for both': async() => {
+            await waitWith(async(done) => {
+                const [msg1, msg2] = await Promise.all([
+                    waitForDm(user1),
+                    waitForDm(user2)
+                ])
+                expect(msg1).toBeDefined()    
+                expect(msg2).toBeDefined()
+                expect(msg1.dm.user1Id).toEqual(user1.tokenPayload.id)
+                expect(msg1.dm.user2Id).toEqual(user2.tokenPayload.id)
+                expect(msg1.message.userId).toEqual(user2.tokenPayload.id)
+                expect(msg1.message.content).toEqual('whats up')
+                msg = msg1.message
+                done()
+            }, () => {
+                const req: DMPostReq = {userId: user1.tokenPayload.id, content: 'whats up'}
+                user2.socket.emit('sendDm', req)
+            })
         },
         '022 user2.msgRead msg.id - readNotRes (with unread) (for both)': function (): Promise<void> {
             throw new Error('Function not implemented.')
@@ -294,7 +311,7 @@ describe("socket interactions", () => {
     cases.sort()
     // console.log(cases.slice(0, 1))
 
-    cases.slice(0, 7).forEach((key) => {
+    cases.slice(0, 8).forEach((key) => {
         const k = key as keyof TestList
         // console.log(k)
         // console.log(tests[k])
@@ -440,6 +457,8 @@ async function getClient(username: string, password: string, port: number){
         dmPosted: (arg) => {},
         messageReadRes: (arg) => {},
         types: (arg) => {},            
+        createGroup: (arg) => {},
+            
 
 
         dm: (msg) => {},
@@ -453,6 +472,7 @@ async function getClient(username: string, password: string, port: number){
     user.socket.on('dmPosted', arg => user.dmPosted(arg))
     user.socket.on('messageReadRes', arg => user.messageReadRes(arg))
     user.socket.on('types', arg => user.types(arg))
+    user.socket.on('createGroup', arg => user.types)
 
 
     user.socket.on('dm', (msg: Message) => user.dm(msg))
@@ -484,3 +504,9 @@ function waitForType(client: Client): Promise<{userId: UserId, chatId: ChatId}> 
         }
     })
 }
+
+// function waitForCreateGroup(client: Client): Promise<{group: Group, membership: Membership}> {
+//     return new Promise(resolve => {
+//         client.createGroup = arg => resolve(arg)
+//     })
+// }
