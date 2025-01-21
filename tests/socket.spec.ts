@@ -225,8 +225,20 @@ describe("socket interactions", () => {
                 user2.socket.emit('msgRead', req)
             })
         },
-        '023 user1.msgRead msg.id - readNotRes (with unread) (for both)': function (): Promise<void> {
-            throw new Error('Function not implemented.')
+        '023 user1.msgRead msg.id - readNotRes (with unread) (for both)': async() => {
+            await waitWith(async (done) => {
+                const [res1, res2] = await Promise.all([
+                    waitForReadRes(user1),
+                    waitForReadRes(user2)
+                ])
+                expect(res1).toBeDefined()
+                expect(res2).toBeDefined()
+                expect(res1.userId).toEqual(user1.tokenPayload.id)
+                done()
+            }, () => {
+                const req: MessageReadReq = {message: msg}
+                user1.socket.emit('msgRead', req)
+            })
         },
         '030 user2 discconnets (check client status)': function (): Promise<void> {
             throw new Error('Function not implemented.')
@@ -323,7 +335,7 @@ describe("socket interactions", () => {
     cases.sort()
     // console.log(cases.slice(0, 1))
 
-    cases.slice(0, 9).forEach((key) => {
+    cases.slice(0, 10).forEach((key) => {
         const k = key as keyof TestList
         // console.log(k)
         // console.log(tests[k])
