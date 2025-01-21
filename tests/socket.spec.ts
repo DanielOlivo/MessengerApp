@@ -240,8 +240,10 @@ describe("socket interactions", () => {
                 user1.socket.emit('msgRead', req)
             })
         },
-        '030 user2 discconnets (check client status)': function (): Promise<void> {
-            throw new Error('Function not implemented.')
+        '030 user2 discconnets (check client status)': async() => {
+            user2.socket.disconnect()
+            await wait(300)
+            expect(user2.socket.connected).toBeFalsy()
         },
         '031 user1.sendDm user2.id \'where are you?\'  - dmPosted (for user1)': function (): Promise<void> {
             throw new Error('Function not implemented.')
@@ -335,7 +337,7 @@ describe("socket interactions", () => {
     cases.sort()
     // console.log(cases.slice(0, 1))
 
-    cases.slice(0, 10).forEach((key) => {
+    cases.slice(0, 11).forEach((key) => {
         const k = key as keyof TestList
         // console.log(k)
         // console.log(tests[k])
