@@ -254,6 +254,7 @@ describe("socket interactions", () => {
                     expect(message.userId).toEqual(user1.tokenPayload.id)
                     expect(message.chatId).toEqual(dm12.id)
                     expect(message.content).toEqual('where are you?')
+                    msg = message
                     done()
                 }
             }, () => {
@@ -264,8 +265,20 @@ describe("socket interactions", () => {
                 user1.socket.emit('sendDm', req)
             }, 10)
         },
-        '032 user1.msgRead msg.id - readNotRes (with unrea) (for user1)': function (): Promise<void> {
-            throw new Error('Function not implemented.')
+        '032 user1.msgRead msg.id - readNotRes (with unrea) (for user1)': async() => {
+            await waitWith((done) => {
+                user1.messageReadRes = ({userId, message}) => {
+                    expect(userId).toBeDefined()
+                    expect(message).toBeDefined()
+                    expect(userId).toEqual(user1.tokenPayload.id)
+                    expect(message.userId).toEqual(user1.tokenPayload.id)
+                    expect(message.content).toEqual('where are you?')
+                    done()
+                }
+            }, () => {
+                const req: MessageReadReq = {message: msg}
+                user1.socket.emit('msgRead', req)
+            }, 10)
         },
         '033 user2 reconnects (check the status)': function (): Promise<void> {
             throw new Error('Function not implemented.')
@@ -353,7 +366,7 @@ describe("socket interactions", () => {
     cases.sort()
     // console.log(cases.slice(0, 1))
 
-    cases.slice(0, 12).forEach((key) => {
+    cases.slice(0, 13).forEach((key) => {
         const k = key as keyof TestList
         // console.log(k)
         // console.log(tests[k])
