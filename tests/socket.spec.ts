@@ -7,7 +7,7 @@ import app from '../app'
 import request from 'supertest'
 import {io, httpServer} from '../socketServer'
 import { AddressInfo } from 'net'
-import { Chats, ChatId, Message, SearchResult, TokenPayload, DM, Group, Membership } from '../types/Types'
+import { Chats, ChatId, Message, SearchResult, TokenPayload, DM, Group, Membership, DMPosted, DMPostReq } from '../types/Types'
 
 // just to organize all socket tests in one place
 type TestCases = {[name: string]: () => Promise<void>}
@@ -51,6 +51,7 @@ type Client = {
     chatsRes: (arg: {groups: Group[], dms: DM[]}) => void
     searchResult: (res: SearchResult) => void
     dmRes: (dm: DM) => void
+    dmPosted: (arg: DMPosted) => void
     dm: (msg: Message) => void
     groupAdded: (arg: {group: Group, membership: Membership}) => void
     // groupAdded: (group: Group, membership: Membership) => void
@@ -64,6 +65,8 @@ describe("socket interactions", () => {
     let user2: Client
     let user3: Client
     let dudes: Group
+
+    let dm12;
 
     const tests: TestList = {
         "001 user1.getChats - chatsRes (check he gets none)": async () => {
@@ -103,6 +106,7 @@ describe("socket interactions", () => {
                     expect(dm).toBeDefined()
                     expect(dm.user1Id).toEqual(user1.tokenPayload.id)
                     expect(dm.user2Id).toEqual(user2.tokenPayload.id)
+                    dm12 = dm
                     done()
                 } 
             }, () => {
@@ -110,9 +114,26 @@ describe("socket interactions", () => {
             })
         },
 
-        '010 user1.sendDm user2.id \'hey\' - dmPosted with (dm, Message) for both': function (): Promise<void> {
-            throw new Error('Function not implemented.')
+        '010 user1.sendDm user2.id \'hey\' - dmPosted with (dm, Message) for both': async() => {
+            await waitWith(async (done) => {
+                const [msg1, msg2] = await Promise.all([
+                    waitForDm(user1),
+                    waitForDm(user2)
+                ])
+                expect(msg1).toBeDefined()    
+                expect(msg2).toBeDefined()
+                expect(msg1.dm.user1Id).toEqual(user1.tokenPayload.id)
+                expect(msg1.dm.user2Id).toEqual(user2.tokenPayload.id)
+                expect(msg1.message.userId).toEqual(user1.tokenPayload.id)
+                expect(msg1.message.content).toEqual('hey')
+                done()
+
+            }, () => {
+                const req: DMPostReq = {userId: user2.tokenPayload.id, content: 'hey'}
+                user1.socket.emit('sendDm', req)
+            })
         },
+
         '011 user1.msgRead msg.id - readNotRes (with unread) (for both)': function (): Promise<void> {
             throw new Error('Function not implemented.')
         },
@@ -226,7 +247,7 @@ describe("socket interactions", () => {
     cases.sort()
     // console.log(cases.slice(0, 1))
 
-    cases.slice(0, 3).forEach((key) => {
+    cases.slice(0, 5).forEach((key) => {
         const k = key as keyof TestList
         // console.log(k)
         // console.log(tests[k])
@@ -369,6 +390,7 @@ async function getClient(username: string, password: string, port: number){
         chatsRes: (arg) => {},
         searchResult: (arg) => {},
         dmRes: (arg) => {},
+        dmPosted: (arg) => {},
         dm: (msg) => {},
         groupAdded: arg => {}
     }
@@ -377,15 +399,17 @@ async function getClient(username: string, password: string, port: number){
     user.socket.on('chatsRes', arg => user.chatsRes(arg))
     user.socket.on('search_result', (res: SearchResult) => user.searchResult(res))
     user.socket.on('dmRes', (dm: DM) => user.dmRes(dm))
+    user.socket.on('dmPosted', arg => user.dmPosted(arg))
+
     user.socket.on('dm', (msg: Message) => user.dm(msg))
     user.socket.on('groupAdded', arg => user.groupAdded(arg))
 
     return user
 }
 
-function waitForDm(client: Client): Promise<Message>{
+function waitForDm(client: Client): Promise<DMPosted>{
     return new Promise(res => {
-        client.dm = msg => {
+        client.dmPosted = msg => {
             res(msg)
         }
     })

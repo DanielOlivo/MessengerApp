@@ -7,7 +7,7 @@ import userModel from './models/users'
 import groupModel from './models/groups'
 import messageModel from './models/messages'
 import dmModel from './models/dms'
-import { Chats, TokenPayload, ChatId, UserId, MessageId, SearchResult } from './types/Types'
+import { Chats, TokenPayload, ChatId, UserId, MessageId, SearchResult, DMPosted, DMPostReq } from './types/Types'
 import Sockets from './controllers/sockets'
 export const httpServer = createServer(app)
 export const io = new Server(httpServer)
@@ -55,11 +55,21 @@ io.on('connection', (socket) => {
         if(!dm){
             dm = await dmModel.create(id, userId)
         }
+
+        socket.join(dm.id)
+        sockets.getSocket(userId)?.join(dm.id)
+
         io.to(socket.id).emit('dmRes', dm)
     })
 
-    socket.on('sendDm', async(userId: UserId, content: string) => {
+    socket.on('sendDm', async({userId, content}: DMPostReq) => {
+        const {id}: TokenPayload = socket.data
+        console.log('uuids', id, userId)
+        const dm = await dmModel.getByUserIds(id, userId)  
+        const message = await messageModel.create(dm.id, id, content)
+        const res: DMPosted = {dm, message}
 
+        io.to(dm.id).emit('dmPosted', res) 
     })
 
     socket.on('msgRead', async(msgId: MessageId) => {

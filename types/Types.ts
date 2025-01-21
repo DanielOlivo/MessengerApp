@@ -80,3 +80,13 @@ export interface Chats {
     dms: DM[]
     groups: Group[]
 }
+
+export interface DMPostReq {
+    userId: UserId
+    content: string
+}
+
+export interface DMPosted {
+    dm: DM
+    message: Message
+}
