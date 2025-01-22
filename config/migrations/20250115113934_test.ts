@@ -63,6 +63,7 @@ export async function up(knex: Knex): Promise<void> {
         table.uuid('chatId').notNullable()
         table.string('content').notNullable()
         table.timestamp('created').notNullable().defaultTo(knex.fn.now())
+        table.boolean('read').notNullable().defaultTo(false)
 
         table.foreign('userId').references('id').inTable('users').onDelete('CASCADE')
         table.foreign('chatId').references('id').inTable('chats').onDelete('CASCADE')

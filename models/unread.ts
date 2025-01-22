@@ -1,3 +1,4 @@
+import knex from 'knex'
 import db from '../config/db'
 import { DM, Message, MessageId, ChatId, UserId } from "../types/Types"
 
@@ -37,17 +38,18 @@ const model = {
     },
 
     createForGroup: async(groupId: ChatId, messageId: MessageId) => {
-        // await db('unread').insert(
-        //     db('memberships').where({groupId}).select('groupId').as('chatId')
-        // ) 
 
-        // later
-        let unread: Unread[] = []
+        const unread = await db('unread').insert({
+            messageId: messageId,
+            userId: db('memberships').where({groupId}).select('userId')
+        }, ['*'])
+
         return unread
     },
 
     removeById: async(id: UnreadId) => {
         const [unread] = await db('unread').where({id}).del(['*']) as Unread[]
+        console.log('removed unread:', unread)
         return unread
     },
 
@@ -60,12 +62,15 @@ const model = {
 
     get: async(userId: UserId) => {
         const messages = await db('unread')
-            .join('messages', 'unread.userId', '=', 'messages.userId')
+            .leftJoin('messages', 'unread.messageId', '=', 'messages.id')
             .where('unread.userId', userId)
             .select("messages.*") as Message[]
         return messages
-    } 
+    },
 
+    getAll: async() => {
+        return await db('unread').select(['*']) as Unread[]
+    }
     // createForDm: async (chatId: ChatId, messageId: MessageId) => {
     //     const result = db('unread')
     //         .insert([

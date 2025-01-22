@@ -41,6 +41,14 @@ const controller = {
         }
     },
 
+    /**return messages */
+    unread: async(payload: TokenPayload, arg: any) => {
+        const unread: Message[] = await unreadModel.get(payload.id)
+        return {
+            sendBefore: {[payload.id]: unread}
+        }
+    },
+
     // dms
     getDm: async(payload: TokenPayload, userId: UserId) => {
         let dm = await dmModel.getByUserIds(payload.id, userId)
@@ -134,6 +142,7 @@ const controller = {
             unread = await unreadModel.createForDm(chatId, message.id)
         }
         else {
+            // console.log('chatId', chatId, 'message', message)
             unread = await unreadModel.createForGroup(chatId, message.id) // not implemented
         }
         // console.log(unread)
@@ -142,12 +151,13 @@ const controller = {
         }
     },
 
-    readMsg: async(payload: TokenPayload, unread: Unread) => {
-        const _unread = await unreadModel.removeById(unread.id)
-        const message = await messageModel.getById(unread.messageId)
+    readMsg: async(payload: TokenPayload, msg: Message) => {
+        // const _unread = await unreadModel.removeById(unread.id)
+        const result = await unreadModel.remove(payload.id, msg.id)
+        // const message = await messageModel.getById(unread.messageId)
 
         return {
-            sendBefore: {[message.chatId]: unread}
+            sendBefore: {[msg.chatId]: msg}
         }
     },
 

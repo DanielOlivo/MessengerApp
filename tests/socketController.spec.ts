@@ -1,8 +1,8 @@
 process.env.NODE_ENV = 'test'
 
 import {describe, test, expect, beforeAll, afterAll, afterEach, beforeEach} from '@jest/globals'
-import { TokenPayload, UserId, DM, Message } from '../types/Types'
-import {Unread} from '../models/unread'
+import { TokenPayload, UserId, DM, Message, Group } from '../types/Types'
+import unreadModel, {Unread} from '../models/unread'
 import socketController, {Res} from '../controllers/socket'
 import userModel from '../models/users'
 import db from '../config/db'
@@ -18,7 +18,10 @@ describe('socket controller', () => {
     let token3: TokenPayload
 
     let dm12: DM
+    let msg12: Message
     let unread: Unread[]
+    let dudes: Group
+    let msgDudes: Message
 
     beforeAll(async() => {
         await db.migrate.rollback()
@@ -80,27 +83,210 @@ describe('socket controller', () => {
         expect(message.content).toEqual('hey')
         expect(message.chatId).toEqual(dm12.id)
         expect(message.userId).toEqual(token1.id)
+        msg12 = message
 
         unread = sendAfter![dm12.id].unread
         expect(unread).toBeDefined()
         expect(unread.length).toEqual(2)
     })
 
-    test('user1.msg.read', async() => {
-        const unread1 = unread.filter(un => un.userId == token1.id)[0]
+    test('unread table has two records', async() => {
+        const all = await unreadModel.getAll()
+        expect(all).toBeDefined()
+        expect(all.length).toEqual(2)
 
-        const {sendBefore} = await socketController.readMsg(token1, unread1)
+        expect(all.map(un => un.userId).includes(token1.id)).toBeTruthy()
+        expect(all.map(un => un.userId).includes(token2.id)).toBeTruthy()
+        expect(all[0].messageId).toEqual(msg12.id)
+        expect(all[1].messageId).toEqual(msg12.id)
+    })
+
+    test('user1.unread (gets one)', async() => {
+        const {sendBefore} = await socketController.unread(token1, '')
+        expect(sendBefore).toBeDefined()
+        expect(Object.keys(sendBefore).length).toEqual(1)
+
+        const [msg] = sendBefore[token1.id]
+        expect(msg).toBeDefined()
+        expect(msg.userId).toEqual(token1.id)
+    })
+
+    test('user2.unread (gets one)', async() => {
+        const {sendBefore} = await socketController.unread(token2, '')
+        expect(sendBefore).toBeDefined()
+        expect(Object.keys(sendBefore).length).toEqual(1)
+        // console.log(sendBefore)
+
+        const [msg] = sendBefore[token2.id]
+        expect(msg).toBeDefined()
+        expect(msg.userId).toEqual(token1.id)
+
+    })
+
+    test('user1.msg.read', async() => {
+        const {sendBefore} = await socketController.readMsg(token1, msg12)
         expect(sendBefore).toBeDefined()
         expect(dm12.id in sendBefore).toBeTruthy()
     })
 
-    test('user2.msg.read', async() => {
-        const unread2 = unread.filter(un => un.userId == token2.id)[0]
+    test('unread table has one record', async() => {
+        const all = await unreadModel.getAll()
+        expect(all.length).toEqual(1)
+    })
 
-        const {sendBefore} = await socketController.readMsg(token2, unread2)
+    test('user1.unread (gets none)', async() => {
+        const {sendBefore} = await socketController.unread(token1, '')
+        // console.log('sendBefore', sendBefore)
+        expect(sendBefore).toBeDefined()
+        expect(Object.keys(sendBefore).length).toEqual(1)
+
+        const msgs = sendBefore[token1.id]
+        expect(msgs.length).toEqual(0)
+    })
+
+    test('user2.msg.read', async() => {
+        const {sendBefore} = await socketController.readMsg(token2, msg12)
         expect(sendBefore).toBeDefined()
         expect(dm12.id in sendBefore).toBeTruthy()
+    })
 
+    test('unread table has no records', async() => {
+        const all = await unreadModel.getAll()
+        expect(all.length).toEqual(0)
+    })
+
+    test('user2.unread (gets none)', async() => {
+        const {sendBefore} = await socketController.unread(token2, '')
+        expect(sendBefore).toBeDefined()
+        expect(Object.keys(sendBefore).length).toEqual(1)
+
+        const msgs = sendBefore[token2.id]
+        expect(msgs.length).toEqual(0)
+    })
+    
+    test('user1 creates group', async() => {
+        const {join, sendAfter} = await socketController.createGroup(token1, 'dudes')
+
+        expect(join).toBeDefined()
+        expect(sendAfter).toBeDefined()
+
+        expect(token1.id in join).toBeTruthy()
+        expect(token1.id in sendAfter).toBeTruthy()
+
+        const {group, membership} = sendAfter[token1.id]
+
+        expect(group).toBeDefined()
+        expect(membership).toBeDefined()
+
+        expect(group.name).toEqual('dudes')
+        expect(membership.groupId).toEqual(group.id)
+        expect(membership.userId).toEqual(token1.id)
+        expect(membership.isAdmin).toBeTruthy()
+
+        dudes = group
+    })
+
+    test('user1 sends message to dudes', async() => {
+        const {sendAfter} = await socketController.msg(token1, {chatId: dudes.id, content: 'first'})
+        expect(sendAfter).toBeDefined()
+        expect(token1.id in sendAfter!).toBeDefined()
+
+        const {message, unread} = sendAfter![dudes.id] as {message: Message, unread: Unread[]}
+        expect(message).toBeDefined()
+        expect(unread).toBeDefined()
+
+        expect(message.content).toEqual('first')
+        expect(message.userId).toEqual(token1.id)
+        expect(message.chatId).toEqual(dudes.id)
+    })
+
+
+    test('user1.unread (one)', async() => {
+        const {sendBefore: {[token1.id]: [message]}} = await socketController.unread(token1, '')
+        expect(message).toBeDefined()
+        const {content, userId, chatId} = message 
+        expect(content).toEqual('first')
+        expect(chatId).toEqual(dudes.id)
+        expect(userId).toEqual(token1.id)
+        msgDudes = message
+    })
+
+     
+    test('user1.readMsg', async() => {
+        const {sendBefore: {[dudes.id]: message}} = await socketController.readMsg(token1, msgDudes)
+        expect(message).toBeDefined()
+    })
+
+    test('user1.unread (gets none)', async() => {
+        throw new Error()
+    })
+
+    return
+
+    test('user1 adds user2', async() => {
+        const {join, sendAfter} = await socketController.addMember(token1, {chatId: dudes.id, userId: token2.id})        
+
+        expect(join).toBeDefined()
+        expect(sendAfter).toBeDefined()
+
+        expect(token2.id in join).toBeTruthy()
+        expect(dudes.id in sendAfter)
+    })
+
+    test('user2 get messages from dudes (gets none)', async() => {
+        throw new Error()
+    })
+
+    test('user2.msg to dudes', async() => {
+        throw new Error()
+    })
+
+    test('user2 unread (gets one)', async() => {
+        throw new Error()
+    })
+
+    test('user1 unread (gets one)', async() => {
+        throw new Error()
+    })
+
+    test('user2.readMsg', async() => {
+        throw new Error()
+    })
+
+    test('user1.readMsg', async() => {
+        throw new Error()
+    })
+
+    test('user1 adds user3', async() => {
+        throw new Error()
+    })    
+
+    test('user3 get msgs (gets none)', async() => {
+        throw new Error()
+    })
+
+    test('user3 sends msg', async() => {
+        throw new Error()
+    })
+
+    test('user1.unread (gets one', async() => {
+        throw new Error()
+    })
+
+    test('user2.unread (gets one)', async () => {
+        throw new Error()
+    })
+
+    test('user1 changes the role of user2 (to admin)', async() => {
+        throw new Error()
+    })
+
+    test('user1 leaves the group', async() => {
+        throw new Error()
+    })
+
+    test('user2 removes the group', async() => {
+        throw new Error()
     })
 
 })
