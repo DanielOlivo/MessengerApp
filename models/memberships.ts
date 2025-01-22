@@ -24,6 +24,11 @@ const model = {
         return id as MembershipId
     },
 
+    removeByUserIdChatId: async(userId: UserId, chatId: ChatId) => {
+        const [{id}]: Partial<Membership>[] = await db('memberships').where({userId, chatId}).del(['id'])
+        return id as MembershipId
+    },
+
     get: async(userId: UserId, groupId: ChatId) => {
         const membership = await db('memberships')
             .where({userId, groupId})

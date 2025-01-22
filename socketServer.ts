@@ -7,21 +7,74 @@ import userModel from './models/users'
 import groupModel from './models/groups'
 import messageModel from './models/messages'
 import dmModel from './models/dms'
-import unreadModel from './models/unread'
+import unreadModel, {Unread} from './models/unread'
 import { 
     Chats, TokenPayload, ChatId, 
     UserId, MessageId, SearchResult, DMPosted, 
-    DMPostReq, Unread, MessageReadReq, 
+    DMPostReq, MessageReadReq, 
     MessageReadRes} from './types/Types'
 import Sockets from './controllers/sockets'
+
+import socketController from './controllers/socket'
+import { Res } from './controllers/socket'
+
+
 export const httpServer = createServer(app)
 export const io = new Server(httpServer)
 
+
 const sockets = new Sockets()
+
 
 io.use(verifyToken)
 
 io.on('connection', (socket) => {
+
+
+    function setup<T,K>(name: string, fn: (auth: TokenPayload, a: T) => Promise<Res<K>>){
+        const payload = socket.data as TokenPayload
+
+        socket.on(name, async (arg: T) => {
+            const {sendBefore, join, leave, sendAfter} = await fn(payload, arg)
+
+            if(sendBefore){
+                Object.entries(sendBefore).forEach(([userId, data]) => {
+                    io.to(sockets.getSocket(userId).id).emit(name, data)
+                })
+            }
+
+            if(leave){
+                Object.entries(leave).forEach(([userId, roomId]) => 
+                    sockets.getSocket(userId)?.leave(roomId))
+            }
+
+            if(join){
+                Object.entries(join).forEach(([userId, roomId]) => 
+                    sockets.getSocket(userId)?.join(roomId))
+            }
+
+            if(sendAfter){
+                Object.entries(sendAfter).forEach(([userId, data]) => {
+                    io.to(sockets.getSocket(userId).id).emit(name, data)
+                })
+            }
+        })
+    }
+
+
+    setup('ping1', socketController.ping1)
+    setup('search', socketController.search)
+    setup('chats.get', socketController.getChats)
+
+    setup('dm.get', socketController.getDm)
+
+    setup('g.create', socketController.createGroup)
+    setup('g.remove', socketController.removeGroup)
+    setup('g.add', socketController.addMember)
+    setup('g.leave', socketController.leaveGroup)
+
+    setup('msg', socketController.msg)
+    setup('msg.read', socketController.readMsg)
 
     sockets.add(socket.data.id, socket)
 
@@ -40,18 +93,12 @@ io.on('connection', (socket) => {
         io.to(socket.id).emit('chatsRes', res)
     })
 
-    socket.on('getUnread', async() => {
-
-    })
-
-    socket.on('search', async arg => {
+    socket.on('unread', async(arg) => {
         const {id}: TokenPayload = socket.data
-        const res: SearchResult = {
-            users: await userModel.handleSearchBy(id, arg),
-            groups: await groupModel.getAllByUser(id)
-        }
-        io.to(socket.id).emit('search_result', res)
+        const messages = await unreadModel.get(id)
+        io.to(socket.id).emit('unread', messages)
     })
+
 
     // dms
     socket.on('getDm', async(userId: UserId) => {
@@ -92,6 +139,10 @@ io.on('connection', (socket) => {
     socket.on('types', async(chatId: ChatId) => {
         const {id}: TokenPayload = socket.data
         io.to(chatId).emit('types', {userId: id, chatId})
+    })
+
+    socket.on('dmMsgAll', async(chatId: ChatId) => {
+
     })
 
     // groups

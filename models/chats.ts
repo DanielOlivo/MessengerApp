@@ -16,7 +16,12 @@ const model = {
         const [{count: _count}] = await db('chats')
             .count('id')
         return Number(_count);
-    } 
+    },
+
+    getById: async(id: ChatId) => {
+        const chat = await db('chats').where({id}).first() as Chat
+        return chat
+    }
 }
 
 export default model

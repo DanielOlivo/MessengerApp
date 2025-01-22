@@ -31,6 +31,11 @@ const model = {
         return membership
     },
 
+    getById: async(chatId: ChatId) => {
+        const group = await db('groups').where({id: chatId}).select('*').first() as Group
+        return group
+    },
+
     getAll: async () => {
         const groups = await db('groups').select('*') as Group[]
         return groups

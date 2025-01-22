@@ -1,5 +1,5 @@
 import db from '../config/db'
-import { ChatId, UserId, Message } from "../types/Types"
+import { ChatId, UserId, Message, MessageId } from "../types/Types"
 
 const model = {
 
@@ -15,7 +15,12 @@ const model = {
             .where({chatId})
             .select('*') as Message[]
         return messages
-    } 
+    }, 
+
+    getById: async (id: MessageId) => {
+        const message = await db('messages').where({id}).select('*').first() as Message
+        return message
+    }
 }
 
 export default model

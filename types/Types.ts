@@ -100,9 +100,9 @@ export interface MessageReadRes {
     message: Message
 }
 
-export interface Unread {
-    userId: UserId 
-    messageId: MessageId
-}
+// export interface Unread {
+//     userId: UserId 
+//     messageId: MessageId
+// }
 
 // export interface Message

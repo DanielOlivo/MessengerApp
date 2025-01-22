@@ -50,15 +50,16 @@ type TestList = {
 type Client = {
     socket: ClientSocket
     tokenPayload: TokenPayload
+    ping1: (arg: string) => void
     ping: (arg: string) => void
     chatsRes: (arg: {groups: Group[], dms: DM[]}) => void
-    searchResult: (res: SearchResult) => void
+    search: (res: SearchResult) => void
     dmRes: (dm: DM) => void
     dmPosted: (arg: DMPosted) => void
     messageReadRes: (arg: MessageReadRes) => void     
     types: (arg: {userId: UserId, chatId: ChatId}) => void
     createGroup: (name: {group: Group, membership: Membership}) => void
-
+    unread: (messages: Message[]) => void 
 
     dm: (msg: Message) => void
     groupAdded: (arg: {group: Group, membership: Membership}) => void
@@ -96,7 +97,7 @@ describe("socket interactions", () => {
 
         "002 user1.search 'user' - searchResult [user2, user3]": async () => {
             await waitWith((done) => {
-                user1.searchResult = ({users, groups}: SearchResult) => {
+                user1.search = ({users, groups}: SearchResult) => {
                     expect(users).toBeDefined() 
                     expect(users.length).toEqual(2)
                     expect(users.map(user => user.username).includes('user2')).toBeTruthy()
@@ -300,8 +301,16 @@ describe("socket interactions", () => {
                 user2.socket.emit('getChats', '')
             },10)            
         },
-        '035 user2.getUnread - unreadRes (1 msg) (for user2)': function (): Promise<void> {
-            throw new Error('Function not implemented.')
+        '035 user2.getUnread - unreadRes (1 msg) (for user2)': async() => {
+            await waitWith((done) => {
+                user2.unread = msgs => {
+                    expect(msgs).toBeDefined()
+                    expect(msgs.length).toEqual(1)
+                    done()
+                }
+            }, () => {
+                user2.socket.emit('unread','')
+            }, 10)
         },
         '036 user2.getDmMsg dm.id - msgList (3 msgs) (for user2)': function (): Promise<void> {
             throw new Error('Function not implemented.')
@@ -350,7 +359,7 @@ describe("socket interactions", () => {
         const users = [client, user1, user2, user3]
         users.forEach(cli => {
             cli.ping = (arg) => {}
-            cli.searchResult = (res) => {}
+            cli.search = (res) => {}
             cli.dm = (msg) => {}
         });
     })
@@ -363,6 +372,19 @@ describe("socket interactions", () => {
         io.close()
 
         await db.migrate.rollback()
+    })
+
+    test('ping1', async() => {
+        await waitWith((done) => {
+            user1.ping1 = arg => {
+                console.log('receiving...')
+                expect(arg).toEqual('dude')
+                done()
+            }
+        }, () => {
+            console.log('emitting')
+            user1.socket.emit('ping1', 'dude')
+        }, 10)
     })
 
     test('ping', async () => {
@@ -380,7 +402,7 @@ describe("socket interactions", () => {
     cases.sort()
     // console.log(cases.slice(0, 1))
 
-    cases.slice(0, 15).forEach((key) => {
+    cases.slice(0, 16).forEach((key) => {
         const k = key as keyof TestList
         // console.log(k)
         // console.log(tests[k])
@@ -519,14 +541,16 @@ async function getClient(username: string, password: string, port: number){
     const user: Client = {
         socket: ioc("http://localhost:" + port, {auth: {token}}),
         tokenPayload,
+        ping1: (arg) => {},
         ping: (arg) => {},
         chatsRes: (arg) => {},
-        searchResult: (arg) => {},
+        search: (arg) => {},
         dmRes: (arg) => {},
         dmPosted: (arg) => {},
         messageReadRes: (arg) => {},
         types: (arg) => {},            
         createGroup: (arg) => {},
+        unread: (arg) => {},
             
 
 
@@ -534,14 +558,16 @@ async function getClient(username: string, password: string, port: number){
         groupAdded: arg => {}
     }
 
+    user.socket.on('ping1', arg => user.ping1(arg))
     user.socket.on('ping', arg => user.ping(arg))
     user.socket.on('chatsRes', arg => user.chatsRes(arg))
-    user.socket.on('search_result', (res: SearchResult) => user.searchResult(res))
+    user.socket.on('search', (res: SearchResult) => user.search(res))
     user.socket.on('dmRes', (dm: DM) => user.dmRes(dm))
     user.socket.on('dmPosted', arg => user.dmPosted(arg))
     user.socket.on('messageReadRes', arg => user.messageReadRes(arg))
     user.socket.on('types', arg => user.types(arg))
     user.socket.on('createGroup', arg => user.types)
+    user.socket.on('unread', arg => user.unread(arg))
 
 
     user.socket.on('dm', (msg: Message) => user.dm(msg))
