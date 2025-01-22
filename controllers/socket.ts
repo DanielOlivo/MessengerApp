@@ -161,7 +161,13 @@ const controller = {
         }
     },
 
-
+    getMessages: async(payload: TokenPayload, chatId: ChatId) => {
+        const msgs = await messageModel.getForUser(payload.id, chatId)
+        return {
+            sendBefore: {[payload.id]: msgs}
+        }
+    },
+    
     ping1: async(payload: TokenPayload, arg: string): Promise<Res<string>> => {
         return {
             sendBefore: {[payload.id]: arg}

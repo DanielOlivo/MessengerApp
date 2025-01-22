@@ -101,6 +101,7 @@ describe('socket controller', () => {
         expect(all[1].messageId).toEqual(msg12.id)
     })
 
+
     test('user1.unread (gets one)', async() => {
         const {sendBefore} = await socketController.unread(token1, '')
         expect(sendBefore).toBeDefined()
@@ -186,6 +187,7 @@ describe('socket controller', () => {
         dudes = group
     })
 
+
     test('user1 sends message to dudes', async() => {
         const {sendAfter} = await socketController.msg(token1, {chatId: dudes.id, content: 'first'})
         expect(sendAfter).toBeDefined()
@@ -210,7 +212,6 @@ describe('socket controller', () => {
         expect(userId).toEqual(token1.id)
         msgDudes = message
     })
-
      
     test('user1.readMsg', async() => {
         const {sendBefore: {[dudes.id]: message}} = await socketController.readMsg(token1, msgDudes)
@@ -218,20 +219,29 @@ describe('socket controller', () => {
     })
 
     test('user1.unread (gets none)', async() => {
-        throw new Error()
+        const {sendBefore: {[token1.id]: msgs}} = await socketController.unread(token1, '')
+        expect(msgs.length).toEqual(0)
     })
 
-    return
 
     test('user1 adds user2', async() => {
-        const {join, sendAfter} = await socketController.addMember(token1, {chatId: dudes.id, userId: token2.id})        
+        const {join: {[token2.id]: roomId}, sendAfter: {[dudes.id]: {group, membership}}} = 
+            await socketController.addMember(token1, {chatId: dudes.id, userId: token2.id})        
 
-        expect(join).toBeDefined()
-        expect(sendAfter).toBeDefined()
+        expect(roomId).toBeDefined()
+        expect(roomId).toEqual(dudes.id)
 
-        expect(token2.id in join).toBeTruthy()
-        expect(dudes.id in sendAfter)
+        expect(group).toBeDefined()
+        expect(membership).toBeDefined()
+
+        expect(membership.isAdmin).toBeFalsy()
     })
+
+    test('user1 get messages from dudes (get one)', async() => {
+        const {sendBefore} = await socketController.getMessages(token1, dudes.id)
+        expect(sendBefore).toBeDefined()
+    })
+    return
 
     test('user2 get messages from dudes (gets none)', async() => {
         throw new Error()

@@ -3,10 +3,23 @@ import { Chat, ChatId, DM, UserId } from "../types/Types"
 import chats from './chats'
 
 const model = {
+
     create: async(user1Id: UserId, user2Id: UserId) => {
-        const chat = await chats.create(true)
-        const [dm] = await db('dms').insert({id: chat.id, user1Id, user2Id}, ['*']) as DM[]
-        return dm
+        const result = await db.raw(`
+            with id as (
+                insert into chats("isDm") values (true) returning id
+            ),
+            cols as (
+                insert into dms (id, "user1Id", "user2Id") values (
+                    (select * from id),
+                    '${user1Id}',
+                    '${user2Id}' 
+                ) returning id, "user1Id", "user2Id", created
+            )     
+            select * from cols;
+        `)
+        
+        return result.rows[0] as DM
     },
 
     remove: async(chatId: ChatId) => {
