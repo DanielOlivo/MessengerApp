@@ -20,16 +20,33 @@ import { Res } from './controllers/socket'
 
 
 export const httpServer = createServer(app)
-export const io = new Server(httpServer)
+export const io = new Server(httpServer, {
+    cors: {
+        origin: ["http://localhost:3000", "http://localhost:5173"],
+        methods: ["GET", "POST"],
+        credentials: true
+    }
+})
 
 
 const sockets = new Sockets()
 
 
-io.use(verifyToken)
+// FOR TESTING
+// io.use(verifyToken)
 
 io.on('connection', (socket) => {
 
+    console.log('new connection')
+
+    setInterval(() => {
+        console.log('emitting: PING')
+        io.to(socket.id).emit('PNG', 'PING')
+    }, 2000)
+
+    socket.on('SAY', arg => {
+        console.log('SAY ' + arg)
+    })
 
     function setup<T,K>(name: string, fn: (auth: TokenPayload, a: T) => Promise<Res<K>>){
         const payload = socket.data as TokenPayload
