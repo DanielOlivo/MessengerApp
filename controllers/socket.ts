@@ -109,8 +109,8 @@ const controller = {
         }
     },
 
-    changeRole: async(payload: TokenPayload, arg: (userId: UserId, chatId: ChatId, isAdmin: boolean)) => {
-        
+    changeRole: async(payload: TokenPayload, arg: {userId: UserId, chatId: ChatId, isAdmin: boolean}) => {
+        throw new Error() 
     },
 
     leaveGroup: async(payload: TokenPayload, chatId: ChatId) => {
