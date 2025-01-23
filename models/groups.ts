@@ -5,52 +5,60 @@ import memberships from './memberships'
 
 const model = {
     create: async (userId: UserId, name?: string, created?: Date) => {
-        // const chat = await chats.create(false)
-        // const [group] = await db('groups')
-        //     .insert({id: chat.id, name}, ['*']) as Group[]
-        // const membership = await memberships.create(userId, chat.id, true, created)
 
-        const result = await db.raw(`
-            with id as (
-                insert into chats("isDm") values (false) returning id
-            ), gr as (
-                insert into groups(id, name) values (
-                    (select * from id),
-                    'dudes'
-                ) returning id, name, created
-            ), user1 as (
-                select id from users where username = 'user1'
-            ), member as (
-                insert into memberships ("groupId", "userId", "isAdmin") values (
-                    (select * from id),
-                    (select * from user1),
-                    true
-                ) returning id, "groupId", "userId", "isAdmin", created
-            )
-            select gr.id as group_id, gr.name, gr.created as group_created, member.id as member_id, member."groupId", member."userId", member."isAdmin", member.created as member_created
-            from gr 
-            join member on gr.id = member."groupId";
-        `)
+        // const result = await db.raw(`
+        //     with id as (
+        //         insert into chats("isDm") values (false) returning id
+        //     ), gr as (
+        //         insert into groups(id, name) values (
+        //             (select * from id),
+        //             'dudes'
+        //         ) returning id, name, created
+        //     ), user1 as (
+        //         select id from users where username = 'user1'
+        //     ), member as (
+        //         insert into memberships ("groupId", "userId", "isAdmin") values (
+        //             (select * from id),
+        //             (select * from user1),
+        //             true
+        //         ) returning id, "groupId", "userId", "isAdmin", created
+        //     )
+        //     select gr.id as group_id, gr.name, gr.created as group_created, member.id as member_id, member."groupId", member."userId", member."isAdmin", member.created as member_created
+        //     from gr 
+        //     join member on gr.id = member."groupId";
+        // `)
+
+        const result = await db
+            .with("id", db('chats').insert({isDm: false}).returning('id'))
+            .with("gr", db("groups").insert({name, id: db.select('*').from('id')}).returning(['id', 'name', 'created']))
+            .with('member', db('memberships').insert({
+                groupId: db.select('*').from('id'),
+                userId,
+                isAdmin: true
+            }).returning(["id as member_id", "groupId", "userId", "isAdmin", "created as member_created"]))
+            .select('*').fromRaw('(select * from gr, member)')
+        
+        // console.log('result', result)
 
         // console.log(result.rows[0])
 
         const group: Group = {
-            id: result.rows[0].group_id,
-            name: result.rows[0].name,
-            created: result.rows[0].group_created
+            id: result[0].id,
+            name: result[0].name,
+            created: result[0].created
         }
 
         // console.log(group)
 
         const membership: Membership = {
-            id: result.rows[0].member_id,
-            groupId: result.rows[0].groupId,
-            userId: result.rows[0].userId,
-            created: result.rows[0].member_created,
-            isAdmin: result.rows[0].isAdmin
+            id: result[0].member_id,
+            groupId: result[0].groupId,
+            userId: result[0].userId,
+            created: result[0].member_created,
+            isAdmin: result[0].isAdmin
         }
 
-        console.log(group, membership)
+        // console.log(group, membership)
 
         return {group, membership}
     },

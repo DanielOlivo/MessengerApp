@@ -63,6 +63,10 @@ with id as (
     ) returning id, "groupId", "userId", "isAdmin", created
 )
 select gr.id as group_id, gr.name, gr.created as group_created, member.id as member_id, member."groupId", member."userId", member."isAdmin", member.created as member_created
+from gr, member;
+
+
+select gr.id as group_id, gr.name, gr.created as group_created, member.id as member_id, member."groupId", member."userId", member."isAdmin", member.created as member_created
 from gr 
 join member on gr.id = member."groupId";
 
@@ -157,3 +161,21 @@ where
         OR
         (messages.created >= (select * from date2))
     );
+
+
+-- change the role
+with user1 as (
+    select id from users where username='user1'
+), 
+user2 as (
+    select id from users where username='user2'
+),
+gr as (
+    select id from groups where name='dudes'
+),
+adminaction as (
+    select "isAdmin" 
+    from memberships 
+    where 
+        "userId"=(select * from user1) and "groupId"=(select * from gr)
+)

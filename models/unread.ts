@@ -37,12 +37,22 @@ const model = {
         return unread
     },
 
+    // createForChat: async(groupId: ChatId, messageId: MessageId) => {
+    //     const result = await db()
+    // },
+
     createForGroup: async(groupId: ChatId, messageId: MessageId) => {
 
-        const unread = await db('unread').insert({
-            messageId: messageId,
-            userId: db('memberships').where({groupId}).select('userId')
-        }, ['*'])
+        const unread = await db 
+            .with('ids',
+                db.select('userId').from('memberships').where({groupId})
+            )
+            .into(db.raw("?? (??, ??)", ['unread', 'messageId', "userId"])).insert(
+                db.select(db.raw(`\'${messageId}\' as "messageId", "userId"`)).from('ids')
+            )
+            .returning(['*'])
+
+        // console.log('unread', unread)
 
         return unread
     },

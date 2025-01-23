@@ -15,6 +15,7 @@ export type Res<T> = {
     join?: {[id: UserId]: string}
     leave?: {[id: UserId]: string}
     sendAfter?: {[id: string]: T}
+    error?: string
 }
 
 
@@ -108,6 +109,10 @@ const controller = {
         }
     },
 
+    changeRole: async(payload: TokenPayload, arg: (userId: UserId, chatId: ChatId, isAdmin: boolean)) => {
+        
+    },
+
     leaveGroup: async(payload: TokenPayload, chatId: ChatId) => {
         const [membershipId, group] = await Promise.all([
             membershipModel.removeByUserIdChatId(payload.id, chatId),
@@ -122,14 +127,16 @@ const controller = {
 
 
     // messaging
-    msg: async(payload: TokenPayload, arg: {chatId: ChatId, content: string}): Promise<Res<{message: Message, unread: Unread[]} | string>> => {
+    msg: async(payload: TokenPayload, arg: {chatId: ChatId, content: string}): Promise<Res<{message: Message, unread: Unread[]}>> => {
+    // msg: async(payload: TokenPayload, arg: {chatId: ChatId, content: string}) => {
         const {chatId, content} = arg
         const chat = await chatModel.getById(chatId)
         const membership = await membershipModel.get(payload.id, chatId)
 
         if(!chat || (!chat.isDm && !membership)){
             return {
-                sendBefore: {[payload.id]: 'not authorized'}
+                // sendBefore: {[payload.id]: 'not authorized'}
+                error: 'not authorized',
             }
         }
 

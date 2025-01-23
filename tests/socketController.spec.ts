@@ -238,58 +238,112 @@ describe('socket controller', () => {
     })
 
     test('user1 get messages from dudes (get one)', async() => {
-        const {sendBefore} = await socketController.getMessages(token1, dudes.id)
-        expect(sendBefore).toBeDefined()
+        const {sendBefore: {[token1.id]: [msg]}} = 
+            await socketController.getMessages(token1, dudes.id)
+
+        expect(msg).toBeDefined()
     })
-    return
 
     test('user2 get messages from dudes (gets none)', async() => {
-        throw new Error()
+        const {sendBefore} = await socketController.getMessages(token2, dudes.id)
+        expect(sendBefore).toBeDefined()
+        expect(sendBefore[token2.id]).toBeDefined()
+        expect(sendBefore[token2.id].length).toEqual(0)
     })
 
+
     test('user2.msg to dudes', async() => {
-        throw new Error()
+        const {sendAfter: res} = await socketController.msg(token2, {chatId: dudes.id, content: 'second'})
+        expect(res).toBeDefined()
+
+        const {message, unread} = res![dudes.id]
+        expect(message).toBeDefined()
+        expect(unread).toBeDefined()
+
+        msgDudes = message
     })
 
     test('user2 unread (gets one)', async() => {
-        throw new Error()
+        const {sendBefore: {[token2.id]: [msg]}} = await socketController.unread(token2, '')
+        expect(msg).toBeDefined()
     })
+
 
     test('user1 unread (gets one)', async() => {
-        throw new Error()
+        const {sendBefore: {[token1.id]: [msg]}} = await socketController.unread(token1, '')
+        expect(msg).toBeDefined()
     })
+
 
     test('user2.readMsg', async() => {
-        throw new Error()
+        const {sendBefore: {[dudes.id]: msg}} = await socketController.readMsg(token2, msgDudes)
+        expect(msg).toBeDefined()
     })
+
 
     test('user1.readMsg', async() => {
-        throw new Error()
+        const {sendBefore: {[dudes.id]: msg}} = await socketController.readMsg(token1, msgDudes)
+        expect(msg).toBeDefined()
     })
 
+
     test('user1 adds user3', async() => {
-        throw new Error()
+        const {join: {[token3.id]: chatId}, sendAfter: {[dudes.id]: {group, membership}} } = 
+            await socketController.addMember(token1, {chatId: dudes.id, userId: token3.id})
+        
+        expect(chatId).toBeDefined()
+        expect(chatId).toEqual(dudes.id)
+
+        expect(group).toBeDefined()
+        expect(membership).toBeDefined()
+
+        expect(group.id).toEqual(dudes.id)
+        expect(membership.userId).toEqual(token3.id)
+        expect(membership.groupId).toEqual(dudes.id)
     })    
 
     test('user3 get msgs (gets none)', async() => {
-        throw new Error()
+        const {sendBefore: {[token3.id]: msgs}} = await socketController.getMessages(token3, dudes.id)
+        expect(msgs).toBeDefined()
+        expect(msgs.length).toEqual(0)
+    })
+
+    test('unread table has zero records', async() => {
+        const result = await unreadModel.getAll()   
+        expect(result.length).toEqual(0)
     })
 
     test('user3 sends msg', async() => {
-        throw new Error()
+        const {sendAfter: msgs, error} = await socketController.msg(token3, {chatId: dudes.id, content: 'third'})        
+
+        expect(error).toBeUndefined()
+        expect(msgs) .toBeDefined()
+
+        const {[dudes.id]: {message, unread}} = msgs!
+        expect(message).toBeDefined()
+        expect(unread).toBeDefined()
+
+        msgDudes = message
     })
 
     test('user1.unread (gets one', async() => {
-        throw new Error()
+        const {sendBefore: {[token1.id]: msgs}} = await socketController.unread(token1, '')
+        expect(msgs).toBeDefined()
+        expect(msgs.length).toEqual(1)
     })
 
     test('user2.unread (gets one)', async () => {
-        throw new Error()
+        const {sendBefore: {[token2.id]: msgs}} = await socketController.unread(token2, '')
+        expect(msgs).toBeDefined()
+        expect(msgs.length).toEqual(1)
     })
+
 
     test('user1 changes the role of user2 (to admin)', async() => {
         throw new Error()
     })
+
+    return
 
     test('user1 leaves the group', async() => {
         throw new Error()
