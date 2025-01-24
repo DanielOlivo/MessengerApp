@@ -1,65 +1,103 @@
-import { Chat, DbUser, DM, Message } from '../../../../types/Types'
+import { v4 as uuid } from "uuid";
+import { DbUser, ChatId, DM, Message, MessageId, UserId, Membership, Group } from "../../../../types/Types";
 
-const user1: DbUser = {id: '1', username: 'user1', hashed: "", created: new Date()}
-const user2: DbUser = {id: '2', username: 'user2', hashed: "", created: new Date()}
-const user3: DbUser = {id: '3', username: 'user3', hashed: "", created: new Date()}
+const getDate = dateGen()
 
-
-export const users = [user1, user2, user3]
-
-const dm12Chat: Chat = {id: '1', isDm: true}
-const dm13Chat: Chat = {id: '2', isDm: true}
-
-const dm12: DM = {id: dm12Chat.id, user1Id: user1.id, user2Id: user2.id, created: new Date()}
-const dm13: DM = {id: dm12Chat.id, user1Id: user1.id, user2Id: user2.id, created: new Date()}
-
-export const dms = [dm12, dm13]
-
- const dm12Messages: Message[] = 
-    Array.from({length: 10}, (_, i) => {
+export const users: {[id: UserId]: DbUser} = 
+    Object.fromEntries(
+        Array.from({length: 20}, (_, idx) => {
         return {
-            id: (i * 1).toString(),
-            userId: i % 2 == 0 ? user1.id : user2.id,
-            chatId: dm12.id,
-            created: new Date(new Date().getMilliseconds() - 1000 * 60 * (60 - i)),
-            content: i.toString()
+            id: uuid(),
+            username: 'user' + idx,
+            hashed: 'password',
+            // created: new Date()
+            created: getDate()
         }
-    })
+        }).map(user => [user.id, user])
+    )
 
-const dm13Messages: Message[] = 
-    Array.from({length: 10}, (_, i) => {
-        return {
-            id: (20 + i * 1).toString(),
-            userId: i % 2 == 0 ? user1.id : user2.id,
-            chatId: dm12.id,
-            created: new Date(new Date().getMilliseconds() - 1000 * 60 * (60 - 2 * i)),
-            content: (20 + i).toString()
-        }
-    })
+const [user1Id, ...rest] = Object.keys(users)
+const others = Object.fromEntries(rest.map(id => [id, users[id]]))
 
-export const messages = dm12Messages.concat(dm13Messages)
+export const user1 = users[user1Id]
 
-// const users: DbUser[] = [
-//     {
-//         id: "1",
-//         username: "user1",
-//         password: "password"
-//     },
-//     {
-//         id: "2",
-//         username: "user2",
-//         password: "password"
-//     },
-//     {
-//         id: "3",
-//         username: "user3",
-//         password: "password"
-//     },
-// ]
+export const dms: {[id: ChatId]: DM} = 
+    Object.fromEntries(
+        Object.values(others).map(user => {
+            return {
+                id: uuid(),
+                user1Id: user1.id,
+                user2Id: user.id,
+                // created: new Date()
+                created: getDate()
+            }
+        }).map(dm => [dm.id, dm])
+    )
 
-// const dms: DM[] = [
-//     {
-//         hey: 'dude'
-//     }
-// ]
+const dudes: Group =  {
+    id: uuid(),
+    name: '==DUDES==',
+    created: getDate()
+}
 
+export const groups = Object.fromEntries([dudes].map(gr => [gr.id, gr]))
+
+export const memberships = 
+    Object.fromEntries(
+        [user1, ...rest.slice(0, 6).map(id => users[id])].map(user => {
+            return {
+                id: uuid(),
+                groupId: dudes.id,
+                userId: user.id,
+                created: getDate(),
+                isAdmin: true
+            } as Membership
+        }).map(member => [member.id, member])
+    )
+
+let counter = 1
+
+const chats1 = Object.values(dms) as (DM | Group)[]
+const chats2 = Object.values(groups) as (DM | Group)[]
+export const chats = Object.fromEntries(chats1.concat(chats2).map(chat => [chat.id, chat]))
+
+export const messages = 
+    Object.fromEntries(
+        Object.values(chats).map(chat => {
+            const msgs: Message[] = Array.from({length: 20}, (_, idx) => {
+
+                let userId: UserId
+
+                if(Object.keys(chat).includes('user1Id')){
+                    userId = idx % 2 == 0 ? (chat as DM).user1Id : (chat as DM).user2Id
+                }
+                else {
+                    userId = user1.id
+                }
+
+                return {
+                    id: uuid(),
+                    userId: userId,
+                    chatId: chat.id,
+                    content: (counter++).toString(),
+                    // created: new Date()
+                    created: getDate()
+                }
+            })
+            return msgs
+        })
+        .reduce((acc,v) => acc.concat(v), [])
+        .map(msg => [msg.id, msg])
+    )
+
+
+function dateGen(){
+    const msNow = Date.now()
+    let counter = 0
+    return function(){
+        const dt = new Date(msNow - 1000 * 60 * 60 * 24 * 300 + (1000 * 60 * 60 * 12 * counter++))
+        // console.log('msNow', new Date(msNow).toISOString(), 'getDate ', dt.toISOString())
+        return dt
+    }
+    // I stopped here
+}

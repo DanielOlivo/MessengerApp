@@ -1,15 +1,19 @@
+import { ReactNode } from "react"
 import ChatItem, { ChatItemProp } from "./ChatItem"
 
 export interface ChatListProp {
-    chats: ChatItemProp[]
+    children?: ReactNode
 }
 
-const ChatList = (props: ChatListProp) => {
+const ChatList = ({children}: ChatListProp) => {
 
     return (
-        <div>
-            {props.chats.map(chat => <ChatItem name={chat.name} lst={chat.lst} />)}
+        <div
+            className="flex flex-col justify-start w-1/3 h-screen overflow-y-auto" 
+        >
+            {children}
         </div>
     )
-
 }
+
+export default ChatList
