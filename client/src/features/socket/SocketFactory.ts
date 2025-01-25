@@ -11,8 +11,14 @@ class SocketConnection implements SocketInterface {
     public socketEndpoint = 'http://localhost:3000'
 
     constructor(){
-        console.log('SocketConnection.constructor')
-        this.socket = io(this.socketEndpoint)
+        // console.log('SocketConnection.constructor')
+
+        // console.log('import.meta.env', import .meta.env)
+        const token = import.meta.env.VITE_USER1 as string
+        // console.log('token', token)
+        this.socket = io(this.socketEndpoint, {
+            auth: {token}
+        })
     }
 }
 

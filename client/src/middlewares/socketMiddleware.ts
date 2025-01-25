@@ -1,9 +1,6 @@
-import { Middleware } from "@reduxjs/toolkit";
+import { createActionCreatorInvariantMiddleware, Middleware } from "@reduxjs/toolkit";
 import { Message } from '../../../types/Types'
-
-// const msg: Message = {
-
-// }
+import { Commands } from '../../../socketServer'
 
 import {
     connectionEstablished,
@@ -14,6 +11,7 @@ import {
 } from '../features/socket/socketSlice'
 import SocketFactory from "../features/socket/SocketFactory";
 import type { SocketInterface } from "../features/socket/SocketFactory";
+import { reqList, setList } from "../features/chatList/chatListSlicer";
 
 enum SocketEvent {
     Connect = 'connect',
@@ -48,7 +46,11 @@ const socketMiddleware: Middleware = (store) => {
 
             if(!socket && typeof window !== 'undefined'){
                 socket = SocketFactory.create()
-                console.log('socket created')
+
+                socket.socket.on('clrs', arg => {
+                    console.log('clrs ', arg)
+                    store.dispatch(setList(arg))
+                })
 
                 socket.socket.on(SocketEvent.Ping, () => {
                     console.log('PING')
@@ -67,7 +69,12 @@ const socketMiddleware: Middleware = (store) => {
             
         }
 
-        if(png.match(action)){
+        if(reqList.match(action) && socket){
+            console.log('req list')
+            socket.socket.emit('clrq', action.payload)
+        }
+
+        if(png.match(action) && socket){
             console.log('PING')
         }
 

@@ -179,3 +179,64 @@ adminaction as (
     where 
         "userId"=(select * from user1) and "groupId"=(select * from gr)
 )
+
+-- WITH ranked_messages AS (
+--   SELECT m.*, ROW_NUMBER() OVER (PARTITION BY name ORDER BY id DESC) AS rn
+--   FROM messages AS m
+-- )
+-- SELECT * FROM ranked_messages WHERE rn = 1;
+
+
+-- selecting last 
+with user1 as (
+    select id from users where username = 'user1'
+)
+-- select * from user1;
+, dmids as (
+    select id from dms where "user1Id"=(select * from user1) or "user2Id" = (select * from user1)
+)
+-- select * from dmids;
+, dmnames as (
+    select "dmId" as "chatId", username as "chatName"
+    from "users"
+    join 
+        (select id as "dmId", 
+        case when "user1Id" = (select * from user1) then "user2Id"
+        else "user1Id"
+        end as "userId"
+        from (select * from dms where "id" in (select * from dmids)))
+    on "userId" = users.id
+)
+-- select * from dmnames;
+, groupids as (
+    select "groupId" from memberships where "userId" = (select * from user1)
+)
+-- select * from groupids union select * from dmids;
+, groupnames as (
+    select id as "chatId", name as "chatName"
+    from groups 
+    where "id" in (select * from groupids)
+)
+, chatnames as (
+    select * from dmnames union select * from groupnames
+)
+, allids as (
+    select * from dmids union select * from groupids
+)
+-- select * from groupnames;
+-- select * from allids;
+, last_messages as (
+    select m.*, ROW_NUMBER() OVER (PARTITION by "chatId" order by created desc) as rn
+    from (select * from messages where "chatId" in (select * from allids)) as m
+)
+select content, "chatName", lm."chatId", username
+from (select * from last_messages where rn=1) as lm
+join chatnames on chatnames."chatId"=lm."chatId"
+join users on users.id=lm."userId";
+
+select 
+    id,
+    content,
+    "chatName"
+from last_messages where rn=1
+join (select * from chatnames) on chatnames."chatId"=last_messages."chatId";

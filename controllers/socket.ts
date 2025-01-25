@@ -2,6 +2,7 @@ import {Socket} from 'socket.io'
 import { ChatId, UserId, TokenPayload, 
     Message, MessageId, SearchResult, DM, 
     Group } from '../types/Types'
+import db from '../config/db'
 import userModel from '../models/users'
 import chatModel from '../models/chats'
 import dmModel from '../models/dms'
@@ -18,6 +19,12 @@ export type Res<T> = {
     error?: string
 }
 
+export interface ChatListItem {
+    chatName: string
+    content: string
+    username: string,
+    chatId: string
+}
 
 const controller = {
 
@@ -29,6 +36,50 @@ const controller = {
         }
 
         return {sendBefore: {[payload.id]: res}}
+    },
+
+    getChatList: async(payload: TokenPayload, arg: any) => {
+        const {id} = payload
+        const result = await db.raw(`
+            with dmids as (
+                select id from dms where "user1Id"=\'${id}\' or "user2Id" = \'${id}\'
+            )
+            , dmnames as (
+                select "dmId" as "chatId", username as "chatName"
+                from "users"
+                join 
+                    (select id as "dmId", 
+                    case when "user1Id" = \'${id}\' then "user2Id"
+                    else "user1Id"
+                    end as "userId"
+                    from (select * from dms where "id" in (select * from dmids)))
+                on "userId" = users.id
+            )
+            , groupids as (
+                select "groupId" from memberships where "userId" = \'${id}\'
+            )
+            , groupnames as (
+                select id as "chatId", name as "chatName"
+                from groups 
+                where "id" in (select * from groupids)
+            )
+            , chatnames as (
+                select * from dmnames union select * from groupnames
+            )
+            , allids as (
+                select * from dmids union select * from groupids
+            )
+            , last_messages as (
+                select m.*, ROW_NUMBER() OVER (PARTITION by "chatId" order by created desc) as rn
+                from (select * from messages where "chatId" in (select * from allids)) as m
+            )
+            select content, "chatName", lm."chatId", username
+            from (select * from last_messages where rn=1) as lm
+            join chatnames on chatnames."chatId"=lm."chatId"
+            join users on users.id=lm."userId";
+        `)
+        console.log(result.rows)
+        return result.rows as ChatListItem[]
     },
 
     getChats: async(payload: TokenPayload, arg: any) => {

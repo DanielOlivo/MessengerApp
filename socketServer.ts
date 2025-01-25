@@ -31,18 +31,30 @@ export const io = new Server(httpServer, {
 
 const sockets = new Sockets()
 
+export enum Commands {
+    ChatListReq = 'clrq',
+    ChatListRes = 'clrs'
+}
 
 // FOR TESTING
-// io.use(verifyToken)
+io.use(verifyToken)
 
 io.on('connection', (socket) => {
 
-    console.log('new connection')
+    console.log('new connection', socket.data)
 
-    setInterval(() => {
-        console.log('emitting: PING')
-        io.to(socket.id).emit('PNG', 'PING')
-    }, 2000)
+    socket.on(Commands.ChatListReq, async arg => {
+        console.log('clrq')
+
+        const result = await socketController.getChatList(socket.data, '')
+
+        io.to(socket.id).emit('clrs', result)
+    })
+
+    // setInterval(() => {
+    //     console.log('emitting: PING')
+    //     io.to(socket.id).emit('PNG', 'PING')
+    // }, 2000)
 
     socket.on('SAY', arg => {
         console.log('SAY ' + arg)

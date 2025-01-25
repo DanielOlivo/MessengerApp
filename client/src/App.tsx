@@ -1,77 +1,81 @@
-import Login from './components/Login'
-import Registration from './components/Registration'
-import Status from './components/Status'
-import { Message } from '../../types/Types'
-import ChatItem from './components/ChatItem'
+// import Login from './components/Login'
+// import Registration from './components/Registration'
+// import Status from './components/Status'
+// import { Message } from '../../types/Types'
+// import ChatItem from './components/ChatItem'
+import { useEffect } from 'react'
 import ChatList from './components/ChatList'
-import SearchField from './components/SearchField'
 import Dialog from './components/Dialog'
 import Header from './components/Header'
 import MainScreen from './components/MainScreen'
 import Messages from './components/Messages'
-import DialogMessage from './components/DialogMessage'
-import UserMessage, { UserMessageProp } from './components/UserMessage'
+// import DialogMessage from './components/DialogMessage'
+// import UserMessage, { UserMessageProp } from './components/UserMessage'
 import SenfField from './components/SendField'
-import DateMessage, { DateMessageProp } from './components/DateMessage'
-import { useAppSelector } from './app/hooks'
-import { selectChatList, selectChatName, selectMessages, ServiceMessage } from './features/socket/socketSlice'
-import { ReactNode } from 'react'
+import { useApDispatch, useAppSelector } from './app/hooks'
+import { initSocket, unselectChat } from './features/socket/socketSlice'
+import Overlay from './components/Overlay'
+import { selectOverlayed } from './features/socket/selectors'
+// import DateMessage, { DateMessageProp } from './components/DateMessage'
+// import { ReactNode } from 'react'
 
 
 function App() {
 
-  const chatList = useAppSelector(selectChatList)
-  const messages = useAppSelector(selectMessages)
-  const chatName = useAppSelector(selectChatName)
+  const dispatch = useApDispatch()
+  const overlayed = useAppSelector(selectOverlayed)
+
+  const getOverlayed = () => overlayed ? <Overlay /> : <></>
+
+  useEffect(() => {
+    document.addEventListener('keyup', (e) => {
+      // console.log(e.key)
+
+      if(e.key === 'Escape'){
+        dispatch(unselectChat())
+      }
+    })
+
+    dispatch(initSocket())
+  }, [])
 
   return (
+    <>
     <MainScreen>
 
-      <ChatList>
-        <SearchField />
-        {chatList.map(({name, msg, user, chatId}) => (
-          <ChatItem 
-            name={name || 'no name'} 
-            content={msg!.content} 
-            lastSenderName={user.username}
-            chatId={chatId}/>
-        ))}
-        {/* {getSomeChatItems()} */}
-      </ChatList>
+      <ChatList />
 
       <Dialog>
-        <Header name={chatName || 'none'} status='online'></Header>  
-
-        <Messages>
-          {messages.map(msg => getMessage(msg))}
-        </Messages>
-
+        <Header />  
+        <Messages />
         <SenfField />        
-
       </Dialog>
 
     </MainScreen>
+    
+    {getOverlayed()}
+    </>
   )
 }
 
 export default App
 
 
-function getMessage(arg: UserMessageProp | DateMessageProp | ServiceMessage): ReactNode {
+// function getMessage(arg: UserMessageProp | DateMessageProp | ServiceMessage): ReactNode {
 
-  if('date' in arg){
-    const {date}: DateMessageProp = arg
-    return <DateMessage date={date} />
-  }
-  else if('msg' in arg){
-    const {msg}: ServiceMessage = arg
-    return <DialogMessage message={msg} />
-  }
-  else {
-    const {isOwner, message, isRead}: UserMessageProp = arg
-    return <UserMessage isOwner={isOwner} message={message} isRead={isRead} />
-  }
-}
+//   if('date' in arg){
+//     const {date}: DateMessageProp = arg
+//     return <DateMessage date={date} />
+//   }
+//   else if('msg' in arg){
+//     const {msg}: ServiceMessage = arg
+//     return <DialogMessage message={msg} />
+//   }
+//   else {
+//     const {isOwner, message, isRead}: UserMessageProp = arg
+//     return <UserMessage isOwner={isOwner} message={message} isRead={isRead} />
+//   }
+// }
 
 // function getSomeChatItems() {
 //   return (

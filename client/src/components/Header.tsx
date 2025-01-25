@@ -1,15 +1,41 @@
 import { useAppSelector } from "../app/hooks"
-import { selectChatName } from "../features/socket/selectors"
+import { selectChatName, selectGroupMemberCount, selectOthersOnlineStatusWhenDm, selectTyping } from "../features/socket/selectors"
 import { ChildrenProp } from "./ChildrenProp"
 
-export interface HeaderProp {
-    name: string
-    status: string
-}
+import { isGroupSelected } from "../features/socket/selectors"
+import LetterIcon from "./LetterIcon"
 
-const Header = ({name, status}: HeaderProp) => {
+// export interface HeaderProp {
+//     name: string
+//     status: string
+// }
+
+// const Header = ({name, status}: HeaderProp) => {
+const Header = () => {
 
     const chatName = useAppSelector(selectChatName)
+    const isGroup: boolean = useAppSelector(isGroupSelected)
+    const memberAmount: number = useAppSelector(selectGroupMemberCount)
+    const typing: string[] = useAppSelector(selectTyping)
+    const isOnline = useAppSelector(selectOthersOnlineStatusWhenDm)
+
+    const getStatus = () => {
+        if(chatName === undefined){
+            return ''
+        }
+        else if(typing.length == 1){
+            return `${typing[0]} is typing...` 
+        }
+        else if(typing.length > 1){
+            return typing.join(', ') + 'are typing...'
+        }
+        else if(isGroup){
+            return `${memberAmount} members`
+        }
+        else {
+            return isOnline ? 'online' : 'offline'
+        }
+    }
 
     return (
         <div
@@ -19,19 +45,20 @@ const Header = ({name, status}: HeaderProp) => {
             " 
         >
             <div
-                className="w-8 h-8 bg-slate-500 rounded-full
-                ml-2 
-                " 
-            ></div>
+                className="w-8 h-8 ml-2" 
+                style={{visibility: !!chatName ? 'visible' : 'hidden'}}
+            >
+                <LetterIcon letter={chatName?.slice(0,1) || 'x'} front='white' back='blue'/>
+            </div>
             <div
                 className="flex flex-col items-start justify-between
                 ml-3
                 " 
             >
-                <h1>{chatName}</h1>
+                <h1>{chatName || ''}</h1>
                 <label
                     className="text-sm text-gray-500" 
-                >{status}</label>
+                >{getStatus()}</label>
             </div>
         </div>
     )

@@ -1,4 +1,5 @@
 export interface UserMessageProp {
+    sender: string
     message: string
     isOwner: boolean
     isRead?: boolean

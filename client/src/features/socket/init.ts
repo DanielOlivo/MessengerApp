@@ -1,5 +1,6 @@
 import { v4 as uuid } from "uuid";
 import { DbUser, ChatId, DM, Message, MessageId, UserId, Membership, Group } from "../../../../types/Types";
+import dateGen from "../../utils/getDateGen";
 
 const getDate = dateGen()
 
@@ -89,15 +90,3 @@ export const messages =
         .reduce((acc,v) => acc.concat(v), [])
         .map(msg => [msg.id, msg])
     )
-
-
-function dateGen(){
-    const msNow = Date.now()
-    let counter = 0
-    return function(){
-        const dt = new Date(msNow - 1000 * 60 * 60 * 24 * 300 + (1000 * 60 * 60 * 12 * counter++))
-        // console.log('msNow', new Date(msNow).toISOString(), 'getDate ', dt.toISOString())
-        return dt
-    }
-    // I stopped here
-}

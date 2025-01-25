@@ -22,6 +22,23 @@ const model = {
         return message
     },
 
+
+
+    getByUserId: async(userId: UserId) => {
+        // to optimize
+        const messages = await db('messages').where({userId}).orderBy('created', 'desc').select('*') as Message[]
+
+        const result = Object.entries(Object.groupBy(messages, msg => msg.chatId)).map(([chatId, msgs]) => {
+            return {
+                chatId,
+                msg: maxBy(msgs!, msg => msg.created.getTime())
+            }
+        })
+        
+        return result
+
+    },
+
     getForUser: async(userId: UserId, chatId: ChatId) => {
         const result = await db
             .with("mcreated",
@@ -59,3 +76,8 @@ const model = {
 }
 
 export default model
+
+function maxBy<T>(arr: T[], fn: (a: T) => number) {
+    const [first, ...rest] = arr
+    return rest.reduce((acc, item) => fn(acc) < fn(item) ? item : acc, first)
+}

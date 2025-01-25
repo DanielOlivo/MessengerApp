@@ -1,6 +1,8 @@
 import { Message } from "../../../types/Types"
 import { useApDispatch } from "../app/hooks"
 import { selectChat } from "../features/socket/socketSlice"
+import LetterIcon from "./LetterIcon"
+import { ChatListItem } from "../../../controllers/socket"
 
 export  interface ChatItemProp {
     name: string
@@ -9,8 +11,7 @@ export  interface ChatItemProp {
     chatId: string
 }
 
-export default function ChatItem (props: ChatItemProp) {
-    const {name, content, lastSenderName, chatId} = props
+export default function ChatItem ({chatName, username, content, chatId}: ChatListItem) {
     const dispatch = useApDispatch()
 
     return (
@@ -26,15 +27,15 @@ export default function ChatItem (props: ChatItemProp) {
             <div
                 className="for-icon w-9 h-9 flex flex-col justify-center items-center" 
             >
-                <div className="bg-slate-700 rounded-full w-8 h-8">
-                </div>
+                {/* <div className="bg-slate-700 rounded-full w-8 h-8" /> */}
+                <LetterIcon front='white' back='blue' letter={chatName.slice(0,1)} />
             </div>
 
             <div
                 className="flex flex-col items-start justify-between ml-4" 
             >
-                <label>{name}</label>
-                <label><span className="text-blue-800">{lastSenderName}</span>: <span className="text-gray-700">{content}</span></label>
+                <label>{chatName}</label>
+                <label><span className="text-blue-800">{username}</span>: <span className="text-gray-700">{content}</span></label>
             </div>
 
         </div>
