@@ -275,6 +275,107 @@ insert into users (username, hashed)  (select * from usrs);
 select * from unread;
 select * from messages;
 
+-- with msgs as (
+--     select m.*, ROW_NUMBER() OVER (PARTITION by "chatId" order by created asc) as rn
+--     from (select * from messages) as m
+-- )
+-- , counts as (
+--     select "chatId", count(id) as count from messages group by "chatId"
+-- )
+-- select counts."chatId", counts.count, msgs.rn as first_unread from msgs
+-- right join unread on "messageId"=msgs.id
+-- full join counts on counts."chatId"=msgs."chatId";
+
+
+-- with counts as (
+--     select "chatId", count(id) as count from messages group by "chatId"
+-- )
+-- select messages."chatId", count, "messageId" from unread 
+-- left join messages on "messageId"=messages.id
+-- left join counts on counts."chatId"=messages."chatId";
+
+
+-- get number of members 
+
+select * from memberships;
+
+with user1 as (
+    select id from users where username='user1'
+)
+, chatid as (
+    select id from groups limit 1
+)
+-- select * from group_id;
+, is_private as (
+    select "isDm" from chats where id=(select * from chatid)
+)
+, chatname as (
+    select case when "isDm"=true then
+    (
+        with dm as (select * from dms where id=(select * from chatid))
+        , userid as (
+            select case
+                when "user1Id"=(select * from user1)
+                then dm."user2Id"
+                else dm."user1Id"
+            end as "userId"
+            from dm
+        )
+        select username from users where users.id=(select "userId" from userid)
+    )
+    else 
+    (
+        select name from groups where groups.id=(select * from chatid)
+    )
+    end as chatname
+    from is_private
+)
+-- select * from is_private;
+select chatname, "isDm",  case when "isDm"=true then 2 else (select count(id) from memberships where "groupId"=(select * from chatid)) end as count
+from is_private, chatname;
+
+
+-- to add to socketController
+
+-- get count of unread
+with group_id as (
+    select id from groups where name='dudes'
+)
+, chat_msgs as (
+    select id, content, row_number() over() as idx from messages where "chatId"=(select * from group_id) order by created asc
+) 
+, total_count as (
+    select count(id) as count from chat_msgs
+)
+, unread_idx as (
+    select idx
+    from chat_msgs
+    right join unread on unread."messageId"=chat_msgs.id
+)
+select count, idx from total_count, unread_idx;
+
+
+-- send message with checking if user is a member
+with user4 as (select id from users where username='user4')
+, user1 as (select id from users where username='user1')
+-- select * from user4;
+, group_id as (select id from groups where name='dudes')
+-- select * from group_id;
+, is_member as (
+    select case when count=0 then false else true end as is_member
+    from 
+    (select count(id) from memberships where "userId"=(select * from user1) and "groupId"=(select * from group_id))
+)
+-- select * from is_member;
+, to_insert as (
+    select us.id as "userId", group_id.id as "chatId", 'message!!!' as content from user4 as us , group_id
+    where (select * from is_member)
+)
+insert into messages ("userId", "chatId", content)
+(select * from to_insert)
+returning *;
+
+
 
 -- return chat list (count of unread included)
 with user1 as (
@@ -331,64 +432,3 @@ from (select * from last_messages where rn=1) as lm
 join chatnames on chatnames."chatId"=lm."chatId"
 join users on users.id=lm."userId"
 full join unseen on unseen."chatId"=lm."chatId";
-
-
-
-with msgs as (
-    select m.*, ROW_NUMBER() OVER (PARTITION by "chatId" order by created asc) as rn
-    from (select * from messages) as m
-)
-, counts as (
-    select "chatId", count(id) as count from messages group by "chatId"
-)
-select counts."chatId", counts.count, msgs.rn as first_unread from msgs
-right join unread on "messageId"=msgs.id
-full join counts on counts."chatId"=msgs."chatId";
-
-
-with counts as (
-    select "chatId", count(id) as count from messages group by "chatId"
-)
-select messages."chatId", count, "messageId" from unread 
-left join messages on "messageId"=messages.id
-left join counts on counts."chatId"=messages."chatId";
-
--- to add to socketController
-
--- get count of unread
-with group_id as (
-    select id from groups where name='dudes'
-)
-, chat_msgs as (
-    select id, content, row_number() over() as idx from messages where "chatId"=(select * from group_id) order by created asc
-) 
-, total_count as (
-    select count(id) as count from chat_msgs
-)
-, unread_idx as (
-    select idx
-    from chat_msgs
-    right join unread on unread."messageId"=chat_msgs.id
-)
-select count, idx from total_count, unread_idx;
-
-
--- send message with checking if user is a member
-with user4 as (select id from users where username='user4')
-, user1 as (select id from users where username='user1')
--- select * from user4;
-, group_id as (select id from groups where name='dudes')
--- select * from group_id;
-, is_member as (
-    select case when count=0 then false else true end as is_member
-    from 
-    (select count(id) from memberships where "userId"=(select * from user1) and "groupId"=(select * from group_id))
-)
--- select * from is_member;
-, to_insert as (
-    select us.id as "userId", group_id.id as "chatId", 'message!!!' as content from user4 as us , group_id
-    where (select * from is_member)
-)
-insert into messages ("userId", "chatId", content)
-(select * from to_insert)
-returning *;

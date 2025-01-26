@@ -4,6 +4,7 @@ import socketReducer from '../features/socket/socketSlice'
 import chatListReducer from '../features/chatList/chatListSlicer'
 import chatViewReducer from '../features/chatView/chatViewSlice'
 import socketMiddleware from "../middlewares/socketMiddleware"
+import headerReducer from '../features/header/headerSlice'
 
 
 const store = configureStore({
@@ -11,6 +12,7 @@ const store = configureStore({
         auth: authReducer,
         chatList: chatListReducer,
         chatView: chatViewReducer,
+        header: headerReducer,
         socket: socketReducer
     },
     middleware: getDefaultMiddleware => {

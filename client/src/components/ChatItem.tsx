@@ -4,6 +4,7 @@ import { selectChat } from "../features/socket/socketSlice"
 import LetterIcon from "./LetterIcon"
 import { ChatListItem } from "../../../controllers/socket"
 import { reqMsgs } from "../features/chatView/chatViewSlice"
+import { reqHeaderInfo } from "../features/header/headerSlice"
 
 export  interface ChatItemProp {
     name: string
@@ -37,6 +38,7 @@ export default function ChatItem ({chatName, username, content, chatId, unreadCo
                 // console.log('chat selected: ' + chatId)
                 // dispatch(selectChat(chatId))
                 dispatch(reqMsgs(chatId))
+                dispatch(reqHeaderInfo(chatId)) 
             }}
         >
             <div

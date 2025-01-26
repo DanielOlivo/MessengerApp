@@ -1,9 +1,10 @@
 import { useAppSelector } from "../app/hooks"
-import { selectChatName, selectGroupMemberCount, selectOthersOnlineStatusWhenDm, selectTyping } from "../features/socket/selectors"
+import { selectChatName, selectGroupMemberCount, selectOthersOnlineStatusWhenDm } from "../features/socket/selectors"
 import { ChildrenProp } from "./ChildrenProp"
 
 import { isGroupSelected } from "../features/socket/selectors"
 import LetterIcon from "./LetterIcon"
+import { selectHeaderInfo, selectOnlineStatus, selectTyping } from "../features/header/selectors"
 
 // export interface HeaderProp {
 //     name: string
@@ -13,28 +14,22 @@ import LetterIcon from "./LetterIcon"
 // const Header = ({name, status}: HeaderProp) => {
 const Header = () => {
 
-    const chatName = useAppSelector(selectChatName)
-    const isGroup: boolean = useAppSelector(isGroupSelected)
-    const memberAmount: number = useAppSelector(selectGroupMemberCount)
-    const typing: string[] = useAppSelector(selectTyping)
-    const isOnline = useAppSelector(selectOthersOnlineStatusWhenDm)
+    const info = useAppSelector(selectHeaderInfo)
+    const typing = useAppSelector(selectTyping)
+    const onlineStatus = useAppSelector(selectOnlineStatus)
+    
 
     const getStatus = () => {
-        if(chatName === undefined){
-            return ''
+        if(info === undefined){
+            return <></>
         }
-        else if(typing.length == 1){
-            return `${typing[0]} is typing...` 
+        if(typing){
+            return <label>{typing[0]} is typing...</label>
         }
-        else if(typing.length > 1){
-            return typing.join(', ') + 'are typing...'
+        if(info.isDm){
+            return <label>{onlineStatus}</label>
         }
-        else if(isGroup){
-            return `${memberAmount} members`
-        }
-        else {
-            return isOnline ? 'online' : 'offline'
-        }
+        return <label>{info.count} members</label>
     }
 
     return (
@@ -46,16 +41,16 @@ const Header = () => {
         >
             <div
                 className="w-8 h-8 ml-2" 
-                style={{visibility: !!chatName ? 'visible' : 'hidden'}}
+                style={{visibility: !!info ? 'visible' : 'hidden'}}
             >
-                <LetterIcon letter={chatName?.slice(0,1) || 'x'} front='white' back='blue'/>
+                <LetterIcon letter={info?.chatName?.slice(0,1) || 'x'} front='white' back='blue'/>
             </div>
             <div
                 className="flex flex-col items-start justify-between
                 ml-3
                 " 
             >
-                <h1>{chatName || ''}</h1>
+                <h1>{info?.chatName || ''}</h1>
                 <label
                     className="text-sm text-gray-500" 
                 >{getStatus()}</label>

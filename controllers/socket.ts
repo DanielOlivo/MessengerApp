@@ -35,6 +35,12 @@ export interface ChatMessage {
     unread: boolean
 }
 
+export interface HeaderInfo {
+    chatName: string 
+    count: number
+    isDm: boolean
+}
+
 const controller = {
 
 
@@ -122,6 +128,51 @@ const controller = {
         `)
 
         return result.rows as ChatMessage[]
+    },
+
+    getHeaderInfo: async(payload: TokenPayload, chatId: ChatId) => {
+        const {id} = payload 
+        const result = await db.raw(`
+            with is_private as (
+                select "isDm" from chats where id=\'${chatId}\'
+            )
+            , chatname as (
+                select case when "isDm"=true then
+                (
+                    with dm as (select * from dms where id=\'${chatId}\')
+                    , userid as (
+                        select case
+                            when "user1Id"=\'${id}\'
+                            then dm."user2Id"
+                            else dm."user1Id"
+                        end as "userId"
+                        from dm
+                    )
+                    select username from users where users.id=(select "userId" from userid)
+                )
+                else 
+                (
+                    select name from groups where groups.id=\'${chatId}\'
+                )
+                end as chatname
+                from is_private
+            )
+            -- select * from is_private;
+            select chatname as "chatName", "isDm", case when "isDm"=true then 2 else (select count(id) from memberships where "groupId"=\'${chatId}\') end as count
+            from is_private, chatname;
+
+
+            /*
+            with is_private as (
+                select "isDm" from chats where id=\'${chatId}\'
+            )
+            select case when "isDm"=true then 2 else (select count(id) from memberships where "groupId"=\'${chatId}\') end as count
+            from is_private;
+            */
+        `)
+        // console.log(result.rows[0])
+
+        return result.rows[0] as HeaderInfo;
     },
 
 

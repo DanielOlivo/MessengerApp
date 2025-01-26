@@ -34,8 +34,12 @@ const sockets = new Sockets()
 export enum Commands {
     ChatListReq = 'clrq',
     ChatListRes = 'clrs',
+
     ChatMsgReq = 'cmrq',
-    ChatMsgRes = 'cmrs'
+    ChatMsgRes = 'cmrs',
+
+    HeaderReq = 'hrq',
+    HeaderRes = 'hrs'
 }
 
 // FOR TESTING
@@ -56,6 +60,12 @@ io.on('connection', (socket) => {
         const result = await socketController.getMessagesinChat(socket.data, chatId)
         console.log(Commands.ChatMsgRes, result)
         io.to(socket.id).emit('cmrs', result)
+    })
+
+    socket.on(Commands.HeaderReq, async (chatId: ChatId) => {
+        const result = await socketController.getHeaderInfo(socket.data, chatId)
+        console.log(Commands.HeaderRes, result)
+        io.to(socket.id).emit(Commands.HeaderRes, result)
     })
 
     // setInterval(() => {
