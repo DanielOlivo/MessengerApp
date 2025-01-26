@@ -26,8 +26,8 @@ const ChatList = () => {
             className="flex flex-col justify-start w-1/3 h-screen overflow-y-auto" 
         >
             <SearchField />
-            {chatList.map(({username, content, chatName, chatId}) => 
-                <ChatItem chatName={chatName} content={content} username={username} chatId={chatId} />)}
+            {chatList.map(({username, content, chatName, chatId, unreadCount}) => 
+                <ChatItem chatName={chatName} content={content} username={username} chatId={chatId} unreadCount={unreadCount}/>)}
         </div>
     )
 }

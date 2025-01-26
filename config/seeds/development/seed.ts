@@ -10,6 +10,7 @@ import dmModel from '../../../models/dms'
 import groupModel from '../../../models/groups'
 import messageModel from '../../../models/messages'
 import membershipModel from '../../../models/memberships'
+import unreadModel from '../../../models/unread'
 
 import { TokenPayload } from '../../../types/Types'
 import jwt from 'jsonwebtoken'
@@ -22,6 +23,8 @@ export async function seed(knex: Knex): Promise<void> {
     const user1 = await userModel.create('user1', 'hashed', "i'm user1")
     const user2 = await userModel.create('user2', 'hashed', "i'm user2")
     const user3 = await userModel.create('user3', 'hashed', "i'm user3")
+
+    const user4 = await userModel.create('user4', 'hashed', "I'm fourth and has no access to chats")
 
     // one dm
     const dm12 = await dmModel.create(user1.id, user2.id)
@@ -38,6 +41,8 @@ export async function seed(knex: Knex): Promise<void> {
     const msg3 = await messageModel.create(group.id, user1.id, 'first', getDate())
     const msg4 = await messageModel.create(group.id, user2.id, 'second', getDate())
     const msg5 = await messageModel.create(group.id, user3.id, 'third', getDate())
+
+    const unread1 = await unreadModel.createForUser(user1.id, msg4.id)
 
     //gen token for testing
     const payload: TokenPayload = {

@@ -2,6 +2,7 @@ import {configureStore, applyMiddleware } from '@reduxjs/toolkit'
 import authReducer from '../features/auth/authSlice'
 import socketReducer from '../features/socket/socketSlice'
 import chatListReducer from '../features/chatList/chatListSlicer'
+import chatViewReducer from '../features/chatView/chatViewSlice'
 import socketMiddleware from "../middlewares/socketMiddleware"
 
 
@@ -9,6 +10,7 @@ const store = configureStore({
     reducer: {
         auth: authReducer,
         chatList: chatListReducer,
+        chatView: chatViewReducer,
         socket: socketReducer
     },
     middleware: getDefaultMiddleware => {

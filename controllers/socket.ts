@@ -24,6 +24,15 @@ export interface ChatListItem {
     content: string
     username: string,
     chatId: string
+    unreadCount: number
+}
+
+export interface ChatMessage {
+    content: string,
+    username: string,
+    created: Date,
+    isOwner: boolean,
+    unread: boolean
 }
 
 const controller = {
@@ -41,6 +50,7 @@ const controller = {
     getChatList: async(payload: TokenPayload, arg: any) => {
         const {id} = payload
         const result = await db.raw(`
+
             with dmids as (
                 select id from dms where "user1Id"=\'${id}\' or "user2Id" = \'${id}\'
             )
@@ -48,10 +58,9 @@ const controller = {
                 select "dmId" as "chatId", username as "chatName"
                 from "users"
                 join 
-                    (select id as "dmId", 
-                    case when "user1Id" = \'${id}\' then "user2Id"
-                    else "user1Id"
-                    end as "userId"
+                    (select 
+                        id as "dmId", 
+                        case when "user1Id"=\'${id}\' then "user2Id" else "user1Id" end as "userId"
                     from (select * from dms where "id" in (select * from dmids)))
                 on "userId" = users.id
             )
@@ -73,14 +82,48 @@ const controller = {
                 select m.*, ROW_NUMBER() OVER (PARTITION by "chatId" order by created desc) as rn
                 from (select * from messages where "chatId" in (select * from allids)) as m
             )
-            select content, "chatName", lm."chatId", username
+            ,unseen as (
+                with msgs as (
+                    select m.*, ROW_NUMBER() OVER (PARTITION by "chatId" order by created asc) as rn
+                    from (select * from messages) as m
+                )
+                , counts as (
+                    select "chatId", count(id) as count from messages group by "chatId"
+                )
+                select counts."chatId", counts.count, msgs.rn as first_unread,
+                    case when msgs.rn is null then 0 else counts.count-msgs.rn+1 end as "unreadCount"
+                from msgs
+                right join unread on "messageId"=msgs.id
+                full join counts on counts."chatId"=msgs."chatId"
+            )
+            select content, "chatName", lm."chatId", username, "unreadCount"
             from (select * from last_messages where rn=1) as lm
             join chatnames on chatnames."chatId"=lm."chatId"
-            join users on users.id=lm."userId";
+            join users on users.id=lm."userId"
+            full join unseen on unseen."chatId"=lm."chatId";
         `)
         console.log(result.rows)
         return result.rows as ChatListItem[]
     },
+
+    getMessagesinChat: async (payload: TokenPayload, chatId: ChatId) => {
+        const {id} = payload
+        const result = await db.raw(`
+            with unseen as (
+                select "messageId" from unread where "userId"=\'${id}\' 
+            )
+            select 
+                content, username, m.created,
+                case when m."userId"=\'${id}\' then true else false end as "isOnwer",
+                case when m.id in (select * from unseen) then true else false end as "unread"
+            from (select * from messages where "chatId"=\'${chatId}\') as m
+            join users on m."userId"=users.id
+            order by m.created asc;
+        `)
+
+        return result.rows as ChatMessage[]
+    },
+
 
     getChats: async(payload: TokenPayload, arg: any) => {
         const [dms, groups] = await Promise.all([

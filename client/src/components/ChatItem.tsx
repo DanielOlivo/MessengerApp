@@ -11,8 +11,21 @@ export  interface ChatItemProp {
     chatId: string
 }
 
-export default function ChatItem ({chatName, username, content, chatId}: ChatListItem) {
+export default function ChatItem ({chatName, username, content, chatId, unreadCount}: ChatListItem) {
     const dispatch = useApDispatch()
+
+    const getUnreadCount  = () => {
+        if(unreadCount == 0){
+            return <></>
+        } 
+
+        return (
+            <div className="flex flex-row justify-center items-center
+            bg-blue-700 text-white rounded-full w-6 h-6">
+                {unreadCount}
+            </div>
+        )
+    }
 
     return (
         <div
@@ -32,10 +45,17 @@ export default function ChatItem ({chatName, username, content, chatId}: ChatLis
             </div>
 
             <div
-                className="flex flex-col items-start justify-between ml-4" 
+                className="flex flex-col items-start justify-between ml-4 flex-grow" 
             >
                 <label>{chatName}</label>
-                <label><span className="text-blue-800">{username}</span>: <span className="text-gray-700">{content}</span></label>
+                <div
+                    className="flex flex-row justify-between w-full" 
+                >
+                    <div className="text-blue-800">{username}: </div>
+                    <div className="text-gray-700 flex-grow">{content}</div>
+                    <div>{getUnreadCount()}</div>
+                </div>
+
             </div>
 
         </div>
