@@ -5,6 +5,7 @@ import { ChildrenProp } from "./ChildrenProp"
 import { isGroupSelected } from "../features/socket/selectors"
 import LetterIcon from "./LetterIcon"
 import { selectHeaderInfo, selectOnlineStatus, selectTyping } from "../features/header/selectors"
+import { selectGlobalState } from "../features/state/selectors"
 
 // export interface HeaderProp {
 //     name: string
@@ -14,12 +15,17 @@ import { selectHeaderInfo, selectOnlineStatus, selectTyping } from "../features/
 // const Header = ({name, status}: HeaderProp) => {
 const Header = () => {
 
+    const globalState = useAppSelector(selectGlobalState)
+
     const info = useAppSelector(selectHeaderInfo)
     const typing = useAppSelector(selectTyping)
     const onlineStatus = useAppSelector(selectOnlineStatus)
     
 
     const getStatus = () => {
+        if(globalState == 'idle' || 'onSearch'){
+            return <></>
+        }
         if(info === undefined){
             return <></>
         }
@@ -41,7 +47,7 @@ const Header = () => {
         >
             <div
                 className="w-8 h-8 ml-2" 
-                style={{visibility: !!info ? 'visible' : 'hidden'}}
+                style={{visibility: globalState == 'onChat' ? 'visible' : 'hidden'}}
             >
                 <LetterIcon letter={info?.chatName?.slice(0,1) || 'x'} front='white' back='blue'/>
             </div>
@@ -49,6 +55,7 @@ const Header = () => {
                 className="flex flex-col items-start justify-between
                 ml-3
                 " 
+                style={{visibility: globalState == 'onChat' ? 'visible' : 'hidden'}}
             >
                 <h1>{info?.chatName || ''}</h1>
                 <label

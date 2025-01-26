@@ -14,6 +14,7 @@ import type { SocketInterface } from "../features/socket/SocketFactory";
 import { reqList, setList } from "../features/chatList/chatListSlicer";
 import { reqMsgs, setMsgs } from "../features/chatView/chatViewSlice";
 import { reqHeaderInfo, setInfo } from "../features/header/headerSlice";
+import { send } from "../features/sender/senderSlice";
 
 enum SocketEvent {
     Connect = 'connect',
@@ -64,6 +65,10 @@ const socketMiddleware: Middleware = (store) => {
                     store.dispatch(setInfo(info))
                 })
 
+                socket.socket.on('srs', msg => {
+                    console.log('new msg', msg)
+                })
+
 
                 socket.socket.on(SocketEvent.Ping, () => {
                     console.log('PING')
@@ -93,6 +98,10 @@ const socketMiddleware: Middleware = (store) => {
 
         if(reqHeaderInfo.match(action) && socket){
             socket.socket.emit('hrq', action.payload)
+        }
+
+        if(send.match(action) && socket){
+            socket.socket.emit('srq', action.payload)
         }
 
         if(png.match(action) && socket){

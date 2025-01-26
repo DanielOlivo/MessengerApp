@@ -41,6 +41,18 @@ export interface HeaderInfo {
     isDm: boolean
 }
 
+export interface SendReq {
+    chatId: string
+    content: string
+}
+
+export interface SendRes {
+    chat: string,
+    userId: string
+    username: string
+    content: string
+}
+
 const controller = {
 
 
@@ -160,21 +172,53 @@ const controller = {
             -- select * from is_private;
             select chatname as "chatName", "isDm", case when "isDm"=true then 2 else (select count(id) from memberships where "groupId"=\'${chatId}\') end as count
             from is_private, chatname;
-
-
-            /*
-            with is_private as (
-                select "isDm" from chats where id=\'${chatId}\'
-            )
-            select case when "isDm"=true then 2 else (select count(id) from memberships where "groupId"=\'${chatId}\') end as count
-            from is_private;
-            */
         `)
         // console.log(result.rows[0])
 
         return result.rows[0] as HeaderInfo;
     },
 
+    trySendChat: async(payload: TokenPayload, {chatId, content}: SendReq) => {
+        const {id} = payload
+        const result = await db.raw(`
+            with is_dm as (select "isDm" from chats where id=\'${chatId}\')
+            , is_member as (
+                select case when (select * from is_dm)=true 
+                then 
+                (
+                    select case when count=0 then false else true end 
+                    from (select count(id) from dms where id=\'${chatId}\' and \'${id}\' in ("user1Id", "user2Id"))
+                )
+                else (
+                    select case when count=0 then false else true end
+                    from 
+                    (select count(id) from memberships where "userId"=\'${id}\' and "groupId"=\'${chatId}\')
+                ) end
+            )
+            , to_insert as (
+                select \'${id}\'::uuid as "userId", \'${chatId}\'::uuid as "chatId", \'${content}\' as content
+                where (select * from is_member)
+            )
+            insert into messages ("userId", "chatId", "content")
+            (select * from to_insert)
+            returning *;
+        `) 
+        
+        console.log(result.rows[0])
+        return result.rows[0] as Message
+    },
+
+    getAllChatIds: async(payload: TokenPayload) => {
+        const {id} = payload
+        const result = await db.raw(`
+            with dmids as (select id from dms where \'${id}\' in ("user1Id", "user2Id"))
+            , groupids as (select "groupId" as id from memberships where "userId"=\'${id}\')
+            (select * from dmids) union (select * from groupids);
+        `)
+
+        console.log(result.rows)
+        return result.rows as {id: ChatId}[]
+    },
 
     getChats: async(payload: TokenPayload, arg: any) => {
         const [dms, groups] = await Promise.all([

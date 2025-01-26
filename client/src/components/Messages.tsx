@@ -7,16 +7,19 @@ import DialogMessage, { DialogMessageProp } from "./DialogMessage"
 import UserMessage, { UserMessageProp} from "./UserMessage"
 import { ServiceMessage } from "../features/socket/socketSlice"
 import { onlyMessages } from "../features/chatView/selectors"
+import { selectGlobalState } from "../features/state/selectors"
 
 const Messages = () => {
 
     // const messages = useAppSelector(selectMessages)
+    const globalState = useAppSelector(selectGlobalState)
     const messages = useAppSelector(onlyMessages)
 
     return (
         <div
             className="overflow-y-auto
             px-3 flex-grow" 
+            style={{visibility: globalState=='onChat' ? 'visible' : 'hidden'}}
         >
             {messages.map(({content, created, username, isOwner, unread}) => 
                 <UserMessage content={content} username={username} created={created} isOwner={isOwner} unread={unread}/>

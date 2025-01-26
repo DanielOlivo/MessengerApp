@@ -5,6 +5,7 @@ import chatListReducer from '../features/chatList/chatListSlicer'
 import chatViewReducer from '../features/chatView/chatViewSlice'
 import socketMiddleware from "../middlewares/socketMiddleware"
 import headerReducer from '../features/header/headerSlice'
+import stateReducer from '../features/state/stateSlice'
 
 
 const store = configureStore({
@@ -13,7 +14,8 @@ const store = configureStore({
         chatList: chatListReducer,
         chatView: chatViewReducer,
         header: headerReducer,
-        socket: socketReducer
+        socket: socketReducer,
+        state: stateReducer
     },
     middleware: getDefaultMiddleware => {
         return getDefaultMiddleware().concat([socketMiddleware])

@@ -2,6 +2,8 @@ export interface DialogMessageProp {
     message: string
 }
 
+
+
 const DialogMessage = ({message}: DialogMessageProp) => {
     return (
         <div

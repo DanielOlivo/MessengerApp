@@ -23,7 +23,9 @@ const ChatList = () => {
 
     return (
         <div
-            className="flex flex-col justify-start w-1/3 h-screen overflow-y-auto" 
+            className="flex flex-col justify-start w-1/3 h-screen overflow-y-auto
+            border-r border-blue-300 
+            " 
         >
             <SearchField />
             {chatList.map(({username, content, chatName, chatId, unreadCount}) => 

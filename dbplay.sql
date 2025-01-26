@@ -335,6 +335,60 @@ select chatname, "isDm",  case when "isDm"=true then 2 else (select count(id) fr
 from is_private, chatname;
 
 
+with dm12 as (select id from dms limit 1)
+, dm as (select "user1Id", "user2Id" from dms where id=(select * from dm12))
+, ids as ((select "user1Id" as id from dm) union (select "user2Id" as id from dm))
+select * from ids;
+
+
+
+-- insert a new message if has a right and add unread!
+with user4 as (select id from users where username='user4')
+, user1 as (select id from users where username='user1')
+, group_id as (select id from groups where name='dudes')
+, dm12 as (select id from dms limit 1)
+, userid as (select * from user1)
+, chatid as (select * from dm12)
+
+, is_dm as (select "isDm" from chats where id=(select * from chatid))
+, is_member as (
+    select case when (select * from is_dm) = true 
+    then 
+    (
+        select case when count=0 then false else true end 
+        from (select count(id) from dms where id=(select * from chatid) and (select * from userid) in ("user1Id", "user2Id"))
+    )
+    else (
+        select case when count=0 then false else true end
+        from 
+        (select count(id) from memberships where "userId"=(select * from userid) and "groupId"=(select * from chatid))
+    ) end
+)
+-- select * from is_member;
+, dm_members as (
+    with dm as (select "user1Id", "user2Id" from dms where id=(select * from chatid))
+    (select "user1Id" as id from dm) union (select "user2Id" as id from dm)
+)
+-- select * from dm_members;
+, group_members as (
+    select "userId" from memberships where "groupId"=(select * from chatid)
+)
+, all_members as (
+    (select * from dm_members) union (select * from group_members)
+)
+, to_insert as (
+    select us.id as "userId", group_id.id as "chatId", 'message!!!' as content from user4 as us , group_id
+    where (select * from is_member)
+)
+, inserted as (
+    insert into messages ("userId", "chatId", content)
+    (select * from to_insert)
+    returning *
+)
+select * from inserted;
+
+
+
 -- to add to socketController
 
 -- get count of unread
@@ -358,19 +412,31 @@ select count, idx from total_count, unread_idx;
 -- send message with checking if user is a member
 with user4 as (select id from users where username='user4')
 , user1 as (select id from users where username='user1')
--- select * from user4;
 , group_id as (select id from groups where name='dudes')
--- select * from group_id;
+, dm12 as (select id from dms limit 1)
+, userid as (select * from user1)
+, chatid as (select * from dm12)
+
+, is_dm as (select "isDm" from chats where id=(select * from chatid))
 , is_member as (
-    select case when count=0 then false else true end as is_member
-    from 
-    (select count(id) from memberships where "userId"=(select * from user1) and "groupId"=(select * from group_id))
+    select case when (select * from is_dm) = true 
+    then 
+    (
+        select case when count=0 then false else true end 
+        from (select count(id) from dms where id=(select * from chatid) and (select * from userid) in ("user1Id", "user2Id"))
+    )
+    else (
+        select case when count=0 then false else true end
+        from 
+        (select count(id) from memberships where "userId"=(select * from userid) and "groupId"=(select * from chatid))
+    ) end
 )
 -- select * from is_member;
 , to_insert as (
     select us.id as "userId", group_id.id as "chatId", 'message!!!' as content from user4 as us , group_id
     where (select * from is_member)
 )
+-- select * from to_insert;
 insert into messages ("userId", "chatId", content)
 (select * from to_insert)
 returning *;
@@ -432,3 +498,10 @@ from (select * from last_messages where rn=1) as lm
 join chatnames on chatnames."chatId"=lm."chatId"
 join users on users.id=lm."userId"
 full join unseen on unseen."chatId"=lm."chatId";
+
+
+-- get all chatIds
+with userid as (select id from users where username='user1')
+, dmids as (select id from dms where (select * from userid) in ("user1Id", "user2Id"))
+, groupids as (select "groupId" as id from memberships where "userId"=(select * from userid))
+(select * from dmids) union (select * from groupids);

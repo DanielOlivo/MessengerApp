@@ -16,6 +16,7 @@ import { useApDispatch, useAppSelector } from './app/hooks'
 import { initSocket, unselectChat } from './features/socket/socketSlice'
 import Overlay from './components/Overlay'
 import { selectOverlayed } from './features/socket/selectors'
+import { setState } from './features/state/stateSlice'
 // import DateMessage, { DateMessageProp } from './components/DateMessage'
 // import { ReactNode } from 'react'
 
@@ -32,6 +33,8 @@ function App() {
       // console.log(e.key)
 
       if(e.key === 'Escape'){
+        console.log('escape')
+        dispatch(setState('idle'))
         dispatch(unselectChat())
       }
     })

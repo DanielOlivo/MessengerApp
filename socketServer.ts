@@ -12,10 +12,11 @@ import {
     Chats, TokenPayload, ChatId, 
     UserId, MessageId, SearchResult, DMPosted, 
     DMPostReq, MessageReadReq, 
-    MessageReadRes} from './types/Types'
+    MessageReadRes,
+    Message} from './types/Types'
 import Sockets from './controllers/sockets'
 
-import socketController from './controllers/socket'
+import socketController, { SendReq } from './controllers/socket'
 import { Res } from './controllers/socket'
 
 
@@ -35,19 +36,30 @@ export enum Commands {
     ChatListReq = 'clrq',
     ChatListRes = 'clrs',
 
+    // to load messages
     ChatMsgReq = 'cmrq',
     ChatMsgRes = 'cmrs',
 
     HeaderReq = 'hrq',
-    HeaderRes = 'hrs'
+    HeaderRes = 'hrs',
+
+    SendReq = 'srq',
+    SendRes = 'srs',
 }
 
 // FOR TESTING
 io.use(verifyToken)
 
-io.on('connection', (socket) => {
+io.on('connection', async (socket) => {
 
     console.log('new connection', socket.data)
+
+
+    // handle subscirptions 
+    const chatids = await socketController.getAllChatIds(socket.data)
+    chatids.forEach(({id}) => {
+        socket.join(id)
+    })
 
     socket.on(Commands.ChatListReq, async arg => {
         const result = await socketController.getChatList(socket.data, '')
@@ -68,6 +80,14 @@ io.on('connection', (socket) => {
         io.to(socket.id).emit(Commands.HeaderRes, result)
     })
 
+    socket.on(Commands.SendReq, async ({chatId, content}: SendReq) => {
+        console.log('chatId', chatId, 'content', content)
+        const result: Message = await socketController.trySendChat(socket.data, {chatId, content});
+        if(result) {
+            const {chatId} = result
+            io.to(chatId).emit(Commands.SendRes, result)
+        }
+    })
     // setInterval(() => {
     //     console.log('emitting: PING')
     //     io.to(socket.id).emit('PNG', 'PING')
