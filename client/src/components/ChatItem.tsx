@@ -3,6 +3,7 @@ import { useApDispatch } from "../app/hooks"
 import { selectChat } from "../features/socket/socketSlice"
 import LetterIcon from "./LetterIcon"
 import { ChatListItem } from "../../../controllers/socket"
+import { reqMsgs } from "../features/chatView/chatViewSlice"
 
 export  interface ChatItemProp {
     name: string
@@ -34,7 +35,8 @@ export default function ChatItem ({chatName, username, content, chatId, unreadCo
             " 
             onClick={(e) => {
                 // console.log('chat selected: ' + chatId)
-                dispatch(selectChat(chatId))
+                // dispatch(selectChat(chatId))
+                dispatch(reqMsgs(chatId))
             }}
         >
             <div

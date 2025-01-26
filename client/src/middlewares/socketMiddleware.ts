@@ -12,6 +12,7 @@ import {
 import SocketFactory from "../features/socket/SocketFactory";
 import type { SocketInterface } from "../features/socket/SocketFactory";
 import { reqList, setList } from "../features/chatList/chatListSlicer";
+import { reqMsgs, setMsgs } from "../features/chatView/chatViewSlice";
 
 enum SocketEvent {
     Connect = 'connect',
@@ -52,6 +53,12 @@ const socketMiddleware: Middleware = (store) => {
                     store.dispatch(setList(arg))
                 })
 
+                socket.socket.on('cmrs', msgs => {
+                    console.log('cmrs', msgs)
+                    store.dispatch(setMsgs(msgs))
+                })
+
+
                 socket.socket.on(SocketEvent.Ping, () => {
                     console.log('PING')
                 })
@@ -72,6 +79,10 @@ const socketMiddleware: Middleware = (store) => {
         if(reqList.match(action) && socket){
             console.log('req list')
             socket.socket.emit('clrq', action.payload)
+        }
+
+        if(reqMsgs.match(action) && socket){
+            socket.socket.emit('cmrq', action.payload)
         }
 
         if(png.match(action) && socket){

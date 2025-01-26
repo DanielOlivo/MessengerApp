@@ -102,7 +102,7 @@ const controller = {
             join users on users.id=lm."userId"
             full join unseen on unseen."chatId"=lm."chatId";
         `)
-        console.log(result.rows)
+        // console.log(result.rows)
         return result.rows as ChatListItem[]
     },
 

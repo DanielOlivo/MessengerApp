@@ -1,14 +1,20 @@
+import { ChatMessage } from "../../../controllers/socket"
+
 export interface UserMessageProp {
     sender: string
     message: string
     isOwner: boolean
     isRead?: boolean
 }
-
-const UserMessage = ({message, isOwner, isRead = true}: UserMessageProp) => {
+    // content: string,
+    // username: string,
+    // created: Date,
+    // isOwner: boolean,
+    // unread: boolean
+const UserMessage = ({content, username, created, isOwner, unread}: ChatMessage) => {
 
     const getReadStatus = () => {
-        if(!!isRead){
+        if(!unread){
             return <label style={{letterSpacing: "-9px"}}>&#x1F5F8;&#x1F5F8;</label>
         }
         return <label>&#x1F5F8;</label>
@@ -22,16 +28,23 @@ const UserMessage = ({message, isOwner, isRead = true}: UserMessageProp) => {
         >
             <div
                 className="border border-blue-100 rounded-lg p-1
-                flex flex-row 
+                flex flex-col
                 " 
             >
-                <div>{message}</div>
+                <div>
+                    {username}
+                </div>
                 <div
-                    // className="w-3" 
-                    className="w-3 flex flex-col-reverse justify-start items-start ml-1" 
+                    className="flex flex-row" 
                 >
-                    <label
-                    >{getReadStatus()}</label>
+                    <div>{content}</div>
+                    <div
+                        // className="w-3" 
+                        className="w-3 flex flex-col-reverse justify-start items-start ml-1" 
+                    >
+                        <label
+                        >{getReadStatus()}</label>
+                    </div>
                 </div>
             </div>
 
