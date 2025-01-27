@@ -1,11 +1,11 @@
-import { useAppSelector } from "../app/hooks"
-import { selectChatName, selectGroupMemberCount, selectOthersOnlineStatusWhenDm } from "../features/socket/selectors"
-import { ChildrenProp } from "./ChildrenProp"
+import { useAppSelector } from "../../app/hooks"
+import { selectChatName, selectGroupMemberCount, selectOthersOnlineStatusWhenDm } from "../../features/socket/selectors"
+import { ChildrenProp } from "../ChildrenProp"
 
-import { isGroupSelected } from "../features/socket/selectors"
-import LetterIcon from "./LetterIcon"
-import { selectHeaderInfo, selectOnlineStatus, selectTyping } from "../features/header/selectors"
-import { selectGlobalState } from "../features/state/selectors"
+import { isGroupSelected } from "../../features/socket/selectors"
+import LetterIcon from "../LetterIcon"
+import { selectHeaderInfo, selectOnlineStatus, selectTyping } from "../../features/header/selectors"
+import { selectGlobalState } from "../../features/state/selectors"
 
 // export interface HeaderProp {
 //     name: string

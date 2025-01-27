@@ -3,6 +3,7 @@ process.env.NODE_ENV = 'test'
 import {describe, test, expect, beforeAll, afterAll} from '@jest/globals'
 import db from '../config/db'
 import { search } from '../models/search'
+import { UserId } from '../types/Types'
 import { SearchReq, UserInfo } from '../types/Client'
 
 describe('searh query', () => { 
@@ -36,3 +37,8 @@ describe('searh query', () => {
     })
 
 })
+
+// function contacts(userId: UserId){
+//     return db.with('chats', db('dms').where({user1Id: userId}).orWhere({user2Id: userId}).select("user1Id", "user2Id"))
+//         .with()
+// }

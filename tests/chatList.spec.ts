@@ -69,7 +69,7 @@ describe('chat list', () => {
 
     test('chat list', async () => {
         const result = await chatList(user1)
-        // console.log(result)
+        console.log(result)
         expect(result.length).toEqual(2)
     })
 

@@ -1,11 +1,11 @@
-import { Message } from "../../../types/Types"
-import { useApDispatch } from "../app/hooks"
-import { selectChat } from "../features/socket/socketSlice"
-import LetterIcon from "./LetterIcon"
-import { ChatListItem } from "../../../controllers/socket"
-import { reqMsgs } from "../features/chatView/chatViewSlice"
-import { reqHeaderInfo } from "../features/header/headerSlice"
-import { setActiveChat, setState } from "../features/state/stateSlice"
+import { Message } from "../../../../types/Types"
+import { useApDispatch } from "../../app/hooks"
+import { selectChat } from "../../features/socket/socketSlice"
+import LetterIcon from "../LetterIcon"
+import { ChatListItem } from "../../../../types/Client"
+import { reqMsgs } from "../../features/chatView/chatViewSlice"
+import { reqHeaderInfo } from "../../features/header/headerSlice"
+import { setActiveChat, setState } from "../../features/state/stateSlice"
 
 export  interface ChatItemProp {
     name: string

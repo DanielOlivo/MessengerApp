@@ -1,3 +1,5 @@
+import { ChatId, UserId, DbUser } from "./Types"
+
 // requests
 export interface SendReq {
     chatId: string
@@ -14,6 +16,24 @@ export interface ChatSelect {
     chatId: string
 }
 
+export interface UserInfoReq {
+    userId: UserId
+}
+
+export interface GroupInfoReq {
+    chatId: ChatId
+}
+
+export interface NewGroupReq {
+    name: string
+    users: UserId[]
+}
+
+export interface GroupRemoveReq {
+    chatId: ChatId
+}
+
+
 // responses
 
 export interface ChatListItem {
@@ -21,33 +41,41 @@ export interface ChatListItem {
     content: string
     username: string,
     chatId: string
-    unreadCount: number
+    unreadCount?: number
+}
+
+export interface ContactItem {
+    userId: UserId
+    username: string
+}
+
+export interface ChatSelectRes {
+
 }
 
 export interface ChatMessage {
+    chatId: string
     content: string,
     username: string,
     created: Date,
     isOwner: boolean,
-    unread: boolean
+    unread?: boolean
 }
 
 export interface HeaderInfo {
     chatName: string 
     count: number
-    isDm: boolean
+    // isDm: boolean
 }
 
 export interface SendRes {
-    chat: string,
+    chatId: string,
     userId: string
     username: string
     content: string
 }
 
-export interface SearchRes {
-
-}
+export type SearchRes = {username: string, id: string}[]
 
 export interface Info {
     id: string

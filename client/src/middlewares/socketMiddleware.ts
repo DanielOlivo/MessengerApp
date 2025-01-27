@@ -11,7 +11,7 @@ import {
 } from '../features/socket/socketSlice'
 import SocketFactory from "../features/socket/SocketFactory";
 import type { SocketInterface } from "../features/socket/SocketFactory";
-import { reqList, setList } from "../features/chatList/chatListSlicer";
+import { handleSearch, reqList, search, setList } from "../features/chatList/chatListSlicer";
 import { reqMsgs, setMsgs } from "../features/chatView/chatViewSlice";
 import { reqHeaderInfo, setInfo } from "../features/header/headerSlice";
 import { send } from "../features/sender/senderSlice";
@@ -55,6 +55,10 @@ const socketMiddleware: Middleware = (store) => {
                     store.dispatch(setList(arg))
                 })
 
+                socket.socket.on('schrs', arg => {
+                    store.dispatch(handleSearch(arg))
+                })
+
                 socket.socket.on('cmrs', msgs => {
                     console.log('cmrs', msgs)
                     store.dispatch(setMsgs(msgs))
@@ -90,6 +94,10 @@ const socketMiddleware: Middleware = (store) => {
         if(reqList.match(action) && socket){
             console.log('req list')
             socket.socket.emit('clrq', action.payload)
+        }
+
+        if(search.match(action) && socket){
+            socket.socket.emit('schrq', action.payload)
         }
 
         if(reqMsgs.match(action) && socket){

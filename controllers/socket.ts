@@ -1,18 +1,29 @@
 import {Socket} from 'socket.io'
 import { ChatId, UserId, TokenPayload, 
     Message, MessageId, SearchResult, DM, 
-    Group } from '../types/Types'
+    Group, 
+    DbUser} from '../types/Types'
 import db from '../config/db'
 import userModel from '../models/users'
-import chatModel from '../models/chats'
+// import chatModel from '../models/chats'
 import dmModel from '../models/dms'
 import groupModel from '../models/groups'
 import membershipModel from '../models/memberships'
 import messageModel from '../models/messages'
 import unreadModel, {Unread, UnreadId} from '../models/unread'
 
+import chatModel, { chatMessages, getHeaderInfo, getMessages, headerInfo, messages, sendMessage } from '../models/chat'
+import chatListModel, { dmOthers } from '../models/chatList'
+import searchModel from '../models/search'
+
 import { ChatListItem, ChatMessage, HeaderInfo,
-    SendReq, SendRes
+    SendReq, SendRes, SearchReq, SearchRes,
+    ChatListReq,
+    UserInfoReq,
+    GroupInfoReq,
+    NewGroupReq,
+    GroupRemoveReq,
+    ChatSelect
  } from '@clientTypes'
 
 export type Res<T> = {
@@ -23,9 +34,55 @@ export type Res<T> = {
     error?: string
 }
 
-
-
 const controller = {
+
+    handleChatListReq: async(payload: TokenPayload, req: ChatListReq) => {
+        const {id} = payload
+        const result: ChatListItem[] = await chatListModel.chatList(id) as ChatListItem[]
+        return result
+    },
+
+    handleContactsReq: async(payload: TokenPayload) => {
+        const result = await dmOthers(payload.id)
+        return result
+    },
+
+    handleSearchReq: async(payload: TokenPayload, {criteria}: SearchReq) => {
+        const result: SearchRes = await searchModel.search(criteria)
+        return result 
+    },
+
+    handleChatSelectionReq: async(payload: TokenPayload, {chatId}: ChatSelect) => {
+        const header: HeaderInfo = await getHeaderInfo(payload.id, chatId)
+        const msgs: ChatMessage[] = await getMessages(payload.id, chatId)
+        return { header, msgs , chatId}
+    },
+
+    handleChatMsgReq: async(payload: TokenPayload, chatId: ChatId) => {
+        const msgs: ChatMessage[] = await getMessages(payload.id, chatId)
+        return msgs
+    },
+
+    handleSendReq: async(payload: TokenPayload, {chatId, content}: SendReq) => {
+        const msg = await sendMessage(payload.id, chatId, content)
+        return msg
+    },
+
+    handleUserInfoReq: async(payload: TokenPayload, {userId}: UserInfoReq) => {
+        throw new Error()
+    },
+
+    handleGroupInfoReq: async(payload: TokenPayload, {chatId}: GroupInfoReq) => {
+        throw new Error()
+    },
+
+    handleNewGroupReq: async(payload: TokenPayload, {name}: NewGroupReq) => {
+        throw new Error()
+    },
+
+    handleGroupRemoveReq: async(payload: TokenPayload, {chatId}: GroupRemoveReq) => {
+        throw new Error()
+    },
 
 
     search: async(payload: TokenPayload, criteria: string): Promise<Res<SearchResult>> => {
@@ -36,6 +93,8 @@ const controller = {
 
         return {sendBefore: {[payload.id]: res}}
     },
+
+
 
     getChatList: async(payload: TokenPayload, arg: any) => {
         const {id} = payload
@@ -241,21 +300,21 @@ const controller = {
         }
     },
 
-    removeGroup: async(payload: TokenPayload, chatId: ChatId) => {
-        const membership = await membershipModel.get(payload.id, chatId)
+    // removeGroup: async(payload: TokenPayload, chatId: ChatId) => {
+    //     const membership = await membershipModel.get(payload.id, chatId)
 
-        if(!membership || !membership.isAdmin){
-            return {
-                sendBefore: {[payload.id]: 'not authorized'}
-            }
-        }
+    //     if(!membership || !membership.isAdmin){
+    //         return {
+    //             sendBefore: {[payload.id]: 'not authorized'}
+    //         }
+    //     }
 
-        await chatModel.remove(chatId)
+    //     await chatModel.remove(chatId)
 
-        return {
-            sendBefore: {[chatId]: chatId},
-        }
-    },
+    //     return {
+    //         sendBefore: {[chatId]: chatId},
+    //     }
+    // },
 
     addMember: async(payload: TokenPayload, arg: {chatId: ChatId, userId: ChatId}) => {
         const {chatId, userId} = arg
@@ -288,36 +347,36 @@ const controller = {
 
 
     // messaging
-    msg: async(payload: TokenPayload, arg: {chatId: ChatId, content: string}): Promise<Res<{message: Message, unread: Unread[]}>> => {
-    // msg: async(payload: TokenPayload, arg: {chatId: ChatId, content: string}) => {
-        const {chatId, content} = arg
-        const chat = await chatModel.getById(chatId)
-        const membership = await membershipModel.get(payload.id, chatId)
+    // msg: async(payload: TokenPayload, arg: {chatId: ChatId, content: string}): Promise<Res<{message: Message, unread: Unread[]}>> => {
+    // // msg: async(payload: TokenPayload, arg: {chatId: ChatId, content: string}) => {
+    //     const {chatId, content} = arg
+    //     const chat = await chatModel.getById(chatId)
+    //     const membership = await membershipModel.get(payload.id, chatId)
 
-        if(!chat || (!chat.isDm && !membership)){
-            return {
-                // sendBefore: {[payload.id]: 'not authorized'}
-                error: 'not authorized',
-            }
-        }
+    //     if(!chat || (!chat.isDm && !membership)){
+    //         return {
+    //             // sendBefore: {[payload.id]: 'not authorized'}
+    //             error: 'not authorized',
+    //         }
+    //     }
 
-        // I stopped here
-        // await unreadModel.createForUsers()
-        const message = await messageModel.create(chatId, payload.id, content)
-        let unread: Unread[]
+    //     // I stopped here
+    //     // await unreadModel.createForUsers()
+    //     const message = await messageModel.create(chatId, payload.id, content)
+    //     let unread: Unread[]
 
-        if(chat.isDm){
-            unread = await unreadModel.createForDm(chatId, message.id)
-        }
-        else {
-            // console.log('chatId', chatId, 'message', message)
-            unread = await unreadModel.createForGroup(chatId, message.id) // not implemented
-        }
-        // console.log(unread)
-        return {
-            sendAfter: {[chatId]: {message, unread}}
-        }
-    },
+    //     if(chat.isDm){
+    //         unread = await unreadModel.createForDm(chatId, message.id)
+    //     }
+    //     else {
+    //         // console.log('chatId', chatId, 'message', message)
+    //         unread = await unreadModel.createForGroup(chatId, message.id) // not implemented
+    //     }
+    //     // console.log(unread)
+    //     return {
+    //         sendAfter: {[chatId]: {message, unread}}
+    //     }
+    // },
 
     readMsg: async(payload: TokenPayload, msg: Message) => {
         // const _unread = await unreadModel.removeById(unread.id)

@@ -3,7 +3,14 @@ process.env.NODE_ENV = 'test'
 import {describe, test, expect, beforeAll, afterAll} from '@jest/globals'
 import db from '../config/db'
 import { UserId, ChatId } from '../types/Types'
-import { dmNames, groupNames, chatNames } from '../models/chatList'
+// import { dmNames, groupNames, chatNames } from '../models/chatList'
+
+import {
+    removeGroup, uuid, createGroup, sendMessage, isChatMember, 
+    chatData, isGroupAdmin, chatMessages, messages, chatName, 
+    groupName, dmName, headerInfo, memberCount, groupMemberCount, 
+    isDm
+} from '../models/chat'
 
 
 describe('chat', () => { 
@@ -277,6 +284,12 @@ describe('chat', () => {
         // console.log(result)
     })
 
+    test('uuid', async() => {
+        const result = await uuid('some', user1)
+        // console.log(result)
+        expect(result.some).toBeDefined()
+    })
+
     // test('chatData: user1', async() => {
     //     const {id} = await user1Q
     //     const {chatId} = await dmQ
@@ -286,6 +299,8 @@ describe('chat', () => {
     // })
 
 })
+
+/*
 
 function removeGroup(userId: UserId, chatId: ChatId){
     return db
@@ -298,7 +313,11 @@ function removeGroup(userId: UserId, chatId: ChatId){
 }
 
 function addMember(userId: UserId, chatId: ChatId){
-    
+    // later 
+}
+
+function uuid(name: string, id: string){
+    return db.select('*').fromRaw(`(select \'${id}\'::uuid as "${name}")`).first()
 }
 
 function createGroup(userId: UserId, name: string){
@@ -400,3 +419,5 @@ function groupMemberCount(chatId: any){
 function isDm(chatId: ChatId){
     return db("chats").where({id: chatId}).select('isDm').first()
 }
+
+*/

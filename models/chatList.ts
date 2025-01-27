@@ -1,6 +1,20 @@
 import db from '../config/db'
 import { UserId } from "../types/Types"
 
+export default {
+    chatList,
+    lastMessages,
+    chatNames,
+    groupNames,
+    dmNames,
+    dmOthers
+}
+
+/**
+ * 
+ * @param userId 
+ * @returns idx, id, userId, chatId, content, created, read, chatName, username
+ */
 export function chatList(userId: UserId){
     return db
         .with("dmOthers", dmOthers(userId))
@@ -8,9 +22,11 @@ export function chatList(userId: UserId){
         .with("groupNames", groupNames(userId))
         .with("chatNames", chatNames(db("dmNames"), db("groupNames")))
         .with("lastMessages", lastMessages(db.select("chatId").from(db("chatNames"))))
-        .select('*').from('lastMessages')
+        // .select('*').from('lastMessages')
+        .select('chatName', "content", "username", "chatNames.chatId").from('lastMessages')
         .join("chatNames", "chatNames.chatId", "lastMessages.chatId")
-        .orderBy("created", "desc")
+        .join('users', "users.id", "userId")
+        .orderBy("lastMessages.created", "desc")
 }
 
 export function lastMessages(chats: any){
