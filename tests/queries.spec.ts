@@ -3,7 +3,7 @@ process.env.NODE_ENV = 'test'
 import {describe, test, expect, beforeAll, afterAll} from '@jest/globals'
 import db from '../config/db'
 import { ChatId, DbUser, UserId } from '../types/Types'
-import type { HeaderInfo } from '../controllers/socket' 
+import { HeaderInfo } from "../types/Client"
 
 describe('queries', () => {
 
@@ -71,9 +71,21 @@ describe('queries', () => {
         }
 
         {
+            const _dmNames = await dmNames(user1Id)
+            expect(_dmNames.length).toEqual(1)
+            // console.log(_dmNames)
+        }
+
+        {
             const _groupNames = await groupNames(user1Id)
             // console.log(_groupNames)
             expect(_groupNames.length).toEqual(1)
+        }
+
+        {
+            const _chatNames = await chatNames(user1Id)
+            // console.log(_chatNames)
+            expect(_chatNames.length).toEqual(2)
         }
 
         {
@@ -92,20 +104,41 @@ describe('queries', () => {
         }
 
         {
-            const result = await lastMessages([dm12Id, dudesId])
-            expect(result.length).toEqual(2)
+            // const result = await lastMessages([dm12Id, dudesId])
+            // expect(result.length).toEqual(2)
+            // console.log(result)
+        }
+
+        {
+            const result = await chatList(user1Id)
             console.log(result)
         }
 
-        // const result = await db('messages').rank('idx', b => b.partitionBy('chatId').orderBy('created', 'desc'))
-        // console.log(result)
+        const result = await unreadFor(user1Id, chatList(user1Id))
+        console.log(result)
 
         expect(1).toEqual(1)
     })
 })
 
-function lastMessages(chatIds: ChatId[]){
-    return db.with('m', db('messages').whereIn("chatId", chatIds))
+
+
+function chatList(userId: UserId){
+    return db.with('names', db(chatNames(userId)))
+        .with('last', lastMessages(db('names')))
+        .select('*').from('names')
+        .join('last', "last.chatId", "names.chatId")
+}
+
+function unreadFor(userId: UserId, chats: any) {
+    return db.with("_chats", db.select("chatId").from(db(chats)))
+        // .with('unseen', db('unread').where({userId}).whereIn("unread.chatId", db("_chats")))
+        .select('*').from('_chats')
+
+}
+
+function lastMessages(chats: any){
+    return db.with('m', db('messages').whereIn("chatId", db.select("chatId").from(chats)))
         .with('sorted', db('m').rank('idx', b => b.partitionBy("chatId").orderBy("created", "desc")).select('*'))
         .select('*').from('sorted').where({idx: '1'})
 }
@@ -180,11 +213,21 @@ function headerInfo(userId: UserId, chatId: ChatId){
 }
 
 
+function chatNames(userId: UserId) {
+    return dmNames(userId).union(function(){
+        this.select('*').from(groupNames(userId))
+    })
+}
+
 
 function groupNames(userId: UserId){
     return db.with("grIds", db('memberships').where({userId}).select("groupId as chatId"))
         .select('chatId', "name as chatName").from('groups')
         .rightJoin('grIds', "chatId", "groups.id")
+}
+
+function dmNames(userId: UserId){
+    return db.select("chatId", "username as chatName").from(dmOthers(userId))
 }
 
 function dmOthers(userId: UserId){
@@ -194,7 +237,6 @@ function dmOthers(userId: UserId){
         .with('together', db('users1').union(db('users2')))
         .select("userId", "chatId", "username").from('together')
         .join('users', "users.id", "together.userId")
-
 }
 
 function dmName(chatId: ChatId, userId: UserId){

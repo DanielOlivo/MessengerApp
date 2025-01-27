@@ -11,6 +11,10 @@ import membershipModel from '../models/memberships'
 import messageModel from '../models/messages'
 import unreadModel, {Unread, UnreadId} from '../models/unread'
 
+import { ChatListItem, ChatMessage, HeaderInfo,
+    SendReq, SendRes
+ } from '@clientTypes'
+
 export type Res<T> = {
     sendBefore?: {[id: string]: T}
     join?: {[id: UserId]: string}
@@ -19,39 +23,7 @@ export type Res<T> = {
     error?: string
 }
 
-export interface ChatListItem {
-    chatName: string
-    content: string
-    username: string,
-    chatId: string
-    unreadCount: number
-}
 
-export interface ChatMessage {
-    content: string,
-    username: string,
-    created: Date,
-    isOwner: boolean,
-    unread: boolean
-}
-
-export interface HeaderInfo {
-    chatName: string 
-    count: number
-    isDm: boolean
-}
-
-export interface SendReq {
-    chatId: string
-    content: string
-}
-
-export interface SendRes {
-    chat: string,
-    userId: string
-    username: string
-    content: string
-}
 
 const controller = {
 
