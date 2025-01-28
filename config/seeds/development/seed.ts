@@ -11,6 +11,7 @@ import groupModel from '../../../models/groups'
 import messageModel from '../../../models/messages'
 import membershipModel from '../../../models/memberships'
 import unreadModel from '../../../models/unread'
+import { hash } from 'bcrypt'
 
 import { TokenPayload } from '../../../types/Types'
 import jwt from 'jsonwebtoken'
@@ -18,9 +19,12 @@ import jwt from 'jsonwebtoken'
 export async function seed(knex: Knex): Promise<void> {
 
     const getDate = getDateGen()
+    const saltRounds = 10
 
     // three users
-    const user1 = await userModel.create('user1', 'hashed', "i'm user1")
+    const hashed1 = await hash('1234', saltRounds)
+
+    const user1 = await userModel.create('user1', hashed1, "i'm user1")
     const user2 = await userModel.create('user2', 'hashed', "i'm user2")
     const user3 = await userModel.create('user3', 'hashed', "i'm user3")
 
@@ -43,6 +47,16 @@ export async function seed(knex: Knex): Promise<void> {
     const msg5 = await messageModel.create(group.id, user3.id, 'third', getDate())
 
     const unread1 = await unreadModel.createForUser(user1.id, msg4.id)
+
+
+    {
+        const username = 'john.doe'
+        const password = '1234'
+        const saltRounds = 10
+        const hashed = await hash(password, saltRounds)
+        const john = await userModel.create(username, hashed)
+    }
+
 
     //gen token for testing
     const payload: TokenPayload = {

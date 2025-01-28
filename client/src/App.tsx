@@ -17,6 +17,11 @@ import { initSocket, unselectChat } from './features/socket/socketSlice'
 import Overlay from './components/Overlay'
 import { selectOverlayed } from './features/socket/selectors'
 import { setState } from './features/state/stateSlice'
+import { Routes, Route, useNavigate } from 'react-router-dom'
+import Login from './components/auth/Login'
+import Registration from './components/auth/Registration'
+import AutoLogin from './components/auth/AutoLogin'
+import { selectAuthStatus } from './features/auth/selectors'
 // import DateMessage, { DateMessageProp } from './components/DateMessage'
 // import { ReactNode } from 'react'
 
@@ -25,6 +30,8 @@ function App() {
 
   const dispatch = useApDispatch()
   const overlayed = useAppSelector(selectOverlayed)
+  const navigate = useNavigate()
+  const isAuthenticated = useAppSelector(selectAuthStatus)
 
   const getOverlayed = () => overlayed ? <Overlay /> : <></>
 
@@ -34,27 +41,43 @@ function App() {
 
       if(e.key === 'Escape'){
         console.log('escape')
-        dispatch(setState('idle'))
-        dispatch(unselectChat())
+        // dispatch(setState('idle'))
+        // dispatch(unselectChat())
       }
     })
 
-    dispatch(initSocket())
+    // dispatch(initSocket())
   }, [])
+
+  useEffect(() => {
+    navigate(isAuthenticated ? '/' : '/login')
+  }, [isAuthenticated])
 
   return (
     <>
-    <MainScreen>
 
-      <ChatList />
+    <Routes>
+      <Route path='/login' element={ 
+        <>
+        <Login /> 
+        <AutoLogin username='user1' password='1234' />
+        </> }
+      />
+      <Route path='/register' element={ <Registration /> } />
+      <Route path='/' element={
 
-      <Dialog>
-        <Header />  
-        <Messages />
-        <SenfField />        
-      </Dialog>
+        <MainScreen>
+          <ChatList />
+          <Dialog>
+            <Header />  
+            <Messages />
+            <SenfField />        
+          </Dialog>
+        </MainScreen>
 
-    </MainScreen>
+      } />
+    </Routes>
+
     
     {getOverlayed()}
     </>

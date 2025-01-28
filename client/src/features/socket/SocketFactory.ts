@@ -1,6 +1,8 @@
 'use client';
 
 import {io, Socket} from 'socket.io-client';
+import { useAppSelector } from '../../app/hooks';
+import { selectToken } from '../auth/selectors';
 
 export interface SocketInterface {
     socket: Socket
@@ -14,8 +16,14 @@ class SocketConnection implements SocketInterface {
         // console.log('SocketConnection.constructor')
 
         // console.log('import.meta.env', import .meta.env)
-        const token = import.meta.env.VITE_USER1 as string
-        // console.log('token', token)
+        // const token = import.meta.env.VITE_USER1 as string
+
+        // illegal
+        // const token = useAppSelector(selectToken) 
+
+        const token = JSON.parse(localStorage.getItem('token')!)
+        console.log('token', token)
+        
         this.socket = io(this.socketEndpoint, {
             auth: {token}
         })

@@ -10,6 +10,7 @@ export interface ChatViewState {
 }
 
 const initialState: ChatViewState = {
+    userId: ''
 }
 
 export const chatViewSlice = createSlice({
@@ -35,7 +36,7 @@ export const chatViewSlice = createSlice({
                 return
             }
 
-            const newMsg = {chatId, userId, username, content, created: new Date(), isOwner: }
+            const newMsg = {chatId, userId, username, content, created: new Date(), isOwner: false}
         },
 
         // todo - remove

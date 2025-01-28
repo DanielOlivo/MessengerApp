@@ -1,4 +1,4 @@
-import {configureStore, applyMiddleware } from '@reduxjs/toolkit'
+import {configureStore, applyMiddleware, createAsyncThunk, ThunkAction, Action } from '@reduxjs/toolkit'
 import authReducer from '../features/auth/authSlice'
 import socketReducer from '../features/socket/socketSlice'
 import chatListReducer from '../features/chatList/chatListSlicer'
@@ -24,4 +24,10 @@ const store = configureStore({
 
 export type RootState = ReturnType<typeof store.getState>
 export type AppDispatch = typeof store.dispatch
+export type AppThunk = ThunkAction<void, RootState, unknown, Action>
+// export const createAppAsyncThunk = createAsyncThunk.withTypes<{
+//     state: RootState,
+//     dispatch: AppDispatch
+// }>()
+
 export default store

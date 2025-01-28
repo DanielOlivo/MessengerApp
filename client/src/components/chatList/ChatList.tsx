@@ -22,7 +22,10 @@ const ChatList = () => {
     const searchResult = useAppSelector(selectSearchResult) 
 
     useEffect(() => {
-        setTimeout(() => dispatch(reqList()), 1000)
+        if(isConnected){
+            dispatch(reqList())
+        }
+        // setTimeout(() => dispatch(reqList()), 1000)
     },[isConnected])
 
 

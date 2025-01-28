@@ -13,15 +13,13 @@ const SenfField = () => {
     const globalState = useAppSelector(selectGlobalState)
     const activeChat = useAppSelector(selectActiveChat)
 
-
-
-    useEffect(() => {
-        setInterval(() => {
-            console.log('sending', activeChat)
-            if(activeChat)
-                dispatch(send({chatId: activeChat, content: 'check'}))
-        }, 10000)
-    }, [])
+    // useEffect(() => {
+    //     setInterval(() => {
+    //         console.log('sending', activeChat)
+    //         if(activeChat)
+    //             dispatch(send({chatId: activeChat, content: 'check'}))
+    //     }, 10000)
+    // }, [])
 
     const handleSend = () => {
         const content = fieldRef.current!.value

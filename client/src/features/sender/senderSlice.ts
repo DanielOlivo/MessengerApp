@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { SendReq } from "../../../../controllers/socket";
+import { SendReq } from "../../../../types/Client";
 
 export interface SenderState {
     isActive: boolean

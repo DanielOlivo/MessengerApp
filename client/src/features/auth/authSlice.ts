@@ -1,19 +1,74 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import type { RootState } from '../../app/store'
+import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
+// import { createAppAsyncThunk, type AppThunk, type RootState } from '../../app/store'
+import { Credentials, UserAuthData } from '../../../../types/Client'
+import { RootState } from '../../app/store'
+import createAppAsyncThunk from '../../app/createAppAsyncThunk'
 
 interface AuthState {
     authenticated: boolean
-    token?: string
+    data?: UserAuthData
 }
 
 const initialState: AuthState = {
     authenticated: false
 }
 
+export const fetchToken = createAppAsyncThunk('auth/fetchToken', async (credentials: Credentials) => {
+    try {
+        const payload = JSON.stringify(credentials)
+        console.log(payload)
+        const res = await fetch('http://localhost:3000/api/user/login', {
+            method: 'POST',
+            headers: {"Content-Type": "application/json"},
+            body: payload
+        })
+        const json = await res.json()
+        return json
+        // return true
+    }
+    catch(error){
+        return error
+    }
+})
+
+
 export const authSlice = createSlice({
     name: 'auth',
     initialState,
-    reducers: {},
+    reducers: {
+
+        // login: (state, action: PayloadAction<UserAuthData>) => {
+        //     state.data = action.payload
+        // },
+
+        logout: (state) => {
+            state.data = undefined
+            state.authenticated = false
+
+            localStorage.removeItem('username')
+            localStorage.removeItem('token')
+            localStorage.removeItem('userId')
+        }
+    },
+    extraReducers: builder => {
+        builder 
+            .addCase(fetchToken.pending, (state, action) => {
+                console.log('pending')
+            })
+            .addCase(fetchToken.rejected, (state, action) => {
+                const msg = action.error.message
+                console.log('error: ', msg)
+            })
+            .addCase(fetchToken.fulfilled, (state, action) => {
+                console.log(action.payload)
+                state.data = action.payload as UserAuthData 
+                state.authenticated = true
+
+                localStorage.setItem('username', JSON.stringify(state.data.username))
+                localStorage.setItem('token', JSON.stringify(state.data.token))
+                localStorage.setItem('userId', JSON.stringify(state.data.userId))
+            })
+    }
 })
 
 export default authSlice.reducer

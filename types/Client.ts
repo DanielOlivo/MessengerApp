@@ -34,6 +34,11 @@ export interface GroupRemoveReq {
 }
 
 
+export interface Credentials {
+    username: string
+    password: string
+}
+
 // responses
 
 export interface ChatListItem {
@@ -88,4 +93,11 @@ export interface UserInfo extends Info {
 
 export interface GroupInfo extends Info {
     isAdmin: boolean
+}
+
+
+export interface UserAuthData {
+    userId: string
+    username: string
+    token: string
 }

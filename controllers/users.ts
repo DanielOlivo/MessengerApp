@@ -34,6 +34,8 @@ const controller = {
 
     login: async(req: Request, res: Response) => {
 
+        // console.log('someone logins...')
+
         const errors = validationResult(req)
         if(!errors.isEmpty()){
             console.log('errors', errors)
@@ -61,6 +63,7 @@ const controller = {
         }
 
         const token = jwt.sign(authPayload, process.env.JWT_SECRET as string)
+        console.log('sending token: ', token)
 
         res.status(200).json({id: dbUser.id, username, token})
     }

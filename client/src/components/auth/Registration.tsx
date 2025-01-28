@@ -1,9 +1,21 @@
-import { useRef } from "react"
+import { useRef, useEffect } from "react"
+import { useNavigate } from "react-router-dom"
+import { useAppSelector } from "../../app/hooks"
+import { selectAuthStatus } from "../../features/auth/selectors"
 
 const Registration = () => {
 
     const usernameRef = useRef(null)
     const passwordRef = useRef(null)
+
+    const navigate = useNavigate()
+    const isAuthenticated = useAppSelector(selectAuthStatus)
+
+    useEffect(() => {
+        if(isAuthenticated){
+            navigate('/')
+        }
+    }, [])
 
     return (
         <div

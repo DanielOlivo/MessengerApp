@@ -21,7 +21,7 @@ const Messages = () => {
             px-3 flex-grow" 
             style={{visibility: globalState=='onChat' ? 'visible' : 'hidden'}}
         >
-            {messages.map(({content, created, username, isOwner, unread}) => 
+            {messages?.map(({content, created, username, isOwner, unread}) => 
                 <UserMessage content={content} username={username} created={created} isOwner={isOwner} unread={unread}/>
             )}
         </div>

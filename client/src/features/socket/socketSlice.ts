@@ -88,6 +88,10 @@ const socketSlice = createSlice({
             return
         },
 
+        disconnect: (state) => {
+            console.log('disconnecting')
+        },
+
         connectionEstablished: (state) => {
             state.isConnected = true;
             console.log('connected')
@@ -114,6 +118,6 @@ const socketSlice = createSlice({
 })
 
 export const { selectChat, unselectChat,
-    removeOverlay,
+    removeOverlay, disconnect,
     say, png, initSocket, connectionEstablished, connectionLost, joinRoom } = socketSlice.actions
 export default socketSlice.reducer

@@ -5,6 +5,7 @@ import { Commands } from '../../../socketServer'
 import {
     connectionEstablished,
     connectionLost,
+    disconnect,
     initSocket,
     joinRoom,
     png, say
@@ -89,6 +90,10 @@ const socketMiddleware: Middleware = (store) => {
                 })
             }
             
+        }
+
+        if(disconnect.match(action) && socket){
+            socket.socket.disconnect()
         }
 
         if(reqList.match(action) && socket){
