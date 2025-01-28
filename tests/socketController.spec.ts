@@ -6,6 +6,7 @@ import unreadModel, {Unread} from '../models/unread'
 import socketController, {Res} from '../controllers/socket'
 import userModel from '../models/users'
 import db from '../config/db'
+import chatModel from '../models/chat'
 
 describe('socket controller', () => {
 
@@ -47,6 +48,62 @@ describe('socket controller', () => {
         await db.migrate.rollback()
     })
 
+    test('new user with transaction', async() => {
+        const [{id, username, hashed}] = await newUser('user10')
+        expect(id).toBeDefined()
+        expect(username).toBeDefined()
+        expect(hashed).toBeDefined()
+
+        const user10 = await db('users').where({username: 'user10'}).first()
+        expect(user10).toBeDefined()
+    })
+
+
+
+    // test('get dm between user1 and user3', async() => {
+    //     const result = await chatModel.getDm(token1.id, token3.id)
+    //     console.log(result)
+    // })
+
+    // function messages(dm: any){
+
+    // }
+
+
+
+    // function getDm(user1Id: UserId, user2Id: UserId){
+    //     const uuid = chatModel.uuid
+    //     return db.transaction(async trx => {
+    //         return trx
+    //             .with('pair', trx.raw('select ?::uuid as "user1Id", ?::uuid as "user2Id"', [user1Id, user2Id]))
+    //             .with('dm1', trx('dms').where({user1Id, user2Id}))
+    //             .with('dm2', trx('dms').where({user1Id: user2Id, user2Id: user1Id}))
+    //             .with('dm', trx('dm1').union(trx('dm2')))
+    //             .with('count', trx('dm').count('id'))
+    //             .with('exists', db.raw("select (count=1) as exists from count"))
+    //             .with("toInsertToChats", db.raw('(select column1 as "isDm" from (values (true)) where (select (not exists) from exists))'))
+    //             // .with('toInsertToDms', db.raw(`(select (\'${user1Id}\'::uuid as "user1Id), (\'${user2Id}\'::uuid as "user2Id"))`))
+    //             .with('toInsertToDms', trx('pair').whereRaw('?=false', trx('exists')))
+    //             .with('insertedId', 
+    //                 trx.into(
+    //                     trx.raw('?? (??)', ['chats', "isDm"])
+    //                 ).insert(trx("toInsertToChats"))
+    //                 .returning('id'))
+    //             .with('insertedDm',
+    //                 trx.into(
+    //                     trx.raw('?? (??, ??, ??)', ['dms', 'id', 'user1Id', 'user2Id'])
+    //                 ).insert(trx.select('*').from(trx.raw('??, ??',['insertedId', 'toInsertToDms'])))
+    //                 .returning('*'))
+    //             .select('*').from(trx('dm').union(trx('insertedDm')))
+    //     })
+    // }
+
+    function newUser(username: string){
+        return db.transaction(async trx => {
+            return trx('users').insert({username, hashed: 'hey'}).returning('*')
+        })
+    }
+
 
     test('get chat list; user1', async () => {
         const result = await socketController.handleChatListReq(token1, {})
@@ -66,6 +123,27 @@ describe('socket controller', () => {
         dudesId = result.find(msg => msg.chatName == 'dudes')!.chatId
     })
 
+    test('handleDmRequestByUserId: user2', async() => {
+        const result = await socketController.handleDmRequestByUserId(token1, token2.id)
+        const {chatId, messages, headerInfo} = result
+        expect(chatId).toBeDefined()
+        expect(messages).toBeDefined()
+        expect(headerInfo).toBeDefined()
+
+        expect(chatId).toEqual(dm12Id)
+        // console.log(result)
+    })
+
+    test('handleDmRequestByUserId: user3', async() => {
+        const result = await socketController.handleDmRequestByUserId(token1, token3.id)
+        const {chatId, messages, headerInfo} = result
+        expect(chatId).toBeDefined()
+        expect(messages).toBeDefined()
+        expect(headerInfo).toBeDefined()
+
+        expect(messages.length).toEqual(0)
+    })
+
     test('search: u', async() => {
         const result = await socketController.handleSearchReq(token1, {criteria: 'u'})
         expect(result.length).toEqual(4)
@@ -77,21 +155,21 @@ describe('socket controller', () => {
     })
 
     test("handle chat selection: dudes", async() => {
-        const { header, msgs } = await socketController.handleChatSelectionReq(token1, {chatId: dudesId})
+        const { headerInfo, messages } = await socketController.handleChatSelectionReq(token1, {chatId: dudesId})
         
-        // console.log('header', header)
-        // console.log('msgs', msgs)
-        expect(header).toBeDefined()
-        expect(msgs).toBeDefined()
+        // console.log('header', headerInfo)
+        // console.log('msgs', messages)
+        expect(headerInfo).toBeDefined()
+        expect(messages).toBeDefined()
 
-        const {chatName, count} = header
+        const {chatName, count} = headerInfo
         expect(chatName).toBeDefined()
         expect(count).toBeDefined()
         expect(chatName).toEqual('dudes')
         expect(count).toEqual('3')
 
         
-        const [msg1, msg2, msg3] = msgs
+        const [msg1, msg2, msg3] = messages
         expect(msg1).toBeDefined()
         expect(msg2).toBeDefined()
         expect(msg3).toBeDefined()
@@ -104,21 +182,21 @@ describe('socket controller', () => {
     })
 
     test("handle chat selection: user2 dm", async() => {
-        const { header, msgs } = await socketController.handleChatSelectionReq(token1, {chatId: dm12Id})
+        const { headerInfo, messages } = await socketController.handleChatSelectionReq(token1, {chatId: dm12Id})
         
         // console.log('header', header)
         // console.log('msgs', msgs)
-        expect(header).toBeDefined()
-        expect(msgs).toBeDefined()
+        expect(headerInfo).toBeDefined()
+        expect(messages).toBeDefined()
 
-        const {chatName, count} = header
+        const {chatName, count} = headerInfo
         expect(chatName).toBeDefined()
         expect(count).toBeDefined()
         expect(chatName).toEqual('user2')
         expect(count).toEqual('2')
 
         
-        const [msg1, msg2] = msgs
+        const [msg1, msg2] = messages
         expect(msg1).toBeDefined()
         expect(msg2).toBeDefined()
 
@@ -133,12 +211,13 @@ describe('socket controller', () => {
     test("user1 sends msg to dudes", async() => {
         const msg = await socketController.handleSendReq(token1, {chatId: dudesId, content: 'hi'})
         // console.log(msg)
-        const {chatId, userId, username, content, created} = msg
+        const {chatId, userId, username, content, created, messageId} = msg
         expect(chatId).toBeDefined()
         expect(userId).toBeDefined()
         expect(username).toBeDefined()
         expect(content).toBeDefined()
         expect(created).toBeDefined()
+        expect(messageId).toBeDefined()
     })
 
     test("user2 sends msg to dm chat", async() => {
@@ -154,7 +233,7 @@ describe('socket controller', () => {
 
     test("get contacts for user1", async() => {
         const users = await socketController.handleContactsReq(token1)
-        console.log(users)
+        // console.log(users)
         expect(users.length).toEqual(1)
     })
 

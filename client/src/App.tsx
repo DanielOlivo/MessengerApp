@@ -8,10 +8,10 @@ import ChatList from './components/chatList/ChatList'
 import Dialog from './components/Dialog'
 import Header from './components/chatView/Header'
 import MainScreen from './components/MainScreen'
-import Messages from './components/Messages'
+import Messages from './components/chatView/Messages'
 // import DialogMessage from './components/DialogMessage'
 // import UserMessage, { UserMessageProp } from './components/UserMessage'
-import SenfField from './components/SendField'
+import SenfField from './components/chatView/SendField'
 import { useApDispatch, useAppSelector } from './app/hooks'
 import { initSocket, unselectChat } from './features/socket/socketSlice'
 import Overlay from './components/Overlay'
@@ -22,6 +22,8 @@ import Login from './components/auth/Login'
 import Registration from './components/auth/Registration'
 import AutoLogin from './components/auth/AutoLogin'
 import { selectAuthStatus } from './features/auth/selectors'
+import { resetChatView } from './features/chatView/chatViewSlice'
+import { resetHeader } from './features/header/headerSlice'
 // import DateMessage, { DateMessageProp } from './components/DateMessage'
 // import { ReactNode } from 'react'
 
@@ -43,6 +45,8 @@ function App() {
         console.log('escape')
         // dispatch(setState('idle'))
         // dispatch(unselectChat())
+        dispatch(resetChatView())
+        dispatch(resetHeader())
       }
     })
 

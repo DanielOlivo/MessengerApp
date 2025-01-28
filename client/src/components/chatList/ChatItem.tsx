@@ -1,11 +1,10 @@
-import { Message } from "../../../../types/Types"
+// import { Message } from "../../../../types/Types"
 import { useApDispatch } from "../../app/hooks"
-import { selectChat } from "../../features/socket/socketSlice"
+// import { selectChat } from "../../features/socket/socketSlice"
 import LetterIcon from "../LetterIcon"
 import { ChatListItem } from "../../../../types/Client"
-import { reqMsgs } from "../../features/chatView/chatViewSlice"
-import { reqHeaderInfo } from "../../features/header/headerSlice"
-import { setActiveChat, setState } from "../../features/state/stateSlice"
+import { reqData, reqMsgs } from "../../features/chatView/chatViewSlice"
+// import { setActiveChat, setState } from "../../features/state/stateSlice"
 
 export  interface ChatItemProp {
     name: string
@@ -38,10 +37,16 @@ export default function ChatItem ({chatName, username, content, chatId, unreadCo
             onClick={(e) => {
                 // console.log('chat selected: ' + chatId)
                 // dispatch(selectChat(chatId))
-                dispatch(reqMsgs(chatId))
-                dispatch(reqHeaderInfo(chatId)) 
-                dispatch(setState('onChat'))
-                dispatch(setActiveChat(chatId))
+                // dispatch(reqMsgs(chatId))
+                // dispatch(reqHeaderInfo(chatId)) 
+                // dispatch(setState('onChat'))
+                // dispatch(setActiveChat(chatId))
+                if(chatId === undefined) {
+                    console.log('chatId undefined')
+                    return
+                }
+                // console.log('selecting ', chatId)
+                dispatch(reqData({chatId}))
             }}
         >
             <div

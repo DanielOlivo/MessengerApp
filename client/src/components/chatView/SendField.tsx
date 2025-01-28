@@ -1,25 +1,16 @@
-import { useEffect, useRef } from "react"
-import { useApDispatch, useAppSelector } from "../app/hooks"
-import { getSelectedChat } from "../features/socket/selectors"
-import { selectActiveChat, selectGlobalState } from "../features/state/selectors"
-import { send } from "../features/sender/senderSlice"
+import { useRef } from "react"
+import { useApDispatch, useAppSelector } from "../../app/hooks"
+import { send, sendTyping } from "../../features/sender/senderSlice"
+import { selectChatId } from "../../features/chatView/selectors"
+import { selectUserId, selectUsername } from "../../features/auth/selectors"
 
 const SenfField = () => {
 
-    // const selectedChat = useAppSelector(getSelectedChat)
     const fieldRef = useRef<HTMLInputElement>(null)
-
     const dispatch = useApDispatch()
-    const globalState = useAppSelector(selectGlobalState)
-    const activeChat = useAppSelector(selectActiveChat)
-
-    // useEffect(() => {
-    //     setInterval(() => {
-    //         console.log('sending', activeChat)
-    //         if(activeChat)
-    //             dispatch(send({chatId: activeChat, content: 'check'}))
-    //     }, 10000)
-    // }, [])
+    const chatId = useAppSelector(selectChatId)
+    const userId = useAppSelector(selectUserId)
+    const username = useAppSelector(selectUsername)
 
     const handleSend = () => {
         const content = fieldRef.current!.value
@@ -28,7 +19,7 @@ const SenfField = () => {
             return
         }
 
-        dispatch( send({chatId: activeChat!, content}) )
+        dispatch( send({chatId: chatId!, content}) )
         fieldRef.current!.value = ''
     }
 
@@ -39,7 +30,7 @@ const SenfField = () => {
             border-t border-blue-400
             
             " 
-            style={{display: globalState == 'onChat' ? 'flex' : 'none'}}
+            style={{display: chatId ? 'flex' : 'none'}}
         >
             <input 
                 className="flex-grow p-2"
@@ -50,6 +41,11 @@ const SenfField = () => {
                         handleSend()
                     }
                 }}
+                onChange={(e) => dispatch(sendTyping({
+                    userId: userId!,
+                    username: username!,
+                    chatId: chatId!
+                }))}
             />
             <button
                 className="w-8" 

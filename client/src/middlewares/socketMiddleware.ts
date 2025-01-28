@@ -1,6 +1,8 @@
 import { createActionCreatorInvariantMiddleware, Middleware } from "@reduxjs/toolkit";
 import { Message } from '../../../types/Types'
-import { Commands } from '../../../socketServer'
+// import { Commands } from '../../../socketServer'
+// import {Commands} from '../../../'
+import { Cmd } from '../../../socketServer'
 
 import {
     connectionEstablished,
@@ -12,10 +14,10 @@ import {
 } from '../features/socket/socketSlice'
 import SocketFactory from "../features/socket/SocketFactory";
 import type { SocketInterface } from "../features/socket/SocketFactory";
-import { handleSearch, reqList, search, setList } from "../features/chatList/chatListSlicer";
-import { reqMsgs, setMsgs } from "../features/chatView/chatViewSlice";
-import { reqHeaderInfo, setInfo } from "../features/header/headerSlice";
-import { send } from "../features/sender/senderSlice";
+import { handleSearch, insertNewMessage, reqList, search, setList } from "../features/chatList/chatListSlicer";
+import { handleNewMessage, reqData, reqDataByUser, reqMsgs, setData, setMsgs } from "../features/chatView/chatViewSlice";
+import { send, sendTyping } from "../features/sender/senderSlice";
+import { receiveTyping, setHeaderInfo } from "../features/header/headerSlice";
 
 enum SocketEvent {
     Connect = 'connect',
@@ -60,18 +62,28 @@ const socketMiddleware: Middleware = (store) => {
                     store.dispatch(handleSearch(arg))
                 })
 
+                socket.socket.on('csrs', arg => {
+                    console.log('select chat response', arg)
+                    store.dispatch(setData(arg))
+                    store.dispatch(setHeaderInfo(arg))
+                })
+
                 socket.socket.on('cmrs', msgs => {
                     console.log('cmrs', msgs)
                     store.dispatch(setMsgs(msgs))
                 })
 
-                socket.socket.on('hrs', info => {
-                    console.log('hrs', info)
-                    store.dispatch(setInfo(info))
-                })
-
                 socket.socket.on('srs', msg => {
                     console.log('new msg', msg)
+                    // to chatview
+                    store.dispatch(handleNewMessage(msg))
+                    // to chatlist
+                    store.dispatch(insertNewMessage(msg))
+                })
+
+                socket.socket.on('trs', res => {
+                    console.log('typing')
+                    store.dispatch(receiveTyping(res))
                 })
 
 
@@ -103,20 +115,30 @@ const socketMiddleware: Middleware = (store) => {
 
         if(search.match(action) && socket){
             socket.socket.emit('schrq', action.payload)
+            // socket.socket.emit(Cmd.SearchReq, action.payload)
+        }
+
+        if(reqData.match(action) && socket){
+            socket.socket.emit('csrq', action.payload)
+        }
+        if(reqDataByUser.match(action) && socket){
+            console.log('CSWURQ')
+            socket.socket.emit('cswurq', action.payload)
         }
 
         if(reqMsgs.match(action) && socket){
             socket.socket.emit('cmrq', action.payload)
         }
 
-        if(reqHeaderInfo.match(action) && socket){
-            socket.socket.emit('hrq', action.payload)
-        }
-
         if(send.match(action) && socket){
             socket.socket.emit('srq', action.payload)
         }
 
+        if(sendTyping.match(action) && socket){
+            socket.socket.emit('trq', action.payload)
+        }
+
+        // to remove
         if(png.match(action) && socket){
             console.log('PING')
         }

@@ -36,12 +36,9 @@ const SearchField = () => {
                 onFocus={(e) => {
                     dispatch(setState('search'))
                 }}
-                onBlur={(e) => {
-                    dispatch(setState('list'))
-                }}
-
-                
-
+                // onBlur={(e) => {
+                //     dispatch(setState('list'))
+                // }}
             />
 
             <button

@@ -39,6 +39,12 @@ export interface Credentials {
     password: string
 }
 
+export interface Typing {
+    username: string 
+    userId: string 
+    chatId: string
+}
+
 // responses
 
 export interface ChatListItem {
@@ -50,21 +56,25 @@ export interface ChatListItem {
 }
 
 export interface ContactItem {
-    userId: UserId
+    id: UserId
     username: string
 }
 
 export interface ChatSelectRes {
-
+    chatId: string
+    messages: ChatMessage[]
+    headerInfo: HeaderInfo
 }
 
 export interface ChatMessage {
+    userId: string
     chatId: string
     content: string,
     username: string,
     created: Date,
     isOwner: boolean,
     unread?: boolean
+    messageId: string
 }
 
 export interface HeaderInfo {
@@ -78,6 +88,7 @@ export interface SendRes {
     userId: string
     username: string
     content: string
+    messageId: string
 }
 
 export type SearchRes = {username: string, id: string}[]
@@ -97,7 +108,7 @@ export interface GroupInfo extends Info {
 
 
 export interface UserAuthData {
-    userId: string
+    id: string
     username: string
     token: string
 }

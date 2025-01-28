@@ -25,8 +25,8 @@ export async function seed(knex: Knex): Promise<void> {
     const hashed1 = await hash('1234', saltRounds)
 
     const user1 = await userModel.create('user1', hashed1, "i'm user1")
-    const user2 = await userModel.create('user2', 'hashed', "i'm user2")
-    const user3 = await userModel.create('user3', 'hashed', "i'm user3")
+    const user2 = await userModel.create('user2', hashed1, "i'm user2")
+    const user3 = await userModel.create('user3', hashed1, "i'm user3")
 
     const user4 = await userModel.create('user4', 'hashed', "I'm fourth and has no access to chats")
 

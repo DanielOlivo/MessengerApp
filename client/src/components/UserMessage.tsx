@@ -1,4 +1,4 @@
-import { ChatMessage } from "../../../controllers/socket"
+import { ChatMessage } from "../../../types/Client"
 
 export interface UserMessageProp {
     sender: string
@@ -11,7 +11,7 @@ export interface UserMessageProp {
     // created: Date,
     // isOwner: boolean,
     // unread: boolean
-const UserMessage = ({content, username, created, isOwner, unread}: ChatMessage) => {
+const UserMessage = ({messageId, content, username, created, isOwner, unread}: ChatMessage) => {
 
     const getReadStatus = () => {
         if(!unread){
@@ -24,6 +24,7 @@ const UserMessage = ({content, username, created, isOwner, unread}: ChatMessage)
 
     return (
         <div
+            id={messageId}
             className={`w-full flex ${flexDir} justify-between mt-1`}
         >
             <div

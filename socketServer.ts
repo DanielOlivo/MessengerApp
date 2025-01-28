@@ -18,7 +18,7 @@ import Sockets from './controllers/sockets'
 
 import socketController from './controllers/socket'
 import { Res } from './controllers/socket'
-import { ChatListItem, ChatListReq, ChatSelect, ChatSelectRes, GroupInfoReq, GroupRemoveReq, HeaderInfo, NewGroupReq, SearchReq, SendReq, SendRes, UserInfoReq } from '@clientTypes'
+import { ChatListItem, ChatListReq, ChatSelect, ChatSelectRes, GroupInfoReq, GroupRemoveReq, HeaderInfo, NewGroupReq, SearchReq, SendReq, SendRes, Typing, UserInfoReq } from '@clientTypes'
 
 
 export const httpServer = createServer(app)
@@ -33,17 +33,17 @@ export const io = new Server(httpServer, {
 
 const sockets = new Sockets()
 
-export enum Commands {
+export const enum Commands {
     ChatListReq = 'clrq',
     ChatListRes = 'clrs',
 
     SearchReq = 'schrq',
     SearchRes = 'schrs',
 
+    ChatSelectionWithUser = 'cswurq',
     ChatSelectionReq = 'csrq',
     ChatSelectionRes = 'csrs',
 
-    ChatSelectionWithUser = 'cswurq',
 
     ChatMsgReq = 'cmrq',
     ChatMsgRes = 'cmrs',
@@ -76,6 +76,11 @@ export enum Commands {
     ContactsRes = 'crs'
 }
 
+export const Cmd = {
+    SearchReq: 'schrq',
+    SearchRes: 'schrs',
+}
+
 // FOR TESTING
 io.use(verifyToken)
 
@@ -101,12 +106,17 @@ io.on('connection', async (socket) => {
     })
 
     socket.on(Commands.ChatSelectionReq, async(req: ChatSelect) => {
-        const res: ChatSelectRes = await socketController.handleChatSelectionReq(payload, req)
+        const res: ChatSelectRes = await socketController.handleChatSelectionReq(payload, req)!
+        console.log('chat select res', res)
         io.to(socket.id).emit(Commands.ChatSelectionRes, res)
     })
 
     socket.on(Commands.ChatSelectionWithUser, async(req: UserId) => {
-        // todo
+        const res: ChatSelectRes = await socketController.handleDmRequestByUserId(payload, req)!
+        socket.join(res.chatId)
+        sockets.getSocket(req)?.join(res.chatId)
+        console.log('chat select res', res)
+        io.to(socket.id).emit(Commands.ChatSelectionRes, res)
     })
 
     socket.on(Commands.ChatMsgReq, async(chatId: ChatId)  => {
@@ -120,6 +130,11 @@ io.on('connection', async (socket) => {
         // console.log('search response: ', res)
         io.to(socket.id).emit(Commands.SearchRes, res)
     }) 
+
+    socket.on(Commands.TypingReq, async (req: Typing) => {
+        // send everyone in chat back
+        io.to(req.chatId).emit(Commands.TypingRes, req)
+    })
 
 
     socket.on(Commands.UserInfoReq, async (req: UserInfoReq) => {
@@ -136,7 +151,8 @@ io.on('connection', async (socket) => {
     // for communications
     socket.on(Commands.SendReq, async (req: SendReq) => {
         const res = await socketController.handleSendReq(payload, req)
-        // todo
+        console.log('SendRes',res)
+        io.to(res.chatId).emit(Commands.SendRes, res)
     })
 
     socket.on(Commands.NewGroupReq, async(req: NewGroupReq) => {

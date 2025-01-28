@@ -9,7 +9,10 @@ class Sockets {
     }
 
     getSocket(userId: UserId){
-        return this._sockets[userId]
+        if(userId in this._sockets){
+            return this._sockets[userId]
+        }
+        return undefined
     }
 }
 

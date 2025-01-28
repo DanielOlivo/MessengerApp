@@ -23,6 +23,7 @@ const ChatList = () => {
 
     useEffect(() => {
         if(isConnected){
+            console.log('reqList running...')
             dispatch(reqList())
         }
         // setTimeout(() => dispatch(reqList()), 1000)
@@ -37,8 +38,8 @@ const ChatList = () => {
 
     const onSearch = () => 
         <>
-            {searchResult!.map(({username, userId}) => 
-                <UserItem username={username} userId={userId}/>)}
+            {searchResult!.map(({username, id}) => 
+                <UserItem username={username} id={id}/>)}
         </>
 
     return (

@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { SendReq } from "../../../../types/Client";
+import { SendReq, Typing } from "../../../../types/Client";
 
 export interface SenderState {
     isActive: boolean
@@ -14,12 +14,12 @@ export const senderSlice = createSlice({
     initialState,
     reducers: {
         
-        send: (state, action: PayloadAction<SendReq>) => {
-            // nothing
-        },
+        send: (state, action: PayloadAction<SendReq>) => {},
+
+        sendTyping: (state, action: PayloadAction<Typing>) => {},
 
     }
 })
 
-export const {send} = senderSlice.actions
+export const {send, sendTyping} = senderSlice.actions
 export default senderSlice.reducer

@@ -1,27 +1,38 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { ChatId } from '../../../../types/Types'
-import { HeaderInfo } from '../../../../controllers/socket'
+import { HeaderInfo } from '../../../../types/Client'
+import { ChatSelectRes, Typing } from '../../../../types/Client'
+import { headerInfo } from '../../../../models/chat'
+import createAppAsyncThunk from '../../app/createAppAsyncThunk'
 
 export type MemberCount = number
 export type OnlineStatus = 'online' | 'offline'
-export type Typing = boolean
 
 
-export interface HeaderState {
-    chatName: string
-    isDm: boolean
-    status: MemberCount | OnlineStatus | Typing
-}
+// export interface HeaderState {
+//     chatName: string
+//     isDm: boolean
+//     status: MemberCount | OnlineStatus | Typing
+// }
+
+export const timer = createAppAsyncThunk('header.timer', async() => {
+    console.log('start')
+    await wait(1000)
+    console.log('stop') 
+    return
+})
 
 export interface HeaderSliceState {
-    state?: HeaderState
-    info?: HeaderInfo
-    typing?: string[]
+    headerInfo?: HeaderInfo
+    typing?: Typing
+    typingTrigger: boolean
     onlineStatus?: string
+
 }
 
 const initialState: HeaderSliceState = {
-    onlineStatus: 'online'
+    onlineStatus: 'online',
+    typingTrigger: false
 }
 
 export const headerSlice = createSlice({
@@ -29,14 +40,42 @@ export const headerSlice = createSlice({
     initialState,
     reducers: {
 
-        reqHeaderInfo: (state, action: PayloadAction<ChatId>) => {},
+        setHeaderInfo: (state, action: PayloadAction<ChatSelectRes>) =>{
+            state.headerInfo = action.payload.headerInfo
+        },
 
-        setInfo: (state, action: PayloadAction<HeaderInfo>) =>{
-            state.info = action.payload
-        }
+        resetHeader: (state) => {
+            delete state.headerInfo
+            delete state.typing
+            delete state.onlineStatus
+        },
 
-    }
+        receiveTyping: (state, action: PayloadAction<Typing>) => {
+            state.typing = action.payload
+            state.typingTrigger = !state.typingTrigger
+        },
+    },
+    extraReducers(builder) {
+        builder
+            .addCase(timer.pending, (state, action) => {
+
+            })
+            .addCase(timer.fulfilled, (state, action) => {
+                if(state.typing){
+                    delete state.typing
+                }
+            })
+            .addCase(timer.rejected, (state, action) => {
+                if(state.typing){
+                    delete state.typing
+                }
+            })
+    },
 })
 
-export const { reqHeaderInfo, setInfo } = headerSlice.actions
+export const { setHeaderInfo, resetHeader, receiveTyping } = headerSlice.actions
 export default headerSlice.reducer
+
+function wait(ms: number){
+    return new Promise(res => setTimeout(res, ms))
+}

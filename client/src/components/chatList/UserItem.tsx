@@ -1,9 +1,10 @@
 import { ContactItem } from "../../../../types/Client"
 import { useApDispatch } from "../../app/hooks"
 import { clearResult, setState } from "../../features/chatList/chatListSlicer"
+import { reqDataByUser } from "../../features/chatView/chatViewSlice"
 import LetterIcon from "../LetterIcon"
 
-const UserItem = ({userId, username}: ContactItem) => {
+const UserItem = ({id, username}: ContactItem) => {
 
     const dispatch = useApDispatch()
 
@@ -13,9 +14,12 @@ const UserItem = ({userId, username}: ContactItem) => {
             hover:bg-slate-200 active:bg-slate-500 
             " 
             onClick={(e) => {
-                dispatch(clearResult())
-                dispatch(setState('list'))
+                console.log('ddduuude')
+                dispatch(reqDataByUser(id))
+                // dispatch(clearResult())
+                // dispatch(setState('list'))
                 // todo - request chat
+
             }} 
         >
             <div

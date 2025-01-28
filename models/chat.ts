@@ -19,6 +19,31 @@ export default {
     getMessages,
     chatMessages,
     isGroupAdmin,
+    getDm,
+}
+export function getDm(user1Id: UserId, user2Id: UserId){
+    return db.transaction(async trx => {
+        return trx
+            .with('pair', trx.raw('select ?::uuid as "user1Id", ?::uuid as "user2Id"', [user1Id, user2Id]))
+            .with('dm1', trx('dms').where({user1Id, user2Id}))
+            .with('dm2', trx('dms').where({user1Id: user2Id, user2Id: user1Id}))
+            .with('dm', trx('dm1').union(trx('dm2')))
+            .with('count', trx('dm').count('id'))
+            .with('exists', db.raw("select (count=1) as exists from count"))
+            .with("toInsertToChats", db.raw('(select column1 as "isDm" from (values (true)) where (select (not exists) from exists))'))
+            .with('toInsertToDms', trx('pair').whereRaw('?=false', trx('exists')))
+            .with('insertedId', 
+                trx.into(
+                    trx.raw('?? (??)', ['chats', "isDm"])
+                ).insert(trx("toInsertToChats"))
+                .returning('id'))
+            .with('insertedDm',
+                trx.into(
+                    trx.raw('?? (??, ??, ??)', ['dms', 'id', 'user1Id', 'user2Id'])
+                ).insert(trx.select('*').from(trx.raw('??, ??',['insertedId', 'toInsertToDms'])))
+                .returning('*'))
+            .select('*').from(trx('dm').union(trx('insertedDm')))
+    })
 }
 
 export function removeGroup(userId: UserId, chatId: ChatId){
@@ -30,6 +55,8 @@ export function removeGroup(userId: UserId, chatId: ChatId){
         .with('removed', db('chats').whereIn("id", db.select("chatId").from('toRemove')).del().returning('*'))
         .select('*').from('removed').first()
 }
+
+
 
 export function addMember(userId: UserId, chatId: ChatId){
     // later 
@@ -58,7 +85,7 @@ export function sendMessage(userId: UserId, chatId: ChatId, content: string){
             db.into(db.raw('?? (??, ??, ??)', ["messages", "userId", "chatId", "content"]))
             .insert(db("toInsert"))
             .returning("*"))
-        .select('i.created', 'content', 'chatId', 'username', "userId"
+        .select('i.created', 'content', 'chatId', 'username', "userId", "i.id as messageId"
             // db.raw(`(select case when "userId"=\'${userId}\' then true else false end as "isOwner")`)
         ).from("inserted as i")
         .leftJoin('users', 'users.id', "i.userId")
@@ -105,7 +132,7 @@ export function getMessages(userId: UserId, chatId: ChatId){
     return db
         .with("user", uuid("userId", userId))
         .with("m", db('messages').where({chatId}))
-        .select("m.content", "m.created", "username",
+        .select("m.content", "m.created", "m.id as messageId", "m.chatId as chatId", "m.userId", "username",
             db.raw(`(select case when m."userId"=\'${userId}\' then true else false end as "isOwner")`)
         ).from('m')
         .leftJoin('users', 'users.id', 'm.userId')

@@ -1,11 +1,16 @@
-import { useAppSelector } from "../../app/hooks"
+import { useApDispatch, useAppSelector } from "../../app/hooks"
 import { selectChatName, selectGroupMemberCount, selectOthersOnlineStatusWhenDm } from "../../features/socket/selectors"
 import { ChildrenProp } from "../ChildrenProp"
 
 import { isGroupSelected } from "../../features/socket/selectors"
 import LetterIcon from "../LetterIcon"
-import { selectHeaderInfo, selectOnlineStatus, selectTyping } from "../../features/header/selectors"
+import { selectHeaderInfo, selectOnlineStatus, selectTyping, 
+    selectTypingTrigger } from "../../features/header/selectors"
+import { timer } from "../../features/header/headerSlice"
+
 import { selectGlobalState } from "../../features/state/selectors"
+import { useEffect } from "react"
+import { selectUserId } from "../../features/auth/selectors"
 
 // export interface HeaderProp {
 //     name: string
@@ -15,25 +20,30 @@ import { selectGlobalState } from "../../features/state/selectors"
 // const Header = ({name, status}: HeaderProp) => {
 const Header = () => {
 
-    const globalState = useAppSelector(selectGlobalState)
+    const dispatch = useApDispatch()
 
     const info = useAppSelector(selectHeaderInfo)
-    const typing = useAppSelector(selectTyping)
     const onlineStatus = useAppSelector(selectOnlineStatus)
+
+    const typing = useAppSelector(selectTyping)
+    const typingTrigger = useAppSelector(selectTypingTrigger)
+    const userId = useAppSelector(selectUserId)
+
+    const isOther = typing && userId != typing.userId
     
+    useEffect(() => {
+        // console.log(userId, typing?.userId)
+        if(isOther){
+            dispatch(timer())
+        }
+    }, [typingTrigger])
 
     const getStatus = () => {
-        if(globalState == 'idle' || 'onSearch'){
-            return <></>
-        }
         if(info === undefined){
             return <></>
         }
-        if(typing){
-            return <label>{typing[0]} is typing...</label>
-        }
-        if(info.isDm){
-            return <label>{onlineStatus}</label>
+        if(isOther){
+            return <label>{typing!.username} is typing...</label>
         }
         return <label>{info.count} members</label>
     }
@@ -47,7 +57,7 @@ const Header = () => {
         >
             <div
                 className="w-8 h-8 ml-2" 
-                style={{visibility: globalState == 'onChat' ? 'visible' : 'hidden'}}
+                style={{visibility: info ? 'visible' : 'hidden'}}
             >
                 <LetterIcon letter={info?.chatName?.slice(0,1) || 'x'} front='white' back='blue'/>
             </div>
@@ -55,7 +65,7 @@ const Header = () => {
                 className="flex flex-col items-start justify-between
                 ml-3
                 " 
-                style={{visibility: globalState == 'onChat' ? 'visible' : 'hidden'}}
+                style={{visibility: info ? 'visible' : 'hidden'}}
             >
                 <h1>{info?.chatName || ''}</h1>
                 <label

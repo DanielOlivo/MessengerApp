@@ -23,7 +23,8 @@ import { ChatListItem, ChatMessage, HeaderInfo,
     GroupInfoReq,
     NewGroupReq,
     GroupRemoveReq,
-    ChatSelect
+    ChatSelect,
+    ChatSelectRes
  } from '@clientTypes'
 
 export type Res<T> = {
@@ -47,15 +48,35 @@ const controller = {
         return result
     },
 
+    handleDmRequestByUserId: async(payload: TokenPayload, userId: UserId) => {
+        console.log('userId', userId)
+        const dm = await chatModel.getDm(payload.id, userId)
+        console.log('dm', dm)
+        const chatId = (dm![0] as DM).id
+        
+        const messages = await getMessages(payload.id, chatId)
+        const headerInfo = await getHeaderInfo(payload.id, chatId)
+
+        const result: ChatSelectRes = {chatId, messages, headerInfo}
+        return result
+    },
+
     handleSearchReq: async(payload: TokenPayload, {criteria}: SearchReq) => {
         const result: SearchRes = await searchModel.search(criteria)
         return result 
     },
 
     handleChatSelectionReq: async(payload: TokenPayload, {chatId}: ChatSelect) => {
-        const header: HeaderInfo = await getHeaderInfo(payload.id, chatId)
-        const msgs: ChatMessage[] = await getMessages(payload.id, chatId)
-        return { header, msgs , chatId}
+        try{
+            const headerInfo: HeaderInfo = await getHeaderInfo(payload.id, chatId)
+            const msgs: ChatMessage[] = await getMessages(payload.id, chatId)
+            return { headerInfo, messages: msgs , chatId} as ChatSelectRes
+        }
+        catch(error){
+            console.log('handleChatSelectionReq: ', payload.id, chatId)
+            console.log(error)
+            throw new Error()
+        }
     },
 
     handleChatMsgReq: async(payload: TokenPayload, chatId: ChatId) => {

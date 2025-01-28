@@ -66,7 +66,7 @@ export const authSlice = createSlice({
 
                 localStorage.setItem('username', JSON.stringify(state.data.username))
                 localStorage.setItem('token', JSON.stringify(state.data.token))
-                localStorage.setItem('userId', JSON.stringify(state.data.userId))
+                localStorage.setItem('userId', JSON.stringify(state.data.id))
             })
     }
 })
