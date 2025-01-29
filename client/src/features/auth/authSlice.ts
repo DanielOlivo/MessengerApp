@@ -19,7 +19,7 @@ export const fetchToken = createAppAsyncThunk('auth/fetchToken', async (credenti
     try {
         const payload = JSON.stringify(credentials)
         console.log(payload)
-        const res = await fetch(url + '/api/user/login', {
+        const res = await fetch(url + 'api/user/login', {
             method: 'POST',
             headers: {"Content-Type": "application/json"},
             body: payload
