@@ -123,6 +123,23 @@ describe('socket controller', () => {
         dudesId = result.find(msg => msg.chatName == 'dudes')!.chatId
     })
 
+    test('getContacts: user1', async() => {
+        const result = await chatModel.getContacts(token1.id)
+        expect(result.length).toEqual(1)
+    })
+
+
+    // function getContacts(userId: UserId) {
+    //     return db
+    //         .with('_dms', db('dms').where({user1Id: userId}).orWhere({user2Id: userId}))
+    //         .with('left', db('_dms').whereNot({user1Id: userId}).select('user2Id as userId'))
+    //         .with('right', db('_dms').whereNot({user2Id: userId}).select('user2Id as userId'))
+    //         .with('total', db('left').union(db('right')))
+    //         .select('userId as id', 'username').from('total')
+    //         .join('users', 'userId', 'users.id')
+    // }
+
+
     test('handleDmRequestByUserId: user2', async() => {
         const result = await socketController.handleDmRequestByUserId(token1, token2.id)
         const {chatId, messages, headerInfo} = result
@@ -143,6 +160,8 @@ describe('socket controller', () => {
 
         expect(messages.length).toEqual(0)
     })
+
+
 
     test('search: u', async() => {
         const result = await socketController.handleSearchReq(token1, {criteria: 'u'})
@@ -236,6 +255,27 @@ describe('socket controller', () => {
         // console.log(users)
         expect(users.length).toEqual(1)
     })
+
+
+    test('create new group', async() => {
+        const users = [token1.id, token2.id, token3.id]
+        const result = await createNewGroup(users, 'new group', token1.id)
+        console.log(result)
+    })
+
+
+    function createNewGroup(users: UserId[], name: string, admin: UserId){
+        return db.transaction(async trx => {
+            return trx
+                .with('userIds', trx('users').whereIn('id', users).select('id as userId'))
+                .with('id', trx('chats').insert({isDm: false}).returning('id as groupId'))
+                .with('gr', trx('groups').insert({name, id: trx('id')}))
+                .with('members', trx
+                    .into(trx.raw('?? (??, ??, ??)', ['memberships', 'groupId', 'userId', 'isAdmin']))
+                    .insert(trx.raw('(select (??), ??, ??=? from (??)) returning *', [trx('id'), "userId", "userId", admin, trx("userIds")])))
+                .select('*').from('members')
+        })
+    }
 
     return 
     test('user1.getChats - gets none', async() => {

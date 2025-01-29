@@ -7,6 +7,7 @@ import { reqList } from "../../features/chatList/chatListSlicer"
 import { useSelector } from "react-redux"
 import { selectConnectionStatus } from "../../features/socket/selectors"
 import UserItem from "./UserItem"
+import { openGroupControl } from "../../features/group/groupSlice"
 
 export interface ChatListProp {
     children?: ReactNode
@@ -49,6 +50,10 @@ const ChatList = () => {
             " 
         >
             <SearchField />
+            <button
+                className="text-blue-600 text-sm" 
+                onClick={(e) => dispatch(openGroupControl())}
+            >Add group</button>
             {listState == 'list' ? onList() : onSearch()}
             {/* {chatList.map(({username, content, chatName, chatId, unreadCount}) => 
                 <ChatItem chatName={chatName} content={content} username={username} chatId={chatId} unreadCount={unreadCount}/>)} */}

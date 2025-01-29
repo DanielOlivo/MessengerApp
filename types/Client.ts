@@ -45,6 +45,12 @@ export interface Typing {
     chatId: string
 }
 
+export interface GroupReq {
+    members: GroupMember[]
+    name: string
+    chatId?: string
+}
+
 // responses
 
 export interface ChatListItem {
@@ -58,6 +64,10 @@ export interface ChatListItem {
 export interface ContactItem {
     id: UserId
     username: string
+}
+
+export interface GroupMember extends ContactItem {
+    isMember: boolean
 }
 
 export interface ChatSelectRes {

@@ -24,6 +24,7 @@ import AutoLogin from './components/auth/AutoLogin'
 import { selectAuthStatus } from './features/auth/selectors'
 import { resetChatView } from './features/chatView/chatViewSlice'
 import { resetHeader } from './features/header/headerSlice'
+import GroupControl from './components/groupControl/GroupControl'
 // import DateMessage, { DateMessageProp } from './components/DateMessage'
 // import { ReactNode } from 'react'
 
@@ -31,11 +32,11 @@ import { resetHeader } from './features/header/headerSlice'
 function App() {
 
   const dispatch = useApDispatch()
-  const overlayed = useAppSelector(selectOverlayed)
+  // const overlayed = useAppSelector(selectOverlayed)
   const navigate = useNavigate()
   const isAuthenticated = useAppSelector(selectAuthStatus)
 
-  const getOverlayed = () => overlayed ? <Overlay /> : <></>
+  // const getOverlayed = () => overlayed ? <Overlay /> : <></>
 
   useEffect(() => {
     document.addEventListener('keyup', (e) => {
@@ -69,7 +70,7 @@ function App() {
       />
       <Route path='/register' element={ <Registration /> } />
       <Route path='/' element={
-
+        <>
         <MainScreen>
           <ChatList />
           <Dialog>
@@ -78,12 +79,13 @@ function App() {
             <SenfField />        
           </Dialog>
         </MainScreen>
+        <GroupControl />
+        </>
 
       } />
     </Routes>
 
-    
-    {getOverlayed()}
+    {/* {getOverlayed()} */}
     </>
   )
 }

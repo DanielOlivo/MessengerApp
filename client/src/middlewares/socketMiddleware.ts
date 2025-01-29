@@ -18,6 +18,7 @@ import { handleSearch, insertNewMessage, reqList, search, setList } from "../fea
 import { handleNewMessage, reqData, reqDataByUser, reqMsgs, setData, setMsgs } from "../features/chatView/chatViewSlice";
 import { send, sendTyping } from "../features/sender/senderSlice";
 import { receiveTyping, setHeaderInfo } from "../features/header/headerSlice";
+import { createGroup, reqContacts, setContacts } from "../features/group/groupSlice";
 
 enum SocketEvent {
     Connect = 'connect',
@@ -74,7 +75,7 @@ const socketMiddleware: Middleware = (store) => {
                 })
 
                 socket.socket.on('srs', msg => {
-                    console.log('new msg', msg)
+                    console.log('SRS', msg)
                     // to chatview
                     store.dispatch(handleNewMessage(msg))
                     // to chatlist
@@ -84,6 +85,10 @@ const socketMiddleware: Middleware = (store) => {
                 socket.socket.on('trs', res => {
                     console.log('typing')
                     store.dispatch(receiveTyping(res))
+                })
+
+                socket.socket.on('crs', res => {
+                    store.dispatch(setContacts(res))
                 })
 
 
@@ -136,6 +141,14 @@ const socketMiddleware: Middleware = (store) => {
 
         if(sendTyping.match(action) && socket){
             socket.socket.emit('trq', action.payload)
+        }
+
+        if(reqContacts.match(action) && socket){
+            socket.socket.emit('crq', '')
+        }
+
+        if(createGroup.match(action) && socket){
+            socket.socket.emit('ngrq', action.payload)
         }
 
         // to remove

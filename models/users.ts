@@ -11,6 +11,14 @@ const model = {
             return user;
     },
 
+    // create: async(username: string, hashed: string, bio?:string) =>{
+    //     const result: unknown = await db.transaction(async trx => {
+    //         return trx('users').insert({username, hashed, bio}).returning('*')
+    //     })
+    //     const [user] = result as DbUser[]
+    //     return user
+    // },
+
     remove: async(userId: UserId) => {
         const [{id}]: Partial<DbUser>[] = await db('users')
             .where('id', userId)

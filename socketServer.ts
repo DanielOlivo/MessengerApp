@@ -136,15 +136,10 @@ io.on('connection', async (socket) => {
         io.to(req.chatId).emit(Commands.TypingRes, req)
     })
 
-
-    socket.on(Commands.UserInfoReq, async (req: UserInfoReq) => {
-        const res = await socketController.handleUserInfoReq(payload, req)
-        io.to(socket.id).emit(Commands.UserInfoRes, res)
-    })
-
-    socket.on(Commands.GroupInfoReq, async(req: GroupInfoReq) => {
-        const res = await socketController.handleGroupInfoReq(payload, req)
-        io.to(socket.id).emit(Commands.GroupInfoRes, res)
+    socket.on(Commands.ContactsReq, async (req: any) => {
+        const result = await socketController.handleContactsReq(socket.data) 
+        console.log('contacts requested', result)
+        io.to(socket.id).emit(Commands.ContactsRes, result)
     })
 
 
@@ -156,13 +151,26 @@ io.on('connection', async (socket) => {
     })
 
     socket.on(Commands.NewGroupReq, async(req: NewGroupReq) => {
-        const res = await socketController.handleNewGroupReq(payload, req)
-        // todo
+        // console.log('new group req', req)
+        const {memberships, msg, chatId} = await socketController.handleNewGroupReq(payload, req)
+        memberships.forEach(({userId}) => sockets.getSocket(userId)?.join(chatId))
+        console.log('new group, msg', msg)
+        io.to(chatId).emit(Commands.SendRes, msg)
     })
 
     socket.on(Commands.GroupRemoveReq, async(req: GroupRemoveReq) => {
         const res = await socketController.handleGroupRemoveReq(payload, req)
         // todo
+    })
+
+    socket.on(Commands.UserInfoReq, async (req: UserInfoReq) => {
+        const res = await socketController.handleUserInfoReq(payload, req)
+        io.to(socket.id).emit(Commands.UserInfoRes, res)
+    })
+
+    socket.on(Commands.GroupInfoReq, async(req: GroupInfoReq) => {
+        const res = await socketController.handleGroupInfoReq(payload, req)
+        io.to(socket.id).emit(Commands.GroupInfoRes, res)
     })
 
     // socket.on(Commands.ChatListReq, async arg => {

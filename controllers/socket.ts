@@ -2,7 +2,8 @@ import {Socket} from 'socket.io'
 import { ChatId, UserId, TokenPayload, 
     Message, MessageId, SearchResult, DM, 
     Group, 
-    DbUser} from '../types/Types'
+    DbUser,
+    Membership} from '../types/Types'
 import db from '../config/db'
 import userModel from '../models/users'
 // import chatModel from '../models/chats'
@@ -12,7 +13,7 @@ import membershipModel from '../models/memberships'
 import messageModel from '../models/messages'
 import unreadModel, {Unread, UnreadId} from '../models/unread'
 
-import chatModel, { chatMessages, getHeaderInfo, getMessages, headerInfo, messages, sendMessage } from '../models/chat'
+import chatModel, { chatMessages, createNewGroup, getHeaderInfo, getMessages, headerInfo, messages, sendMessage, sendMessage2 } from '../models/chat'
 import chatListModel, { dmOthers } from '../models/chatList'
 import searchModel from '../models/search'
 
@@ -24,7 +25,8 @@ import { ChatListItem, ChatMessage, HeaderInfo,
     NewGroupReq,
     GroupRemoveReq,
     ChatSelect,
-    ChatSelectRes
+    ChatSelectRes,
+    ContactItem
  } from '@clientTypes'
 
 export type Res<T> = {
@@ -44,8 +46,9 @@ const controller = {
     },
 
     handleContactsReq: async(payload: TokenPayload) => {
-        const result = await dmOthers(payload.id)
-        return result
+        // const result = await dmOthers(payload.id)
+        const result = await chatModel.getContacts(payload.id)
+        return result as ContactItem[]
     },
 
     handleDmRequestByUserId: async(payload: TokenPayload, userId: UserId) => {
@@ -97,8 +100,13 @@ const controller = {
         throw new Error()
     },
 
-    handleNewGroupReq: async(payload: TokenPayload, {name}: NewGroupReq) => {
-        throw new Error()
+    handleNewGroupReq: async(payload: TokenPayload, {name, users}: NewGroupReq) => {
+        const result: unknown = await createNewGroup(users, name, payload.id)
+        const memberships = result as Membership[]
+        const msg = await sendMessage2(payload.id, memberships[0].groupId, 'first msg') 
+        const chatId = memberships[0].groupId
+
+        return { memberships, msg, chatId }
     },
 
     handleGroupRemoveReq: async(payload: TokenPayload, {chatId}: GroupRemoveReq) => {

@@ -1,8 +1,12 @@
 import { useApDispatch } from "../app/hooks";
-import { removeOverlay } from "../features/socket/socketSlice";
+// import { removeOverlay } from "../features/socket/socketSlice";
 import { ChildrenProp } from "./ChildrenProp";
 
-const Overlay = ({children}: ChildrenProp) => {
+export interface OverlayProps extends ChildrenProp {
+    closeFn: () => void
+}
+
+const Overlay = ({children, closeFn}: OverlayProps) => {
 
     const dispatch = useApDispatch()
 
@@ -21,7 +25,8 @@ const Overlay = ({children}: ChildrenProp) => {
                     <button
                         onClick={(e) => {
                             e.preventDefault()
-                            dispatch(removeOverlay())
+                            closeFn()
+                            // dispatch(removeOverlay())
                         }} 
                     >Close</button>
                 </div>

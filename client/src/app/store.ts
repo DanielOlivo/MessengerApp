@@ -6,6 +6,7 @@ import chatViewReducer from '../features/chatView/chatViewSlice'
 import socketMiddleware from "../middlewares/socketMiddleware"
 import headerReducer from '../features/header/headerSlice'
 import stateReducer from '../features/state/stateSlice'
+import groupReducer from '../features/group/groupSlice'
 
 
 const store = configureStore({
@@ -14,6 +15,7 @@ const store = configureStore({
         chatList: chatListReducer,
         chatView: chatViewReducer,
         header: headerReducer,
+        group: groupReducer,
         socket: socketReducer,
         state: stateReducer
     },

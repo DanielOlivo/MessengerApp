@@ -7,6 +7,7 @@ export default {
     uuid,
     createGroup, 
     sendMessage,
+    sendMessage2, // the same but without checking membership
     isChatMember,
     chatData,
     isDm,
@@ -20,7 +21,37 @@ export default {
     chatMessages,
     isGroupAdmin,
     getDm,
+    getContacts,
+    createNewGroup,
+
 }
+
+
+
+export function createNewGroup(users: UserId[], name: string, admin: UserId){
+    return db.transaction(async trx => {
+        return trx
+            .with('userIds', trx('users').whereIn('id', users).select('id as userId'))
+            .with('id', trx('chats').insert({isDm: false}).returning('id as groupId'))
+            .with('gr', trx('groups').insert({name, id: trx('id')}))
+            .with('members', trx
+                .into(trx.raw('?? (??, ??, ??)', ['memberships', 'groupId', 'userId', 'isAdmin']))
+                .insert(trx.raw('(select (??), ??, ??=? from (??)) returning *', [trx('id'), "userId", "userId", admin, trx("userIds")])))
+            .select('*').from('members')
+    })
+}
+
+export function getContacts(userId: UserId) {
+    return db
+        .with('_dms', db('dms').where({user1Id: userId}).orWhere({user2Id: userId}))
+        .with('left', db('_dms').whereNot({user1Id: userId}).select('user2Id as userId'))
+        .with('right', db('_dms').whereNot({user2Id: userId}).select('user2Id as userId'))
+        .with('total', db('left').union(db('right')))
+        .select('userId as id', 'username').from('total')
+        .join('users', 'userId', 'users.id')
+}
+
+
 export function getDm(user1Id: UserId, user2Id: UserId){
     return db.transaction(async trx => {
         return trx
@@ -72,6 +103,12 @@ export function createGroup(userId: UserId, name: string){
         .with('gr', db('groups').insert({name, id: db('chatId')}).returning(['name', 'id as chatId']))
         .with('member', db('memberships').insert({userId, isAdmin: true, groupId: db('chatId')}).returning('userId'))
         .select('*').fromRaw('gr, member').first()
+}
+
+export function sendMessage2(userId: UserId, chatId: ChatId, content: string){
+    return db.transaction(async trx => {
+        return trx('messages').insert({userId, chatId, content}).returning('*')
+    })
 }
 
 export function sendMessage(userId: UserId, chatId: ChatId, content: string){
