@@ -6,67 +6,54 @@ import type {Knex} from 'knex'
 // import membershipModel from '@models/memberships'
 
 import userModel from '../../../models/users'
-import dmModel from '../../../models/dms'
-import groupModel from '../../../models/groups'
-import messageModel from '../../../models/messages'
-import membershipModel from '../../../models/memberships'
-import unreadModel from '../../../models/unread'
+// import dmModel from '../../../models/dms'
+// import groupModel from '../../../models/groups'
+// import messageModel from '../../../models/messages'
+// import membershipModel from '../../../models/memberships'
+// import unreadModel from '../../../models/unread'
 import { hash } from 'bcrypt'
+import { v4 as uuid } from 'uuid'
 
 import { TokenPayload } from '../../../types/Types'
 import jwt from 'jsonwebtoken'
 
 export async function seed(knex: Knex): Promise<void> {
+    await knex('users').del()
 
-    const getDate = getDateGen()
-    const saltRounds = 10
+    const user1 = await getUser('user1', '1234')
+    const user2 = await getUser('user2', '1234')
+    const user3 = await getUser('user3', '1234')
+    const john = await getUser('john.doe', '1234')
 
+    const dmChat = {id: uuid(), isDm: true}
+    const dm = {id: dmChat.id, user1Id: user1.id, user2Id: user2.id}
+    
+    const dudesChat = {id: uuid(), isDm: false}
+    const dudes = {id: dudesChat.id, name: 'dudes'}
+
+    const membership1 = {id: uuid(), groupId: dudes.id, userId: user1.id}
+    const membership2 = {id: uuid(), groupId: dudes.id, userId: user2.id}
+    const membership3 = {id: uuid(), groupId: dudes.id, userId: user3.id}
+
+    const dmMsg1 = {id: uuid(), userId: user1.id, chatId: dm.id, content: 'hey'}
+    const dmMsg2 = {id: uuid(), userId: user2.id, chatId: dm.id, content: 'whats up'}
+
+    const dudesMsg1 = {id: uuid(), userId: user1.id, chatId: dudes.id, content: 'first'}
+    const dudesMsg2 = {id: uuid(), userId: user2.id, chatId: dudes.id, content: 'second'}
+    const dudesMsg3 = {id: uuid(), userId: user3.id, chatId: dudes.id, content: 'third'}
     // three users
-    const hashed1 = await hash('1234', saltRounds)
 
-    const user1 = await userModel.create('user1', hashed1, "i'm user1")
-    const user2 = await userModel.create('user2', hashed1, "i'm user2")
-    const user3 = await userModel.create('user3', hashed1, "i'm user3")
-
-    const user4 = await userModel.create('user4', 'hashed', "I'm fourth and has no access to chats")
-
-    // one dm
-    const dm12 = await dmModel.create(user1.id, user2.id)
-
-    // one group
-    const {group, membership: membership1} = await groupModel.create(user1.id, 'dudes', getDate())
-    const membership2 = await membershipModel.create(user2.id, group.id, false, getDate())
-    const membership3 = await membershipModel.create(user3.id, group.id, false, getDate())
-
-    // messages
-    const msg1 = await messageModel.create(dm12.id, user1.id, 'hey', getDate())
-    const msg2 = await messageModel.create(dm12.id, user1.id, 'whats up', getDate())
-
-    const msg3 = await messageModel.create(group.id, user1.id, 'first', getDate())
-    const msg4 = await messageModel.create(group.id, user2.id, 'second', getDate())
-    const msg5 = await messageModel.create(group.id, user3.id, 'third', getDate())
-
-    const unread1 = await unreadModel.createForUser(user1.id, msg4.id)
-
-
-    {
-        const username = 'john.doe'
-        const password = '1234'
-        const saltRounds = 10
-        const hashed = await hash(password, saltRounds)
-        const john = await userModel.create(username, hashed)
-    }
-
-
-    //gen token for testing
-    const payload: TokenPayload = {
-        id: user1.id,
-        username: user1.username
-    }
-
-    const token = jwt.sign(payload, process.env.JWT_SECRET as string)
-    console.log('use token:')
-    console.log(token)
+    await knex.transaction(async trx => {
+        await trx('users').insert([user1, user2, user3, john])
+        await trx('chats').insert([dmChat, dudesChat])
+        await trx('dms').insert([dm])
+        await trx('groups').insert([dudes])
+        await trx('memberships').insert([membership1, membership2, membership3])
+        await trx('messages').insert([
+            dmMsg1, dmMsg2,
+            dudesMsg1, dudesMsg2, dudesMsg3
+        ])
+    })
 
 }
 
@@ -76,4 +63,10 @@ function getDateGen() {
     return function getDate() {
         return new Date(now - 1000 * 60 * 60 * (24 * 200 - (12 * counter++)))
     }
+}
+
+async function getUser(username: string, password: string){
+    const saltRounds = 10
+    const hashed = await hash(password, saltRounds)
+    return {id: uuid(), username, hashed}
 }

@@ -12,3 +12,6 @@ export const selectUserId = (state: RootState) =>
 
 export const selectUsername = (state: RootState) => 
     state.auth.data?.username
+
+export const selectRegisterSuccess = (state: RootState) =>
+    state.auth.registerSuccess

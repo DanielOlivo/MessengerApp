@@ -11,6 +11,7 @@ import { timer } from "../../features/header/headerSlice"
 // import { selectGlobalState } from "../../features/state/selectors"
 import { useEffect } from "react"
 import { selectUserId } from "../../features/auth/selectors"
+import { logout } from "../../features/auth/authSlice"
 
 // export interface HeaderProp {
 //     name: string
@@ -71,6 +72,13 @@ const Header = () => {
                 <label
                     className="text-sm text-gray-500" 
                 >{getStatus()}</label>
+            </div>
+            <div className="flex-grow"></div>
+
+            <div className="w-9 text-red-600">
+                <button
+                    onClick={(e) => dispatch(logout())} 
+                >Log out</button>
             </div>
         </div>
     )

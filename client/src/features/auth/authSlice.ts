@@ -7,6 +7,7 @@ import createAppAsyncThunk from '../../app/createAppAsyncThunk'
 interface AuthState {
     authenticated: boolean
     data?: UserAuthData
+    registerSuccess?: boolean
 }
 
 const initialState: AuthState = {
@@ -15,11 +16,28 @@ const initialState: AuthState = {
 
 const url = import.meta.env.VITE_BASE_URL || 'http://localhost:3000'
 
+
+export const register = createAppAsyncThunk('auth/register', async (credentials: Credentials) => {
+    try {
+        const payload = JSON.stringify(credentials)
+        const res = await fetch(url + '/api/user/register', {
+            method: 'POST',
+            headers: {"Content-Type": "application/json"},
+            body: payload
+        })
+        const json = await res.json()
+        return json
+    }
+    catch(error){
+        return error
+    }
+})
+
 export const fetchToken = createAppAsyncThunk('auth/fetchToken', async (credentials: Credentials) => {
     try {
         const payload = JSON.stringify(credentials)
         console.log(payload)
-        const res = await fetch(url + 'api/user/login', {
+        const res = await fetch(url + '/api/user/login', {
             method: 'POST',
             headers: {"Content-Type": "application/json"},
             body: payload
@@ -86,6 +104,15 @@ export const authSlice = createSlice({
                 localStorage.setItem('username', JSON.stringify(state.data.username))
                 localStorage.setItem('token', JSON.stringify(state.data.token))
                 localStorage.setItem('userId', JSON.stringify(state.data.id))
+            })
+
+            .addCase(register.pending, (state, action) => {
+                console.log('register: pending...')
+            })
+            .addCase(register.fulfilled, (state, action) => {
+                const result = action.payload
+                console.log('register: ', result)
+                state.registerSuccess = true
             })
     }
 })

@@ -1,6 +1,6 @@
-import { useApDispatch } from "../app/hooks";
+import { useApDispatch } from "../../app/hooks";
 // import { removeOverlay } from "../features/socket/socketSlice";
-import { ChildrenProp } from "./ChildrenProp";
+import { ChildrenProp } from "../ChildrenProp";
 
 export interface OverlayProps extends ChildrenProp {
     closeFn: () => void
@@ -17,7 +17,7 @@ const Overlay = ({children, closeFn}: OverlayProps) => {
             " 
         >
             <div
-                className="w-72 h-80 bg-white rounded-xl p-2 flex flex-col" 
+                className="w-72 h-80 bg-white rounded-xl p-2 flex flex-col opacity-100" 
             >
                 <div // header
                     className="flex flex-row-reverse justify-start h-8 w-full" 

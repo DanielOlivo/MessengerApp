@@ -33,34 +33,53 @@ const Login = () => {
 
     return (
         <div
-            id='login' 
+            className="w-screen h-screen flex flex-col justify-center items-center" 
         >
-            <h2>Login</h2>
-            <div 
-                id='username'>
-                <input
-                    type='text'
-                    placeholder="username"
-                    defaultValue='john.doe'
-                    ref={usernameRef}
-                />
-            </div>
 
             <div
-                id='password'>
-                <input 
-                    type='password'
-                    placeholder="password"
-                    defaultValue='1234'
-                    ref={passwordRef}
-                />
+                id='login' 
+                className="flex flex-col justify-start items-start"
+            >
+                <h2
+                    className="text-2xl" 
+                >Login</h2>
+                <div 
+                    className="mt-5"
+                    id='username'>
+                    
+                    <input
+                        type='text'
+                        placeholder="username"
+                        // defaultValue='john.doe'
+                        ref={usernameRef}
+                    />
+                </div>
+
+                <div
+                    id='password'>
+                    <input 
+                        type='password'
+                        placeholder="password"
+                        // defaultValue='1234'
+                        ref={passwordRef}
+                    />
+                </div>
+
+                <div>
+                    <button
+                        className="border border-black rounded-md px-7 py-1 mt-3"
+                        onClick={(e) => handleSubmit()} 
+                    >Login</button>
+                </div>
+
+                <div>
+                    <button
+                        className="text-gray-400"
+                        onClick={(e) => navigate('/register')} 
+                    >Register</button>
+                </div>
             </div>
 
-            <div>
-                <button
-                    onClick={(e) => handleSubmit()} 
-                >Login</button>
-            </div>
         </div>
     )
 }
