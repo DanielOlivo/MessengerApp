@@ -20,7 +20,8 @@ const url = import.meta.env.VITE_BASE_URL || 'http://localhost:3000'
 export const register = createAppAsyncThunk('auth/register', async (credentials: Credentials) => {
     try {
         const payload = JSON.stringify(credentials)
-        const res = await fetch(url + '/api/user/register', {
+        const targetUrl = new URL('/api/user/register', url).href
+        const res = await fetch(targetUrl, {
             method: 'POST',
             headers: {"Content-Type": "application/json"},
             body: payload
@@ -37,7 +38,8 @@ export const fetchToken = createAppAsyncThunk('auth/fetchToken', async (credenti
     try {
         const payload = JSON.stringify(credentials)
         console.log(payload)
-        const res = await fetch(url + '/api/user/login', {
+        const targetUrl = new URL('/api/user/login', url).href
+        const res = await fetch(targetUrl, {
             method: 'POST',
             headers: {"Content-Type": "application/json"},
             body: payload
