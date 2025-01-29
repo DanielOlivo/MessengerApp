@@ -8,7 +8,7 @@ export interface SocketInterface {
     socket: Socket
 }
 
-const url = import.meta.env.BASE_URL || 'http://localhost:3000'
+const url = import.meta.env.VITE_BASE_URL || 'http://localhost:3000'
 
 class SocketConnection implements SocketInterface {
     public socket: Socket
