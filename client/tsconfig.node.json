@@ -6,6 +6,8 @@
     "module": "ESNext",
     "skipLibCheck": true,
 
+    "outDir": "./dist",
+
     "baseUrl": "src",
     "paths": {
       "@features/*": ["features/*"]

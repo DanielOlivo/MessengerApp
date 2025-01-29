@@ -37,9 +37,21 @@ export const authSlice = createSlice({
     initialState,
     reducers: {
 
-        // login: (state, action: PayloadAction<UserAuthData>) => {
-        //     state.data = action.payload
-        // },
+        login: (state) => {
+            const username = localStorage.getItem('username')
+            const token = localStorage.getItem('token')
+            const id = localStorage.getItem('userId')
+
+            if(username && token && id){
+                console.log('login')
+                state.data = {
+                    id: JSON.parse(id),
+                    username: JSON.parse(username),
+                    token: JSON.parse(token)
+                }
+                state.authenticated = true
+            }
+        },
 
         logout: (state) => {
             state.data = undefined
@@ -71,4 +83,5 @@ export const authSlice = createSlice({
     }
 })
 
+export const {login, logout} = authSlice.actions
 export default authSlice.reducer

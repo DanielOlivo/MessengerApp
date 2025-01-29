@@ -1,15 +1,23 @@
 import { useEffect } from "react"
 import { Credentials } from "../../../../types/Client"
 import { useApDispatch } from "../../app/hooks"
-import { fetchToken } from "../../features/auth/authSlice"
+import { fetchToken, login } from "../../features/auth/authSlice"
 
+export interface AutoLoginProp {
+    credentials?: Credentials
+}
 
-const AutoLogin = (credentials: Credentials) => {
+const AutoLogin = ({credentials}: AutoLoginProp) => {
 
     const dispatch = useApDispatch()
 
     useEffect(() => {
-        dispatch(fetchToken(credentials))
+        if(credentials){
+            dispatch(fetchToken(credentials))
+        }
+        else {
+            dispatch(login())
+        }
     },[])
 
     return <></>

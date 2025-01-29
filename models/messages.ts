@@ -26,16 +26,17 @@ const model = {
 
     getByUserId: async(userId: UserId) => {
         // to optimize
-        const messages = await db('messages').where({userId}).orderBy('created', 'desc').select('*') as Message[]
+        throw new Error()
+        // const messages = await db('messages').where({userId}).orderBy('created', 'desc').select('*') as Message[]
 
-        const result = Object.entries(Object.groupBy(messages, msg => msg.chatId)).map(([chatId, msgs]) => {
-            return {
-                chatId,
-                msg: maxBy(msgs!, msg => msg.created.getTime())
-            }
-        })
+        // const result = Object.entries(Object.groupBy(messages, msg => msg.chatId)).map(([chatId, msgs]) => {
+        //     return {
+        //         chatId,
+        //         msg: maxBy(msgs!, msg => msg.created.getTime())
+        //     }
+        // })
         
-        return result
+        // return result
 
     },
 

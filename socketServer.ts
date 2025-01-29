@@ -24,7 +24,8 @@ import { ChatListItem, ChatListReq, ChatSelect, ChatSelectRes, GroupInfoReq, Gro
 export const httpServer = createServer(app)
 export const io = new Server(httpServer, {
     cors: {
-        origin: ["http://localhost:3000", "http://localhost:5173"],
+        // origin: ["http://localhost:3000", "http://localhost:5173"],
+        origin: ["http://localhost:5173"],
         methods: ["GET", "POST"],
         credentials: true
     }
@@ -101,6 +102,7 @@ io.on('connection', async (socket) => {
 
     // for user
     socket.on(Commands.ChatListReq, async (req: ChatListReq) => {
+        console.log('CHAT LIST REQ')
         const res: ChatListItem[] = await socketController.handleChatListReq(payload, req)
         io.to(socket.id).emit(Commands.ChatListRes, res)
     })

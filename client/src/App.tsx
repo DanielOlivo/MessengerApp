@@ -65,7 +65,8 @@ function App() {
       <Route path='/login' element={ 
         <>
         <Login /> 
-        <AutoLogin username='user1' password='1234' />
+        {/* <AutoLogin username='user1' password='1234' /> */}
+        <AutoLogin  />
         </> }
       />
       <Route path='/register' element={ <Registration /> } />

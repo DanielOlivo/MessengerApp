@@ -25,10 +25,24 @@ const ChatList = () => {
     useEffect(() => {
         if(isConnected){
             console.log('reqList running...')
-            dispatch(reqList())
+            setTimeout(() => dispatch(reqList()), 1000)
         }
         // setTimeout(() => dispatch(reqList()), 1000)
     },[isConnected])
+
+    useEffect(() => {
+        // function wait(ms:number){
+        //     return new Promise(res => setTimeout(res, ms))
+        // }
+        // if(chatList.length == 0){
+        //     (async function(){
+        //         while(chatList.length == 0){
+        //             dispatch(reqList())
+        //             await wait(2000)
+        //         }
+        //     })()
+        // }
+    },[chatList])
 
 
     const onList = () => 

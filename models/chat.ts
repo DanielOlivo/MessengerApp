@@ -112,22 +112,42 @@ export function sendMessage2(userId: UserId, chatId: ChatId, content: string){
 }
 
 export function sendMessage(userId: UserId, chatId: ChatId, content: string){
-    return db
-        .with('userId', db.raw(`(SELECT \'${userId}\'::uuid as "userId")`))
-        .with('chatId', db.raw(`(select \'${chatId}\'::uuid as "chatId")`))
-        .with("content", db.raw(`(select \'${content}\' as content)`))
-        .with('hasRight', isChatMember(db("userId"), db("chatId")))
-        .with("toInsert", db.select("userId", "chatId", "content").fromRaw('"userId", "chatId", "content", "hasRight"').where("isMember", true))
+    return db.transaction(async trx => {
+        return trx
+        .with('userId', trx.raw(`(SELECT \'${userId}\'::uuid as "userId")`))
+        .with('chatId', trx.raw(`(select \'${chatId}\'::uuid as "chatId")`))
+        .with("content", trx.raw(`(select ? as content)`, [content]))
+        .with('hasRight', isChatMember(trx("userId"), trx("chatId")))
+        .with("toInsert", trx.select("userId", "chatId", "content").fromRaw('"userId", "chatId", "content", "hasRight"').where("isMember", true))
         .with('inserted', 
-            db.into(db.raw('?? (??, ??, ??)', ["messages", "userId", "chatId", "content"]))
-            .insert(db("toInsert"))
+            trx.into(trx.raw('?? (??, ??, ??)', ["messages", "userId", "chatId", "content"]))
+            .insert(trx("toInsert"))
             .returning("*"))
         .select('i.created', 'content', 'chatId', 'username', "userId", "i.id as messageId"
             // db.raw(`(select case when "userId"=\'${userId}\' then true else false end as "isOwner")`)
         ).from("inserted as i")
         .leftJoin('users', 'users.id', "i.userId")
         .first()
+    })
 }
+
+// export function sendMessage(userId: UserId, chatId: ChatId, content: string){
+//     return db
+//         .with('userId', db.raw(`(SELECT \'${userId}\'::uuid as "userId")`))
+//         .with('chatId', db.raw(`(select \'${chatId}\'::uuid as "chatId")`))
+//         .with("content", db.raw(`(select \'${content}\' as content)`))
+//         .with('hasRight', isChatMember(db("userId"), db("chatId")))
+//         .with("toInsert", db.select("userId", "chatId", "content").fromRaw('"userId", "chatId", "content", "hasRight"').where("isMember", true))
+//         .with('inserted', 
+//             db.into(db.raw('?? (??, ??, ??)', ["messages", "userId", "chatId", "content"]))
+//             .insert(db("toInsert"))
+//             .returning("*"))
+//         .select('i.created', 'content', 'chatId', 'username', "userId", "i.id as messageId"
+//             // db.raw(`(select case when "userId"=\'${userId}\' then true else false end as "isOwner")`)
+//         ).from("inserted as i")
+//         .leftJoin('users', 'users.id', "i.userId")
+//         .first()
+// }
 
 export function isChatMember(userId: any, chatId: any){
     return db 
