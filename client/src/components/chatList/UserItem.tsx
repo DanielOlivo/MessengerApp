@@ -1,6 +1,6 @@
-import { ContactItem } from "../../../../types/Client"
+import { ContactItem } from "../../types/Client"
 import { useApDispatch } from "../../app/hooks"
-import { clearResult, setState } from "../../features/chatList/chatListSlicer"
+// import { clearResult, setState } from "../../features/chatList/chatListSlicer"
 import { reqDataByUser } from "../../features/chatView/chatViewSlice"
 import LetterIcon from "../LetterIcon"
 

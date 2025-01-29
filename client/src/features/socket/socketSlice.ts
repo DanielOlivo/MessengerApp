@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
-import type { RootState } from "../../app/store";
+// import type { RootState } from "../../app/store";
 
 // import {user1, users, dms, messages, chats, memberships} from './init'
 import {
@@ -12,7 +12,7 @@ import {
     memberships} from './init2'
 
 import { DbUser,ChatId, DM, Message, UserId, MessageId, 
-    Group, Membership, MembershipId } from "../../../../types/Types";
+    Group, Membership, MembershipId } from "../../types/Client";
 import { UserMessageProp } from "../../components/UserMessage";
 import { DateMessageProp } from "../../components/DateMessage";
 

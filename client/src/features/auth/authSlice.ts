@@ -1,7 +1,7 @@
-import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { createSlice } from '@reduxjs/toolkit'
 // import { createAppAsyncThunk, type AppThunk, type RootState } from '../../app/store'
-import { Credentials, UserAuthData } from '../../../../types/Client'
-import { RootState } from '../../app/store'
+import { Credentials, UserAuthData } from '../../types/Client'
+// import { RootState } from '../../app/store'
 import createAppAsyncThunk from '../../app/createAppAsyncThunk'
 
 interface AuthState {

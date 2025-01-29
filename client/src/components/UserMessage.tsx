@@ -1,4 +1,4 @@
-import { ChatMessage } from "../../../types/Client"
+import { ChatMessage } from "../types/Client"
 
 export interface UserMessageProp {
     sender: string

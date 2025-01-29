@@ -8,9 +8,10 @@
 
     "outDir": "./dist",
 
-    "baseUrl": "src",
+    "baseUrl": "./src",
     "paths": {
-      "@features/*": ["features/*"]
+      "@features/*": ["features/*"],
+      "@types/*": ["./types/*"]
     },
 
     /* Bundler mode */

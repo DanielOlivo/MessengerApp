@@ -1,8 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { ChatId } from '../../../../types/Types'
-import { HeaderInfo } from '../../../../types/Client'
-import { ChatSelectRes, Typing } from '../../../../types/Client'
-import { headerInfo } from '../../../../models/chat'
+import { ChatId } from '../../types/Client'
+import { HeaderInfo } from '../../types/Client'
+import { ChatSelectRes, Typing } from '../../types/Client'
 import createAppAsyncThunk from '../../app/createAppAsyncThunk'
 
 export type MemberCount = number

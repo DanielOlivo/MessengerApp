@@ -1,5 +1,5 @@
 import { useEffect } from "react"
-import { Credentials } from "../../../../types/Client"
+import { Credentials } from "../../types/Client"
 import { useApDispatch } from "../../app/hooks"
 import { fetchToken, login } from "../../features/auth/authSlice"
 

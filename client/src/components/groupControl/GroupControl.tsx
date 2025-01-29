@@ -3,7 +3,7 @@ import { useApDispatch, useAppSelector } from "../../app/hooks"
 import { selectGroupId, selectGroupMembers, selectIsOn } from "../../features/group/groupSliceSelectors"
 import Overlay from "../Overlay"
 import { closeGroupControl, reqContacts, createGroup } from "../../features/group/groupSlice"
-import { GroupMember, NewGroupReq } from "../../../../types/Client"
+import { GroupMember, NewGroupReq } from "../../types/Client"
 import MemberItem from './MemberItem'
 import { selectUserId } from "../../features/auth/selectors"
 

@@ -1,4 +1,4 @@
-import { GroupMember } from "../../../../types/Client"
+import { GroupMember } from "../../types/Client"
 import { useApDispatch } from "../../app/hooks"
 import { exclude, include } from "../../features/group/groupSlice"
 
