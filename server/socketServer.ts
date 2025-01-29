@@ -25,7 +25,7 @@ export const httpServer = createServer(app)
 export const io = new Server(httpServer, {
     cors: {
         // origin: ["http://localhost:3000", "http://localhost:5173"],
-        origin: ["http://localhost:5173"],
+        origin: [process.env.BASEURL as string, "http://localhost:5173"],
         methods: ["GET", "POST"],
         credentials: true
     }

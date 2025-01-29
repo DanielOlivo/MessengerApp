@@ -7,6 +7,7 @@ const router = Router()
 router.use(cors({
     credentials: true,
     origin: [
+        process.env.BASEURL as string,
         'http://localhost:3000', 
         'http://localhost:5173'
     ]

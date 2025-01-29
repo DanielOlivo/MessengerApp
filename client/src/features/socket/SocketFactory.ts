@@ -8,9 +8,11 @@ export interface SocketInterface {
     socket: Socket
 }
 
+const url = import.meta.env.BASE_URL || 'http://localhost:3000'
+
 class SocketConnection implements SocketInterface {
     public socket: Socket
-    public socketEndpoint = 'http://localhost:3000'
+    public socketEndpoint = url
 
     constructor(){
         // console.log('SocketConnection.constructor')

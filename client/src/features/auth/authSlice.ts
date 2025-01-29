@@ -13,11 +13,13 @@ const initialState: AuthState = {
     authenticated: false
 }
 
+const url = import.meta.env.BASE_URL || 'http://localhost:3000'
+
 export const fetchToken = createAppAsyncThunk('auth/fetchToken', async (credentials: Credentials) => {
     try {
         const payload = JSON.stringify(credentials)
         console.log(payload)
-        const res = await fetch('http://localhost:3000/api/user/login', {
+        const res = await fetch(url + '/api/user/login', {
             method: 'POST',
             headers: {"Content-Type": "application/json"},
             body: payload
