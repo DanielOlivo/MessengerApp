@@ -44,6 +44,11 @@ export const authSlice = createSlice({
             const token = localStorage.getItem('token')
             const id = localStorage.getItem('userId')
 
+            if([username, token, id].some(item => item == "undefined")){
+                state.authenticated = false
+                return
+            }
+
             if(username && token && id){
                 console.log('login')
                 state.data = {
