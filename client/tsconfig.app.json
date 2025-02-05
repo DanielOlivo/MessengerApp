@@ -8,6 +8,14 @@
     "module": "ESNext",
     "skipLibCheck": true,
 
+    "baseUrl": ".",
+    "paths": {
+      "src/*": ["./src/*"],
+      "@shared/*": ["../shared/src/*"],
+      "@features/*": ["./src/features/*"],
+      "@app/*": ["./src/app/*"]
+    },
+
     /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
@@ -19,8 +27,12 @@
 
     /* Linting */
     "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
+
+    // "noUnusedLocals": true, // todo
+    // "noUnusedParameters": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },

@@ -2,7 +2,7 @@
 import { useApDispatch } from "../../app/hooks"
 // import { selectChat } from "../../features/socket/socketSlice"
 import LetterIcon from "../LetterIcon"
-import { ChatListItem } from "../../types/Client"
+import { ChatListItem } from "@shared/Types"
 import { reqData } from "../../features/chatView/chatViewSlice"
 // import { setActiveChat, setState } from "../../features/state/stateSlice"
 

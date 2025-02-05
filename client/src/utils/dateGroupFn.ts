@@ -1,4 +1,4 @@
-import { Message } from "../types/Client"
+import { Message } from "@shared/Types"
 
 export default function dateGroupFn({created}: Message): string {
     return created.toLocaleDateString('en-us', {

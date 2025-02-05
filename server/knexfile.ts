@@ -1,16 +1,11 @@
-import {Knex} from 'knex'
+import 'tsconfig-paths/register'
+import type { Knex } from "knex";
 import dotenv from 'dotenv'
-
 dotenv.config()
 
-export interface Conf {
-  development: Knex.Config,
-  test: Knex.Config,
-  production: Knex.Config
-}
+// Update with your config settings.
 
-const config: Conf = {
-
+const config: { [key: string]: Knex.Config } = {
   development: {
     client: 'pg',
     connection: {
@@ -20,10 +15,10 @@ const config: Conf = {
       database: process.env.DBDEV
     },
     migrations: {
-      directory: "./config/migrations"
+      directory: "./src/config/migrations"
     },
     seeds: {
-      directory: "./config/seeds/development"
+      directory: "./src/config/seeds/development"
     }
   },
 
@@ -36,13 +31,13 @@ const config: Conf = {
       database: process.env.DBTEST
     },
     migrations: {
-      directory: "./config/migrations"
+      directory: "./src/config/migrations"
     },
     seeds: {
-      directory: "./config/seeds/test"
+      directory: "./src/config/seeds/test"
     }
-  },
 
+  },
 
   production: {
     client: 'pg',
@@ -54,13 +49,15 @@ const config: Conf = {
       max: 10
     },
     migrations: {
-      directory: './config/migrations'
+      directory: './src/config/migrations'
     },
     seeds: {
-      directory: "./config/seeds/production"
+      directory: "./src/config/seeds/production"
     }
   }
 
 };
 
+
+// module.exports = config;
 export default config

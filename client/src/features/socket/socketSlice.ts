@@ -12,7 +12,7 @@ import {
     memberships} from './init2'
 
 import { DbUser,ChatId, DM, Message, UserId, MessageId, 
-    Group, Membership, MembershipId } from "../../types/Client";
+    Group, Membership, MembershipId } from "@shared/Types";
 import { UserMessageProp } from "../../components/UserMessage";
 import { DateMessageProp } from "../../components/DateMessage";
 
@@ -111,7 +111,7 @@ const socketSlice = createSlice({
             return
         },
 
-        say: (state, action: MsgAction) => {
+        say: (state, action: PayloadAction<string>) => {
             // state.msg = action.payload.msg
         }
     }

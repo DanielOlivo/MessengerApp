@@ -9,7 +9,7 @@ import dms from '../models/dms'
 import messages from '../models/messages'
 import groups from '../models/groups'
 import memberships from '../models/memberships'
-import { DbUser, Chat, DM, Group } from '../types/Types'
+import { DbUser, Chat, DM, Group } from '../../shared/src/Types'
 
 describe('basic scenario', () => {
 

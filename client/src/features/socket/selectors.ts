@@ -1,6 +1,6 @@
 import { createSelector } from "@reduxjs/toolkit"
 import type { RootState } from "../../app/store"
-import { Group, DM, ChatId, Message } from "../../../../types/Types"
+import { Group, DM, ChatId, Message } from "@shared/Types"
 import dateGroupFn from "../../utils/dateGroupFn"
 import maxBy from "../../utils/maxBy"
 import { ChatItemProp } from "../../components/chatList/ChatItem"
@@ -63,54 +63,54 @@ export const selectChatTypes = createSelector( // chatId: isDm
     }
 )
 
-export const selectLastMessages = createSelector(
-    selectMessageList,
-    (messages) => {
-        const grouped = Object.groupBy(messages, msg => msg.chatId)
-        const keepLast: {chatId: ChatId, message: Message}[] = Object.entries(grouped).map(([chatId, msgs]) => {
-            return {
-                chatId: chatId,
-                message: maxBy(msgs!, msg => msg.created.getMilliseconds())
-            }
-        })
-        return keepLast.sort(({message}) => message.created.getMilliseconds())
-    }
-)
+// export const selectLastMessages = createSelector(
+//     selectMessageList,
+//     (messages) => {
+//         const grouped = Object.groupBy(messages, msg => msg.chatId)
+//         const keepLast: {chatId: ChatId, message: Message}[] = Object.entries(grouped).map(([chatId, msgs]) => {
+//             return {
+//                 chatId: chatId,
+//                 message: maxBy(msgs!, msg => msg.created.getMilliseconds())
+//             }
+//         })
+//         return keepLast.sort(({message}) => message.created.getMilliseconds())
+//     }
+// )
 
-export const selectGroupedMessagesByChatId = createSelector(
-    selectMessageList,
-    (messages) => Object.groupBy(messages, msg => msg.chatId)
-)
+// export const selectGroupedMessagesByChatId = createSelector(
+//     selectMessageList,
+//     (messages) => Object.groupBy(messages, msg => msg.chatId)
+// )
 
-export const selectChatList = createSelector(
-    selectUser,
-    selectUsers,
-    selectGroups,
-    selectDMs,
-    selectChatTypes,
-    selectLastMessages,
-    (user, users, groups, dms, chatTypes, last) => {
-        return last.map(({chatId, message}) => {
-            const content = message.content
-            const lastUser = users[message.userId]
-            let name: string 
-            if(!chatTypes[chatId]){
-                name = groups[chatId].name || 'group'
-            }
-            else {
-                const dm = dms[chatId]
-                name = dm.user1Id == user.id ? users[dm.user2Id].username : users[dm.user1Id].username
-            }
-            const result: ChatItemProp = {
-                chatId,
-                content,
-                lastSenderName: lastUser.username,
-                name
-            }
-            return result 
-        })
-    }
-)
+// export const selectChatList = createSelector(
+//     selectUser,
+//     selectUsers,
+//     selectGroups,
+//     selectDMs,
+//     selectChatTypes,
+//     selectLastMessages,
+//     (user, users, groups, dms, chatTypes, last) => {
+//         return last.map(({chatId, message}) => {
+//             const content = message.content
+//             const lastUser = users[message.userId]
+//             let name: string 
+//             if(!chatTypes[chatId]){
+//                 name = groups[chatId].name || 'group'
+//             }
+//             else {
+//                 const dm = dms[chatId]
+//                 name = dm.user1Id == user.id ? users[dm.user2Id].username : users[dm.user1Id].username
+//             }
+//             const result: ChatItemProp = {
+//                 chatId,
+//                 content,
+//                 lastSenderName: lastUser.username,
+//                 name
+//             }
+//             return result 
+//         })
+//     }
+// )
 
 export const isGroupSelected = createSelector(
     getSelectedChat,
@@ -174,39 +174,39 @@ export const selectOthersOnlineStatusWhenDm = createSelector(
 
 export type MessageItem = ServiceMessage | DateMessageProp | UserMessageProp
 
-export const selectMessages = createSelector(
-    getSelectedChat,
-    selectGroupedMessagesByChatId,
-    selectUser,
-    selectUsers,
-    (chatId, messages, user, users) => {
-        let result: MessageItem[]
+// export const selectMessages = createSelector(
+//     getSelectedChat,
+//     selectGroupedMessagesByChatId,
+//     selectUser,
+//     selectUsers,
+//     (chatId, messages, user, users) => {
+//         let result: MessageItem[]
 
-        if(!chatId){
-            result = []
-            return result
-        }
+//         if(!chatId){
+//             result = []
+//             return result
+//         }
 
-        const first: MessageItem = {msg: 'chat started'} as ServiceMessage
+//         const first: MessageItem = {msg: 'chat started'} as ServiceMessage
 
-        const msgs = messages[chatId!]!
-        const dateGrouped = Object.groupBy(msgs, dateGroupFn)
-        const sorted = Object.entries(dateGrouped).sort(([dt, _]) => new Date(dt).getMilliseconds())
-        result = sorted.map(([dt, msgs]) => {
-            const dateMsg: DateMessageProp = {date: new Date(dt)}
-            const userMsgs: UserMessageProp[] = msgs!.map(msg => {
-                return {
-                    sender: users[msg.userId].username,
-                    message: msg.content,
-                    isOwner: user.id == msg.userId,
-                    isRead: false
-                }
-            })
-            return [dateMsg, ...userMsgs] as MessageItem[]
-        }).reduce((acc, items) => acc.concat(items), [first])
-        return result
-    }
-)
+//         const msgs = messages[chatId!]!
+//         const dateGrouped = Object.groupBy(msgs, dateGroupFn)
+//         const sorted = Object.entries(dateGrouped).sort(([dt, _]) => new Date(dt).getMilliseconds())
+//         result = sorted.map(([dt, msgs]) => {
+//             const dateMsg: DateMessageProp = {date: new Date(dt)}
+//             const userMsgs: UserMessageProp[] = msgs!.map(msg => {
+//                 return {
+//                     sender: users[msg.userId].username,
+//                     message: msg.content,
+//                     isOwner: user.id == msg.userId,
+//                     isRead: false
+//                 }
+//             })
+//             return [dateMsg, ...userMsgs] as MessageItem[]
+//         }).reduce((acc, items) => acc.concat(items), [first])
+//         return result
+//     }
+// )
 
 
 // trash

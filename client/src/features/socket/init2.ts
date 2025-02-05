@@ -2,7 +2,7 @@
 
 import { v4 as uuid } from 'uuid'
 import dateGen from '../../utils/getDateGen'
-import { DbUser, DM, Group, Membership, Message } from '../../types/Client'
+import { DbUser, DM, Group, Membership, Message } from '@shared/Types'
 
 const getDate = dateGen()
 

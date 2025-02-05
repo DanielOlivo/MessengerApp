@@ -2,9 +2,9 @@ process.env.NODE_ENV = 'test'
 
 import {describe, test, expect, beforeAll, afterAll} from '@jest/globals'
 import request from 'supertest'
-import db from '../config/db'
-import app from '../app'
-import { Credentials, RegCredentials } from '../types/Types'
+import db from '@config/db'
+import app from '../src/app'
+import { Credentials, RegCredentials } from '../../shared/src/Types'
 
 describe('auth', () => {
     

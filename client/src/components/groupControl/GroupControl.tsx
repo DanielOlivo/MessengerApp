@@ -1,11 +1,10 @@
 import { useEffect, useRef } from "react"
-import { useApDispatch, useAppSelector } from "../../app/hooks"
-import { selectGroupId, selectGroupMembers, selectIsOn } from "../../features/group/groupSliceSelectors"
-import Overlay from "./Overlay"
-import { closeGroupControl, reqContacts, createGroup } from "../../features/group/groupSlice"
-import { GroupMember, NewGroupReq } from "../../types/Client"
+import { useApDispatch, useAppSelector } from "@app/hooks"
+import { selectGroupId, selectGroupMembers, selectIsOn } from "@features/group/groupSliceSelectors"
+import { closeGroupControl, reqContacts, createGroup } from "@features/group/groupSlice"
+import { NewGroupReq } from "@shared/Types"
 import MemberItem from './MemberItem'
-import { selectUserId } from "../../features/auth/selectors"
+import { selectUserId } from "@features/auth/selectors"
 
 const GroupControl = () => {
 

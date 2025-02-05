@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { GroupMember, GroupReq, ContactItem, NewGroupReq } from "../../types/Client";
-import { UserId, ChatId } from "../../types/Client";
+import { GroupMember, GroupReq, ContactItem, NewGroupReq } from "@shared/Types";
+import { UserId, ChatId } from "@shared/Types";
 
 
 export interface GroupControlState {

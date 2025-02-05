@@ -1,7 +1,7 @@
-import { ContactItem } from "../../types/Client"
-import { useApDispatch } from "../../app/hooks"
+import { ContactItem } from "@shared/Types"
+import { useApDispatch } from "@app/hooks"
 // import { clearResult, setState } from "../../features/chatList/chatListSlicer"
-import { reqDataByUser } from "../../features/chatView/chatViewSlice"
+import { reqDataByUser } from "@features/chatView/chatViewSlice"
 import LetterIcon from "../LetterIcon"
 
 const UserItem = ({id, username}: ContactItem) => {

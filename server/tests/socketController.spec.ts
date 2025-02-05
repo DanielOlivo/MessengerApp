@@ -1,7 +1,7 @@
 process.env.NODE_ENV = 'test'
 
 import {describe, test, expect, beforeAll, afterAll, afterEach, beforeEach} from '@jest/globals'
-import { TokenPayload, UserId, ChatId, DM, Message, Group } from '../types/Types'
+import { TokenPayload, UserId, ChatId, DM, Message, Group } from '../../shared/src/Types'
 import unreadModel, {Unread} from '../models/unread'
 import socketController, {Res} from '../controllers/socket'
 import userModel from '../models/users'

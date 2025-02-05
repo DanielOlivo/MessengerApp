@@ -2,7 +2,7 @@ process.env.NODE_ENV = 'test'
 
 import {describe, test, expect, beforeAll, afterAll} from '@jest/globals'
 import db from '../config/db'
-import { ChatId, UserId } from '../types/Types'
+import { ChatId, UserId } from '../../shared/src/Types'
 import { chatList, lastMessages, chatNames, groupNames, dmNames, dmOthers } from '../models/chatList'
 
 describe('chat list', () => {

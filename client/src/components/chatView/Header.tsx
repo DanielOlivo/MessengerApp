@@ -1,30 +1,19 @@
-import { useApDispatch, useAppSelector } from "../../app/hooks"
-// import { selectChatName, selectGroupMemberCount, selectOthersOnlineStatusWhenDm } from "../../features/socket/selectors"
-// import { ChildrenProp } from "../ChildrenProp"
-
-// import { isGroupSelected } from "../../features/socket/selectors"
+import { useApDispatch, useAppSelector } from "@app/hooks"
 import LetterIcon from "../LetterIcon"
 import { selectHeaderInfo, selectOnlineStatus, selectTyping, 
-    selectTypingTrigger } from "../../features/header/selectors"
-import { timer } from "../../features/header/headerSlice"
+    selectTypingTrigger } from "@features/header/selectors"
+import { timer } from "@features/header/headerSlice"
 
-// import { selectGlobalState } from "../../features/state/selectors"
 import { useEffect } from "react"
-import { selectUserId } from "../../features/auth/selectors"
-import { logout } from "../../features/auth/authSlice"
+import { selectUserId } from "@features/auth/selectors"
+import { logout } from "@features/auth/authSlice"
 
-// export interface HeaderProp {
-//     name: string
-//     status: string
-// }
-
-// const Header = ({name, status}: HeaderProp) => {
 const Header = () => {
 
     const dispatch = useApDispatch()
 
     const info = useAppSelector(selectHeaderInfo)
-    const onlineStatus = useAppSelector(selectOnlineStatus)
+    // const onlineStatus = useAppSelector(selectOnlineStatus)
 
     const typing = useAppSelector(selectTyping)
     const typingTrigger = useAppSelector(selectTypingTrigger)

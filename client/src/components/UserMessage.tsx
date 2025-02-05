@@ -1,4 +1,4 @@
-import { ChatMessage } from "../types/Client"
+import { ChatMessage } from "@shared/Types"
 
 export interface UserMessageProp {
     sender: string
@@ -6,11 +6,7 @@ export interface UserMessageProp {
     isOwner: boolean
     isRead?: boolean
 }
-    // content: string,
-    // username: string,
-    // created: Date,
-    // isOwner: boolean,
-    // unread: boolean
+
 const UserMessage = ({messageId, content, username, created, isOwner, unread}: ChatMessage) => {
 
     const getReadStatus = () => {

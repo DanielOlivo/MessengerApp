@@ -8,10 +8,9 @@
 
     "outDir": "./dist",
 
-    "baseUrl": "./src",
+    "baseUrl": ".",
     "paths": {
-      "@features/*": ["features/*"],
-      "@types/*": ["./types/*"]
+      "src/*": ["./src/*"]
     },
 
     /* Bundler mode */
@@ -28,5 +27,8 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["vite.config.ts"]
+  "include": [
+    "vite.config.ts",
+  ],
+  "exclude": ["node_modules"]
 }

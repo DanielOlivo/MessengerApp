@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { ChatMessage, ChatSelect, ChatSelectRes, HeaderInfo, SendRes } from "../../types/Client";
-import { UserId, ChatId } from "../../types/Client";
+import { ChatMessage, ChatSelect, ChatSelectRes, HeaderInfo, SendRes } from "@shared/Types";
+import { UserId, ChatId } from "@shared/Types";
 
 export interface ChatViewState {
     userId: UserId

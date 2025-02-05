@@ -1,8 +1,13 @@
 {
+  "compilerOptions": {
+    "noUnusedLocals": false
+  },
   "files": [],
   "references": [
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" },
-    // { "path": "../"}
-  ]
+    { "path": "../shared"}
+  ],
+  // "include": ["../shared"]
+  // "exclude": ["node_modules"]
 }

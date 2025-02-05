@@ -1,9 +1,9 @@
 import { useEffect, useRef } from "react"
-import { useApDispatch, useAppSelector } from "../../app/hooks"
-import { selectAuthStatus } from "../../features/auth/selectors"
+import { useApDispatch, useAppSelector } from "@app/hooks"
+import { selectAuthStatus } from "@features/auth/selectors"
 import { useNavigate } from "react-router-dom"
-import { Credentials } from "../../types/Client"
-import { fetchToken } from "../../features/auth/authSlice"
+import { Credentials } from "@shared/Types"
+import { fetchToken } from "@features/auth/authSlice"
 
 const Login = () => {
 

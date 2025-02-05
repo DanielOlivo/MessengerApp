@@ -1,5 +1,5 @@
 import { v4 as uuid } from "uuid";
-import { DbUser, ChatId, DM, Message, MessageId, UserId, Membership, Group } from "../../../../types/Types";
+import { DbUser, ChatId, DM, Message, MessageId, UserId, Membership, Group } from "@shared/Types";
 import dateGen from "../../utils/getDateGen";
 
 const getDate = dateGen()
