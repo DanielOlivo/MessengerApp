@@ -9,7 +9,20 @@ import human8               from './icons/humans/8.jpg'
 import human9               from './icons/humans/9.jpg'
 import human10              from './icons/humans/10.jpg'
 
+import attachment       from './icons/chatview/attachment.svg'
+import clock            from './icons/chatview/clock.svg'
+import dots             from './icons/chatview/dots.svg'
+import gear             from './icons/chatview/gear.svg'
+import image            from './icons/chatview/image.svg'
+import search           from './icons/chatview/search.svg'
+import seen             from './icons/chatview/seen.svg'
+import unseen           from './icons/chatview/unseen.svg'
+
 export const humanIcons = {
     human1, human2, human3, human4, human5, 
     human6, human7, human8, human9, human10
+}
+
+export const chatViewIcons = {
+    attachment, clock, dots, gear, image, search, seen, unseen
 }
