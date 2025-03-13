@@ -5,6 +5,7 @@ import { ChatId } from "../../../shared/src/Types";
 import { ContainerItem } from "../ChatView/slice";
 import { faker } from "@faker-js/faker";
 import { getRandomIcon } from "./getRandomIcon";
+import { Typings } from "../ChatView/components/Typing/utils";
 
 export type DeepPartial<T> = T extends Array<infer U>
     ? T 
@@ -71,12 +72,7 @@ export function getState(state?: DeepPartial<RootState>): RootState {
                 title: state?.chatView2?.header?.title ?? faker.person.fullName(),
                 iconSrc: state?.chatView2?.header?.iconSrc ?? getRandomIcon().iconSrc
             },
-            typing: {
-                timestamp: state?.chatView2?.typing?.timestamp ?? 0,
-                username: state?.chatView2?.typing?.username ?? faker.person.firstName(),
-                userId: state?.chatView2?.typing?.userId ?? '',
-                chatId: state?.chatView2?.typing?.chatId ?? ''
-            }
+            typing: state?.chatView2?.typing as Typings ?? {}
         }
     }
 

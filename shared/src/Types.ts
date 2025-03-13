@@ -143,11 +143,15 @@ export interface Credentials {
     password: string
 }
 
+
 export interface Typing {
     username: string 
     userId: string 
-    chatId: string
     timestamp: number
+}
+
+export interface TypingInChat extends Typing {
+    chatId: string
 }
 
 export interface GroupReq {
