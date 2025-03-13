@@ -147,6 +147,7 @@ export interface Typing {
     username: string 
     userId: string 
     chatId: string
+    timestamp: number
 }
 
 export interface GroupReq {

@@ -18,18 +18,26 @@ import { createGroup, reqContacts, setContacts } from "@features/group/groupSlic
 import { ChatListItem, ChatMessage, ChatSelectRes, 
     ContactItem, SendRes, Typing } from "@shared/Types";
 
+import { handleSelection } from "../ChatList/slice";
+import { handleTyping } from "../ChatView/slice";
+
 enum SocketEvent {
     Connect = 'connect',
     Disconnect = 'disconnect',
 }
 
+
 const socketMiddleware: Middleware = (store) => {
+
+
     let socket: SocketInterface
 
     return (next) => (action) => {
         if(initSocket.match(action)) {
 
-            if(!socket && typeof window !== 'undefined'){
+
+            // if(!socket && typeof window !== 'undefined'){
+            if(!socket){
                 socket = SocketFactory.create()
 
                 socket.socket.on(Commands.ChatListRes, (arg: ChatListItem[]) => {
@@ -57,7 +65,8 @@ const socketMiddleware: Middleware = (store) => {
                 })
 
                 socket.socket.on(Commands.TypingRes, (res: Typing) => {
-                    store.dispatch(receiveTyping(res))
+                    // store.dispatch(receiveTyping(res))
+                    store.dispatch(handleTyping(res))
                 })
 
                 socket.socket.on(Commands.ContactsRes, (res: ContactItem[]) => {
@@ -77,9 +86,15 @@ const socketMiddleware: Middleware = (store) => {
             
         }
 
+
         if(disconnect.match(action) && socket){
             socket.socket.disconnect()
         }
+
+        if(handleSelection.match(action) && socket){
+            console.log('heeey')
+            socket.socket.emit('fetching', action.payload)
+        } 
 
         if(reqList.match(action) && socket){
             socket.socket.emit(Commands.ChatListReq, action.payload)

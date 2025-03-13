@@ -15,17 +15,17 @@ export default defineConfig({
       "@app": path.resolve(__dirname, "./src/app")
     }
   },
-  optimizeDeps: {
-    // include: ['react-redux']
-    exclude: ['react-redux']
-  },
-  build: {
-    commonjsOptions: {
-      // exclude: ['../shared'],
-      // include: []
-      include: [/node_modules/]
-    }
-  },
+  // optimizeDeps: {
+  //   // include: ['react-redux']
+  //   exclude: ['react-redux', 'node_modules/.cache']
+  // },
+  // build: {
+  //   commonjsOptions: {
+  //     // exclude: ['../shared'],
+  //     // include: []
+  //     include: [/node_modules/]
+  //   }
+  // },
   plugins: [
     react(),
     // tsconfigPaths()

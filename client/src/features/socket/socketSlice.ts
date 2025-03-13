@@ -84,7 +84,7 @@ const socketSlice = createSlice({
         },
 
         initSocket: (state) => {
-            console.log('initSocket: ', state)
+            console.log('initSocket: ')//, state)
             return
         },
 
