@@ -1,5 +1,12 @@
 export const SearchBar = () => {
+
+  // TODO: logic
+
   return (
-    <div>SearchBar</div>
+    <input 
+      type='text'
+      placeholder="search..."
+      className="border border-slate-200 rounded-lg px-1 py-1 mx-2"
+    />
   )
 }
