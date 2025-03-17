@@ -2,6 +2,7 @@ import type {Meta, StoryObj} from '@storybook/react'
 import { ChatItem } from './ChatItem'
 import { faker } from '@faker-js/faker'
 import { Provider } from '../../utils/Provider'
+import { humanIcons, getRandomHumanIcon } from '../../assets/assets'
 
 const meta = {
   title: 'ChatList/ChatItem',
@@ -23,7 +24,7 @@ export const Primary: Story = {
         chatId: '',
         title: faker.person.fullName(),
         content: faker.lorem.sentence(),
-        iconSrc: '' ,
+        iconSrc: getRandomHumanIcon() ,
         unseenCount: 0,
         selected: false
     }
@@ -34,7 +35,7 @@ export const Selected: Story = {
         chatId: '',
         title: faker.person.fullName(),
         content: faker.lorem.sentence(),
-        iconSrc: '' ,
+        iconSrc: getRandomHumanIcon(),
         unseenCount: 0,
         selected: true
     }

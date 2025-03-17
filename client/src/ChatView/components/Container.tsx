@@ -1,8 +1,8 @@
 import { useAppSelector } from "../../app/hooks"
 import { selectItems } from "../selectors"
 import { isDateSeparator, isTextMessage } from "../utils"
-import { DateSeparator } from "./DateSeparator"
-import { TextMessage } from "./TextMessage"
+import { DateSeparator } from "./DateSeparator/DateSeparator"
+import { TextMessage } from "./TextMessage/TextMessage"
 
 export const Container = () => {
     const items = useAppSelector(selectItems) 

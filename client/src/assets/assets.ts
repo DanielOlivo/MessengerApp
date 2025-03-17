@@ -26,3 +26,10 @@ export const humanIcons = {
 export const chatViewIcons = {
     attachment, clock, dots, gear, image, search, seen, unseen
 }
+
+export function getRandomHumanIcon(): string {
+    const values = Object.values(humanIcons)
+    const idx = Math.floor(Math.random() * values.length)
+
+    return values[idx]
+}

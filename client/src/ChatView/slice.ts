@@ -1,9 +1,10 @@
 import { ChatId } from "../../../shared/src/Types";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { TextMessageProps } from "./components/TextMessage";
-import { DateSeparatorProps } from "./components/DateSeparator";
-import { TypingInChat, Typing } from "@shared/Types";
+import { TextMessageProps } from "./components/TextMessage/TextMessage";
+import { DateSeparatorProps } from "./components/DateSeparator/DateSeparator";
+import { MessageStatusUpdate, TypingInChat, Typing } from "@shared/Types";
 import { DefaultTypings, Typings } from "./components/Typing/utils";
+import { isTextMessage } from "./utils";
 
 export type ContainerItem = TextMessageProps | DateSeparatorProps
 
@@ -31,6 +32,15 @@ const slice = createSlice({
     name: 'chatView',
     initialState,
     reducers: {
+
+        handleMessageStatusUpdate: (state, action: PayloadAction<MessageStatusUpdate>) => {
+            const { id, chatId, status } = action.payload
+            const msg = state.items[chatId].find(m => isTextMessage(m) && m.id === id) as TextMessageProps
+            if(msg){
+                msg.status = status
+            }
+        },
+
         handleTyping: (state, action: PayloadAction<TypingInChat>) => {
             const { username, timestamp, chatId, userId } = action.payload
             const getNewUserTyping = (): Typing => ({username, userId, timestamp}) // to avoid repeating

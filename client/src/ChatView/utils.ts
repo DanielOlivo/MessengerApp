@@ -1,5 +1,5 @@
-import { DateSeparatorProps } from "./components/DateSeparator";
-import { TextMessageProps } from "./components/TextMessage";
+import { DateSeparatorProps } from "./components/DateSeparator/DateSeparator";
+import { TextMessageProps } from "./components/TextMessage/TextMessage";
 
 export function isTextMessage(obj: object): obj is TextMessageProps {
     return ['text', 'chatId', 'isOwn', 'timestamp'].every(prop => prop in obj)

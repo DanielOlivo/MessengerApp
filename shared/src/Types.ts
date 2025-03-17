@@ -162,6 +162,15 @@ export interface GroupReq {
 
 // responses
 
+export type MessageStatus = 'pending' | 'unseen' | 'seen'
+
+export interface MessageStatusUpdate {
+    id: MessageId
+    chatId: ChatId
+    status: MessageStatus
+}
+
+
 export interface ChatListItem {
     chatName: string
     content: string

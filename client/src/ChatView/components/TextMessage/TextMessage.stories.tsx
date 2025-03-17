@@ -1,6 +1,6 @@
 import type {Meta, StoryObj} from '@storybook/react'
-import { TextMessage } from './TextMessage'
 import { faker } from '@faker-js/faker'
+import { TextMessage } from './TextMessage'
 
 const meta = {
   title: 'ChatView/TextMessage',
@@ -21,7 +21,8 @@ export const IsOwn: Story = {
     args: {
         isOwn: true,
         timestamp: '00:00',
-        text: faker.lorem.paragraph()
+        text: faker.lorem.paragraph(),
+        
     },
 }
 

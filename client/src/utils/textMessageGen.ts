@@ -3,8 +3,8 @@ import { faker } from '@faker-js/faker'
 import { v4 as uuid} from 'uuid'
 import { ChatId } from '../../../shared/src/Types'
 import { ContainerItem } from '../ChatView/slice'
-import { TextMessageProps } from "../ChatView/components/TextMessage"
-import { DateSeparatorProps } from "../ChatView/components/DateSeparator"
+import { TextMessageProps } from "../ChatView/components/TextMessage/TextMessage"
+import { DateSeparatorProps } from "../ChatView/components/DateSeparator/DateSeparator"
 
 export function* genTextMessage(chatId: ChatId): Generator<ContainerItem> {
     let timestamp = dayjs(faker.date.anytime().getTime())
@@ -17,10 +17,12 @@ export function* genTextMessage(chatId: ChatId): Generator<ContainerItem> {
         }
 
         yield {
+            id: uuid(),
             chatId,
             timestamp: nextTimestamp.format('hh:mm'),
             text: faker.lorem.sentence(),
-            isOwn: faker.datatype.boolean()
+            isOwn: faker.datatype.boolean(),
+            status: 'seen'
         } as TextMessageProps
 
         timestamp = nextTimestamp

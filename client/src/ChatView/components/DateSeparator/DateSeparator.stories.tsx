@@ -1,5 +1,5 @@
 import type {Meta, StoryObj} from '@storybook/react'
-import { DateSeparator } from "../../ChatView/components/DateSeparator";
+import { DateSeparator } from "./DateSeparator";
 
 const meta = {
   title: 'ChatView/DateSeparator',

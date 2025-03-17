@@ -20,17 +20,17 @@ export const ChatItem = ({chatId, title, content, iconSrc, unseenCount, selected
         console.log('doing something with ', chatId)
         dispatch(handleSelection(chatId))
     }
-
+        
     return (
-        <div className={`chat-item flex flex-row justify-between items-center border border-black ${selected ? "bg-slate-200" : ""}`}
+        <div className={`chat-item p-2 flex flex-row justify-between items-center border rounded-md border-black ${selected ? "bg-slate-200" : ""} hover:bg-slate-200`}
             onClick={handleClick}
         >
 
-            <div className="w-8 h-8">
+            <div className="w-8 h-8 overflow-hidden rounded-full">
                 <img src={iconSrc} className="object-contain" />
             </div>
 
-            <div className="flex-grow flex flex-col justify-between">
+            <div className="ml-2 flex-grow flex flex-col justify-between">
                 <p>{title}</p>
                 <p>{content}</p>
             </div>
