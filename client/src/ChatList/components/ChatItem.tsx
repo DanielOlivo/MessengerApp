@@ -1,6 +1,7 @@
 import { ChatId } from "../../../../shared/src/Types"
 import { useApDispatch } from "../../app/hooks"
 import { handleSelection } from "../slice"
+import { UnseenCount } from "./UnseenCount"
 
 export interface ChatItemProps {
     chatId: ChatId
@@ -22,7 +23,7 @@ export const ChatItem = ({chatId, title, content, iconSrc, unseenCount, selected
     }
         
     return (
-        <div className={`chat-item p-2 flex flex-row justify-between items-center border rounded-md border-black ${selected ? "bg-slate-200" : ""} hover:bg-slate-200`}
+        <div className={`chat-item p-2 max-w-[400px] flex flex-row justify-between items-center border rounded-md border-black ${selected ? "bg-slate-200" : ""} hover:bg-slate-200`}
             onClick={handleClick}
         >
 
@@ -30,16 +31,12 @@ export const ChatItem = ({chatId, title, content, iconSrc, unseenCount, selected
                 <img src={iconSrc} className="object-contain" />
             </div>
 
-            <div className="ml-2 flex-grow flex flex-col justify-between">
-                <p>{title}</p>
-                <p>{content}</p>
+            <div className="ml-2 flex-grow max-w-[320px] flex flex-col justify-between">
+                <p className="font-bold text-slate-700">{title}</p>
+                <p className="text-slate-400 truncate">{content}</p>
             </div>
 
-            {unseenCount > 0 && (
-                <div className="w-6 rounded-full bg-blue-500">
-                    <label>{unseenCount}</label>
-                </div>
-            )}
+            {unseenCount > 0 && <UnseenCount count={unseenCount} />}
         </div>
     )
 }
