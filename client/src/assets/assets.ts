@@ -18,6 +18,8 @@ import search           from './icons/chatview/search.svg'
 import seen             from './icons/chatview/seen.svg'
 import unseen           from './icons/chatview/unseen.svg'
 
+import pin              from './icons/chatlist/pin.svg'
+
 export const humanIcons = {
     human1, human2, human3, human4, human5, 
     human6, human7, human8, human9, human10
@@ -25,6 +27,10 @@ export const humanIcons = {
 
 export const chatViewIcons = {
     attachment, clock, dots, gear, image, search, seen, unseen
+}
+
+export const chatListIcons = {
+    pin
 }
 
 export function getRandomHumanIcon(): string {

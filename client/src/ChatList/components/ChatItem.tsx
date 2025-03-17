@@ -1,5 +1,6 @@
 import { ChatId } from "../../../../shared/src/Types"
 import { useApDispatch } from "../../app/hooks"
+import { chatListIcons } from "../../assets/assets"
 import { handleSelection } from "../slice"
 import { UnseenCount } from "./UnseenCount"
 
@@ -13,7 +14,9 @@ export interface ChatItemProps {
     pinned: boolean
 }
 
-export const ChatItem = ({chatId, title, content, iconSrc, unseenCount, selected = false}: ChatItemProps) => {
+const { pin } = chatListIcons
+
+export const ChatItem = ({chatId, title, content, iconSrc, unseenCount, selected = false, pinned}: ChatItemProps) => {
 
     const dispatch = useApDispatch()
 
@@ -32,7 +35,12 @@ export const ChatItem = ({chatId, title, content, iconSrc, unseenCount, selected
             </div>
 
             <div className="ml-2 flex-grow max-w-[320px] flex flex-col justify-between">
-                <p className="font-bold text-slate-700">{title}</p>
+
+                <div className="flex flex-row justify-start items-center">
+                    <p className="font-bold text-slate-700">{title}</p>
+                    {pinned && <img className="object-contain w-5 h-5" src={pin} />}
+                </div>
+
                 <p className="text-slate-400 truncate">{content}</p>
             </div>
 
