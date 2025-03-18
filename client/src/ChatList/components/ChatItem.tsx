@@ -26,7 +26,7 @@ export const ChatItem = ({chatId, title, content, iconSrc, unseenCount, selected
     }
         
     return (
-        <div className={`chat-item p-2 max-w-[400px] grid grid-cols-[40px_auto_40px] gap-2 border rounded-md border-black ${selected ? "bg-slate-200" : ""} hover:bg-slate-200`}
+        <div className={`chat-item p-2 max-w-[400px] grid grid-cols-[40px_auto_40px] gap-2 border rounded-md border-slate-300 ${selected ? "bg-slate-200" : ""} hover:bg-slate-200`}
             onClick={handleClick}
         >
 
