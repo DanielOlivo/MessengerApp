@@ -1,5 +1,6 @@
 import { useAppSelector } from "../app/hooks"
 import { ChatItem } from "./components/ChatItem"
+import { NewGroupButton } from "./components/NewGroupButton"
 import { SearchBar } from "./components/SearchBar"
 import { selectItems } from "./selectors"
 
@@ -13,6 +14,7 @@ export const ChatList = () => {
 
             <div className="w-full flex-grow overflow-y-auto">
                 <div className="w-full">
+                    <NewGroupButton />
                     {items.map(item => <ChatItem {...item} />)}
                 </div>
             </div>
