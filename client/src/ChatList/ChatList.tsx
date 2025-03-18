@@ -9,7 +9,7 @@ export const ChatList = () => {
     const unpinned = useAppSelector(selectUnpinned)
 
     return (
-        <div className="flex flex-col justify-start">
+        <div className="flex flex-col justify-start min-w-[200px] max-w-[400px]">
             <SearchBar />
 
             <Section iconSrc="" title='pinned' items={pinned} />
