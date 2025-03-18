@@ -15,6 +15,9 @@ export type DeepPartial<T> = T extends Array<infer U>
 
 export function getState(state?: DeepPartial<RootState>): RootState {
 
+    const msgs = getItems()
+    const currentChatId = Object.keys(msgs)[0]
+
     const st: RootState = {
         auth: {
             authenticated: true,
@@ -66,8 +69,8 @@ export function getState(state?: DeepPartial<RootState>): RootState {
             items: state?.chatList2?.items ?? Array.from({length: 20}, () => getChatItem())
         },
         chatView2: {
-            items: (state?.chatView2?.items as {[P in ChatId]: ContainerItem[]} | undefined) ?? getItems(),
-            chatId: state?.chatView2?.chatId ?? '',
+            items: (state?.chatView2?.items as {[P in ChatId]: ContainerItem[]} | undefined) ?? msgs,
+            chatId: state?.chatView2?.chatId ?? currentChatId,
             header: {
                 title: state?.chatView2?.header?.title ?? faker.person.fullName(),
                 iconSrc: state?.chatView2?.header?.iconSrc ?? getRandomIcon().iconSrc

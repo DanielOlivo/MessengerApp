@@ -40,7 +40,7 @@ export function getItems(){
 
     for(let i = 0; i < count; i+=1){
         const id = uuid()
-        items[id] = getTextMessages(id, 2 + i)
+        items[id] = getTextMessages(id, 10 + i)
     }
 
     return items

@@ -14,8 +14,8 @@ export interface MessageContainerProps {
 export const MessageContainer = ({isOwn, timestamp, status, children}: PropsWithChildren<MessageContainerProps>) => {
 
     return (
-        <div className={`w-full px-2 flex flex-row items-center ${isOwn ? 'justify-end' : 'justify-start'}`}>
-            <div className="max-w-32 flex flex-col items-start">
+        <div className={`w-full px-2 mt-2 flex flex-row items-center ${isOwn ? 'justify-end' : 'justify-start'}`}>
+            <div className="max-w-4/5 flex flex-col items-start">
                 <div className="max-w-full p-1 bg-white flex flex-row justify-between items-end">
                     <div className="flex-grow">
                         {children}

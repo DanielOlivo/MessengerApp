@@ -19,6 +19,12 @@ type Story = StoryObj<typeof ChatView>;
 
 export const Primary: Story = {
     decorators: [
-        (Story) => <Provider><Story /></Provider>
+        (Story) => (
+          <Provider>
+            <div className='w-[500px] h-[500px]'>
+              <Story />
+            </div>
+          </Provider>
+        )
     ]
 }

@@ -30,6 +30,10 @@ const state = getState({
 
 export const Primary: Story = {
     decorators: [
-        (Story) => <Provider state={state}><Story /></Provider>
+        (Story) => <Provider state={state}>
+          <div className='min-w-[500px] h-[500px] flex flex-row items-stretch'>
+            <Story />
+          </div>
+        </Provider>
     ]
 }
