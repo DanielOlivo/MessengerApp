@@ -26,25 +26,27 @@ export const ChatItem = ({chatId, title, content, iconSrc, unseenCount, selected
     }
         
     return (
-        <div className={`chat-item p-2 max-w-[400px] flex flex-row justify-between items-center border rounded-md border-black ${selected ? "bg-slate-200" : ""} hover:bg-slate-200`}
+        <div className={`chat-item p-2 max-w-[400px] grid grid-cols-[40px_auto_40px] gap-2 border rounded-md border-black ${selected ? "bg-slate-200" : ""} hover:bg-slate-200`}
             onClick={handleClick}
         >
 
-            <div className="w-8 h-8 overflow-hidden rounded-full">
+            <div className="overflow-hidden rounded-full">
                 <img src={iconSrc} className="object-contain" />
             </div>
 
-            <div className="ml-2 flex-grow max-w-[320px] flex flex-col justify-between">
+            <div className="flex flex-col justify-between items-stretch overflow-hidden">
 
                 <div className="flex flex-row justify-start items-center">
-                    <p className="font-bold text-slate-700">{title}</p>
+                    <p className="font-bold text-slate-700 whitespace-nowrap truncate">{title}</p>
                     {pinned && <img className="object-contain w-5 h-5" src={pin} />}
                 </div>
 
-                <p className="text-slate-400 truncate">{content}</p>
+                <p className="text-slate-400 whitespace-nowrap truncate">{content}</p>
             </div>
 
-            {unseenCount > 0 && <UnseenCount count={unseenCount} />}
+            <div className="flex justify-center items-center">
+                {unseenCount > 0 && <UnseenCount count={unseenCount} />}
+            </div>
         </div>
     )
 }
