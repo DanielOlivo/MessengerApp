@@ -1,11 +1,14 @@
 import { RootState } from "../app/store";
 import { getChatItem } from "./getChatItem";
 import { getItems } from "./textMessageGen";
-import { ChatId } from "../../../shared/src/Types";
-import { ContainerItem } from "../ChatView/slice";
+import { ChatId, MessageId, UserId } from "../../../shared/src/Types";
+import { ContainerItem } from "../ChatPage/components/ChatView/slice";
 import { faker } from "@faker-js/faker";
 import { getRandomIcon } from "./getRandomIcon";
-import { Typings } from "../ChatView/components/Typing/utils";
+import { Typings } from "../ChatPage/components/ChatView/components/Typing/utils";
+import { getRandomSliceState } from "../ChatPage/utils";
+import { ChatInfo } from "../ChatPage/slice";
+import { TextMessageProps } from "../ChatPage/components/ChatView/components/TextMessage/TextMessage";
 
 export type DeepPartial<T> = T extends Array<infer U>
     ? T 
@@ -18,7 +21,19 @@ export function getState(state?: DeepPartial<RootState>): RootState {
     const msgs = getItems()
     const currentChatId = Object.keys(msgs)[0]
 
+    const chat = getRandomSliceState()
+
     const st: RootState = {
+        chat: {
+            chatMessageIds: state?.chat?.chatMessageIds as {[P in ChatId]: MessageId[]} ?? chat.chatMessageIds,
+            chatInfo: state?.chat?.chatInfo as {[P in ChatId]: ChatInfo} ?? chat.chatInfo,
+            messages: state?.chat?.messages as {[P in MessageId]: TextMessageProps} ?? chat.messages,
+            unseenCount: state?.chat?.unseenCount as {[P in ChatId]: number} ?? chat.unseenCount,
+            pinned: state?.chat?.pinned ?? chat.pinned,
+            displayedChatId: state?.chat?.displayedChatId ?? chat.displayedChatId,
+            typing: state?.chat?.typing as {[P in ChatId]: {[U in UserId]: number}} ?? chat.typing,
+            users: state?.chat?.users as {[P in UserId]: string} ?? chat.users
+        },
         auth: {
             authenticated: true,
         },

@@ -1,5 +1,5 @@
-import { ChatList } from "../ChatList/ChatList"
-import { ChatView } from "../ChatView/ChatView"
+import { ChatList } from "./components/ChatList/ChatList"
+import { ChatView } from "./components/ChatView/ChatView"
 
 export const ChatPage = () => {
 

@@ -8,8 +8,10 @@ import headerReducer from '@features/header/headerSlice'
 import stateReducer from '@features/state/stateSlice'
 import groupReducer from '@features/group/groupSlice'
 
-import chatListReducer2 from '../ChatList/slice'
-import chatViewReducer2 from '../ChatView/slice'
+import chatListReducer2 from '../ChatPage/components/ChatList/slice'
+import chatViewReducer2 from '../ChatPage/components/ChatView/slice'
+
+import chatReducer from '../ChatPage/slice'
 
 const store = configureStore({
     reducer: {
@@ -22,7 +24,10 @@ const store = configureStore({
         state: stateReducer,
         
         chatList2: chatListReducer2,
-        chatView2: chatViewReducer2
+        chatView2: chatViewReducer2,
+
+        chat: chatReducer
+
     },
     middleware: getDefaultMiddleware => {
         return getDefaultMiddleware().concat([socketMiddleware])
@@ -48,7 +53,8 @@ export function createStore(state: RootState, initialized: boolean = false){
             state: stateReducer,
             
             chatList2: chatListReducer2,
-            chatView2: chatViewReducer2
+            chatView2: chatViewReducer2,
+            chat: chatReducer
         },
         preloadedState: state,
         middleware: getDefaultMiddleware => {

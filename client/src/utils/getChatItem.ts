@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker'
-import { ChatItemProps } from '../ChatList/components/ChatItem'
+import { ChatItemProps } from '../ChatPage/components/ChatList/components/ChatItem'
 import { getRandomHumanIcon } from '../assets/assets'
 
 export function getChatItem(): ChatItemProps {

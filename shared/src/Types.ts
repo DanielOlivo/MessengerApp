@@ -6,6 +6,13 @@ export type MembershipId = string
 export type MessageId = string
 export type GroupRole = 'user' | 'admin'
 
+
+// ----------- users ----------------
+export interface UserData {
+    id: UserId,
+    username: string
+}
+
 export interface DbUser {
     id: UserId
     username: string
@@ -15,6 +22,15 @@ export interface DbUser {
 }
 
 export type User = Pick<DbUser, 'id' | "username">
+
+
+// ------------- chats --------------
+
+export interface ChatData {
+    id: ChatId
+    name: string
+    unseenCount: number
+}
 
 export interface Chat {
     id: ChatId 
@@ -47,7 +63,7 @@ export interface Message {
     userId: UserId
     chatId: ChatId
     content: string
-    created: Date
+    created: number
 }
 
 export interface Credentials {
@@ -72,6 +88,22 @@ export interface SearchResult {
 export interface Chats {
     dms: DM[]
     groups: Group[]
+}
+
+export interface MessagePostReq {
+    chatId: ChatId
+    content: string
+}
+
+export interface MessagePost extends MessagePostReq {
+    messageId: MessageId
+    timestamp: number
+    userId: UserId
+}
+
+export interface ChatPinStatus {
+    chatId: ChatId
+    pinned: boolean
 }
 
 export interface DMPostReq {

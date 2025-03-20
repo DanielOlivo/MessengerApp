@@ -6,10 +6,10 @@ import { createServer } from 'http'
 import { Server } from 'socket.io'
 import { faker } from '@faker-js/faker'
 
-import { ChatItem, ChatItemProps } from "../src/ChatList/components/ChatItem";
+import { ChatItem, ChatItemProps } from "../src/ChatPage/components/ChatList/components/ChatItem";
 // import { Provider } from '../src/utils/Provider'
 import { Provider } from 'react-redux'
-import { ChatList } from '../src/ChatList/ChatList'
+import { ChatList } from '../src/ChatPage/components/ChatList/ChatList'
 import { wait } from '../src/utils/wait'
 import { createStore } from '../src/app/store'
 import { getState } from '../src/utils/getState'

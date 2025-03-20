@@ -18,8 +18,8 @@ import { createGroup, reqContacts, setContacts } from "@features/group/groupSlic
 import { ChatListItem, ChatMessage, ChatSelectRes, 
     ContactItem, SendRes, Typing } from "@shared/Types";
 
-import { handleSelection } from "../ChatList/slice";
-import { handleTyping } from "../ChatView/slice";
+import { handleSelection } from "../ChatPage/components/ChatList/slice";
+import { handleTyping } from "../ChatPage/components/ChatView/slice";
 
 enum SocketEvent {
     Connect = 'connect',

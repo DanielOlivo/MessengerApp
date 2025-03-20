@@ -2,9 +2,9 @@ import dayjs from 'dayjs'
 import { faker } from '@faker-js/faker'
 import { v4 as uuid} from 'uuid'
 import { ChatId } from '../../../shared/src/Types'
-import { ContainerItem } from '../ChatView/slice'
-import { TextMessageProps } from "../ChatView/components/TextMessage/TextMessage"
-import { DateSeparatorProps } from "../ChatView/components/DateSeparator/DateSeparator"
+import { ContainerItem } from '../ChatPage/components/ChatView/slice'
+import { TextMessageProps } from "../ChatPage/components/ChatView/components/TextMessage/TextMessage"
+import { DateSeparatorProps } from "../ChatPage/components/ChatView/components/DateSeparator/DateSeparator"
 
 export function* genTextMessage(chatId: ChatId): Generator<ContainerItem> {
     let timestamp = dayjs(faker.date.anytime().getTime())

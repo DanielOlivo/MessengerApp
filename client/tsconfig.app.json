@@ -10,7 +10,7 @@
 
     "baseUrl": ".",
     "paths": {
-      "src/*": ["./src/*"],
+      "@src/*": ["./src/*"],
       "@shared/*": ["../shared/src/*"],
       "@features/*": ["./src/features/*"],
       "@app/*": ["./src/app/*"]
