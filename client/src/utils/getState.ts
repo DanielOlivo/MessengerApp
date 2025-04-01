@@ -25,6 +25,7 @@ export function getState(state?: DeepPartial<RootState>): RootState {
     const chat = getRandomSliceState()
 
     const st: RootState = {
+        users: { users: {}},
         chat: {
             chatMessageIds: state?.chat?.chatMessageIds as {[P in ChatId]: MessageId[]} ?? chat.chatMessageIds,
             chatInfo: state?.chat?.chatInfo as {[P in ChatId]: ChatInfo} ?? chat.chatInfo,

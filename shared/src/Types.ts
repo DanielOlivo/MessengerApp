@@ -251,8 +251,10 @@ export interface Info {
     name: string
 }
 
-export interface UserInfo extends Info {
-
+export interface UserInfo {
+    id: UserId
+    name: string
+    iconSrc: string
 }
 
 export interface GroupInfo extends Info {

@@ -11,6 +11,7 @@ import stateReducer from '@features/state/stateSlice'
 import chatListReducer2 from '../ChatPage/components/ChatList/slice'
 import chatViewReducer2 from '../ChatPage/components/ChatView/slice'
 
+import userReducer from '../users/slice'
 import chatReducer from '../ChatPage/slice'
 import groupReducer from '../Group/slice'
 import searchReducer from '../Search/slice'
@@ -28,6 +29,7 @@ const store = configureStore({
         chatList2: chatListReducer2,
         chatView2: chatViewReducer2,
 
+        users: userReducer,
         chat: chatReducer,
         group: groupReducer,
         search: searchReducer
@@ -57,6 +59,7 @@ export function createStore(state: RootState, initialized: boolean = false){
             
             chatList2: chatListReducer2,
             chatView2: chatViewReducer2,
+            users: userReducer,
             chat: chatReducer,
             search: searchReducer
         },
