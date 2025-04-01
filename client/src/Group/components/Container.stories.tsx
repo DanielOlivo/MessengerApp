@@ -1,5 +1,6 @@
 import { Meta, StoryObj } from "@storybook/react";
 import { Container } from "./Container";
+import { Provider } from "../../utils/Provider";
 
 const meta = {
   title: 'Group/Container',
@@ -13,3 +14,18 @@ const meta = {
 
 export default meta
 type Story = StoryObj<typeof meta>
+
+export const Primary: Story = {
+    args: {
+        children:<div className="w-32 h-32 border border-black">SOMe content</div>
+    },
+    decorators: [
+        (Story) => (
+            <Provider>
+                <div className="w-[500px] h-72">
+                    <Story />
+                </div>
+            </Provider>
+        )
+    ]
+}

@@ -6,12 +6,13 @@ import chatViewReducer from '@features/chatView/chatViewSlice'
 import socketMiddleware from "../middlewares/socketMiddleware"
 import headerReducer from '@features/header/headerSlice'
 import stateReducer from '@features/state/stateSlice'
-import groupReducer from '@features/group/groupSlice'
+// import groupReducer from '@features/group/groupSlice'
 
 import chatListReducer2 from '../ChatPage/components/ChatList/slice'
 import chatViewReducer2 from '../ChatPage/components/ChatView/slice'
 
 import chatReducer from '../ChatPage/slice'
+import groupReducer from '../Group/slice'
 import searchReducer from '../Search/slice'
 
 const store = configureStore({
@@ -20,7 +21,7 @@ const store = configureStore({
         chatList: chatListReducer,
         chatView: chatViewReducer,
         header: headerReducer,
-        group: groupReducer,
+        // group: groupReducer,
         socket: socketReducer,
         state: stateReducer,
         
@@ -28,6 +29,7 @@ const store = configureStore({
         chatView2: chatViewReducer2,
 
         chat: chatReducer,
+        group: groupReducer,
         search: searchReducer
     },
     middleware: getDefaultMiddleware => {

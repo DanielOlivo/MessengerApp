@@ -1,10 +1,23 @@
 import React, { FC, PropsWithChildren } from 'react'
+import { useApDispatch } from '../../app/hooks'
+import { setState } from '../slice'
 
 export const Container: FC<PropsWithChildren> = ({children}) => {
-  return (
-    <div>
-        Container
-        {children} 
-    </div>
+
+    const dispatch = useApDispatch()
+
+    const close = () => dispatch(setState('idle'))
+
+    return (
+        <div className='absolute w-full h-full opacity-20 flex justify-center items-center bg-slate-500' onClick={close}>
+            <div className='bg-white w-1/2 h-2/3 flex flex-col justify-start items-stretch'>
+                <div className='w-full flex-row-reverse justify-start items-center'>
+                    <button onClick={close}>Close</button>
+                </div>
+                <div>
+                    {children} 
+                </div>
+            </div>
+        </div>
   )
 }

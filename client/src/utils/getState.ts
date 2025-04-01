@@ -9,6 +9,7 @@ import { Typings } from "../ChatPage/components/ChatView/components/Typing/utils
 import { getRandomSliceState } from "../ChatPage/utils";
 import { ChatInfo } from "../ChatPage/slice";
 import { TextMessageProps } from "../ChatPage/components/ChatView/components/TextMessage/TextMessage";
+import { getDefault } from "../Group/utils";
 
 export type DeepPartial<T> = T extends Array<infer U>
     ? T 
@@ -34,6 +35,7 @@ export function getState(state?: DeepPartial<RootState>): RootState {
             typing: state?.chat?.typing as {[P in ChatId]: {[U in UserId]: number}} ?? chat.typing,
             users: state?.chat?.users as {[P in UserId]: string} ?? chat.users
         },
+        group: getDefault(),
         auth: {
             authenticated: true,
         },
@@ -54,10 +56,10 @@ export function getState(state?: DeepPartial<RootState>): RootState {
         header: {
             typingTrigger: false
         },
-        group: {
-            isOn: false,
-            members: []
-        },
+        // group: {
+        //     isOn: false,
+        //     members: []
+        // },
         socket: {
             isConnected: false,
             rooms: [],
