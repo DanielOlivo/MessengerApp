@@ -22,8 +22,7 @@ const slice = createSlice({
         updateUser: (state, action: PayloadAction<UserInfo>) => {
             const { id } = action.payload
             state.users[id] = action.payload
-        }
-        
+        },
     }
 })
 
