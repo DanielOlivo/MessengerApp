@@ -1,7 +1,7 @@
 import { RootState } from "../app/store";
 import { getChatItem } from "./getChatItem";
 import { getItems } from "./textMessageGen";
-import { ChatId, MessageId, UserId } from "../../../shared/src/Types";
+import { ChatId, MessageId, UserId, UserInfo } from "../../../shared/src/Types";
 import { ContainerItem } from "../ChatPage/components/ChatView/slice";
 import { faker } from "@faker-js/faker";
 import { getRandomIcon } from "./getRandomIcon";
@@ -10,6 +10,7 @@ import { getRandomSliceState } from "../ChatPage/utils";
 import { ChatInfo } from "../ChatPage/slice";
 import { TextMessageProps } from "../ChatPage/components/ChatView/components/TextMessage/TextMessage";
 import { getDefault } from "../Group/utils";
+import { getRandomUsers } from "../users/utils";
 
 export type DeepPartial<T> = T extends Array<infer U>
     ? T 
@@ -23,9 +24,13 @@ export function getState(state?: DeepPartial<RootState>): RootState {
     const currentChatId = Object.keys(msgs)[0]
 
     const chat = getRandomSliceState()
+    const defaultGroup = getDefault()
 
     const st: RootState = {
-        users: { users: {}},
+        users: {
+            users: state?.users?.users as {[P: UserId] : UserInfo} ?? getRandomUsers(),
+            searchTerm: ''
+        },
         chat: {
             chatMessageIds: state?.chat?.chatMessageIds as {[P in ChatId]: MessageId[]} ?? chat.chatMessageIds,
             chatInfo: state?.chat?.chatInfo as {[P in ChatId]: ChatInfo} ?? chat.chatInfo,
@@ -36,7 +41,14 @@ export function getState(state?: DeepPartial<RootState>): RootState {
             typing: state?.chat?.typing as {[P in ChatId]: {[U in UserId]: number}} ?? chat.typing,
             users: state?.chat?.users as {[P in UserId]: string} ?? chat.users
         },
-        group: getDefault(),
+        group: {
+            state: state?.group?.state ?? defaultGroup.state,
+            groupId: state?.group?.groupId ?? defaultGroup.groupId,
+            isAdmin: state?.group?.isAdmin ?? defaultGroup.isAdmin,
+            inGroup: state?.group?.inGroup ?? defaultGroup.inGroup,
+            onSearch: state?.group?.onSearch ?? defaultGroup.onSearch,
+            searchResult: state?.group?.searchResult ?? defaultGroup.searchResult
+        },
         auth: {
             authenticated: true,
         },

@@ -186,6 +186,16 @@ export interface TypingInChat extends Typing {
     chatId: string
 }
 
+export interface CreateGroupReq {
+    name: string
+    users: UserId[]
+}
+
+export interface CreateGroupRes extends CreateGroupReq {
+    timestamp: number
+    chatId: ChatId
+}
+
 export interface GroupReq {
     members: GroupMember[]
     name: string
@@ -242,6 +252,8 @@ export interface HeaderInfo {
     count: number
     // isDm: boolean
 }
+
+
 
 
 export type SearchRes = {username: string, id: string}[]
