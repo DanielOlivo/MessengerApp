@@ -13,9 +13,9 @@ export interface ChatInfo {
 }
 
 export interface ChatSliceState {
-    chatMessageIds: { [P in ChatId]: MessageId[]}
+    chatMessageIds: { [P: ChatId]: MessageId[]}
     chatInfo: { [P in ChatId]: ChatInfo}
-    messages: { [P in MessageId] : TextMessageProps}
+    messages: { [P in MessageId] : Message}
     unseenCount: { [P in ChatId] : number}
     pinned: ChatId[],
     displayedChatId: ChatId,
@@ -110,7 +110,10 @@ const slice = createSlice({
         handleTyping: (state, action: PayloadAction<TypingInChat>) => {
             const { chatId, userId, timestamp } = action.payload
             state.typing[chatId][userId] = timestamp 
-        }
+        },
+
+        // ----------------- testing ---------------
+        sendNumber: (state, action: PayloadAction<number>) => {}
     }
 })
 
@@ -118,7 +121,8 @@ export const {
     handleMessageStatusUpdate, 
     handleMessage, sendMessage,
     togglePin, handleToggle,
-    sendTyping, handleTyping
+    sendTyping, handleTyping,
+    sendNumber
 } = slice.actions
 
 export default slice.reducer

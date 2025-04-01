@@ -5,6 +5,21 @@ import { getRandomHumanIcon } from "../assets/assets";
 import { getTextMessages } from "../utils/textMessageGen";
 import { isTextMessage } from "./components/ChatView/utils";
 
+export function getEmptyState(): ChatSliceState {
+    return {
+        chatMessageIds: {},
+        chatInfo: {},
+        messages: {},
+        unseenCount: {},
+        pinned: [],
+        displayedChatId: '',
+        typing: {},
+        users: {}
+    }
+}
+
+
+
 export function getRandomSliceState(): ChatSliceState{
     const state: ChatSliceState = {
         chatMessageIds: {},
@@ -47,6 +62,8 @@ export function getRandomSliceState(): ChatSliceState{
     const chatIds = Object.keys(state.chatInfo)
     const idx = Math.floor(Math.random() * chatIds.length)
     state.displayedChatId = chatIds[idx]
+    
+    console.log('state', state)
 
     return state
 }

@@ -1,4 +1,4 @@
-import dayjs from 'dayjs'
+import dayjs, { Dayjs } from 'dayjs'
 import { ChatId, MessageId } from 'shared/src/Types'
 import { createSelector } from '@reduxjs/toolkit'
 import { RootState } from '../app/store'
@@ -20,41 +20,45 @@ export const selectChatMessageIds = (state: RootState) => {
 
 export const selectChatInfo = (state: RootState) => state.chat.chatInfo
 
+export const isChatSelected = (state: RootState) => state.chat.displayedChatId !== ''
+
+export const selectSlice = (state: RootState) => state.chat
+
 
 // ------------------ chatlist ----------------------
 export const selectChatItems = createSelector(
-    selectChatMessageIds,
-    selectChatInfo,
-    selectAllMessages,
-    (msgIds, info, msgs) => {
-        const chatAndLastMessageIds: [ChatId, MessageId][] = Object.entries(msgIds).map(([chatId, msgs]) => [chatId, msgs[0]])
-        const props: ChatItemProps[] = chatAndLastMessageIds.map(([chatId, messageId]) => ({
-            chatId,
-            content: msgs[messageId].content,
-            timestamp: msgs[messageId].created,
-            iconSrc: info[chatId].iconSrc,
-            unseenCount: 0,
-            selected: false,
-            title: info[chatId].name,
-            pinned: false
-        })).sort(prop => prop.timestamp)
-        return props
+    selectSlice,
+    (chat) => {
+        const { chatMessageIds, chatInfo, messages, pinned, displayedChatId } = chat
+        const items = Object.entries(chatMessageIds).filter(([, msgIds]) => msgIds.length > 0).map(([chatId, [msgId,]]) => {
+            const info = chatInfo[chatId]
+            const msg = messages[msgId]
+            const isPinned = pinned.includes(chatId)
+
+            const result = {
+                chatId,
+                title: info.name,
+                content: msg.content,
+                iconSrc: info.iconSrc,
+                unseenCount: 0,
+                selected: chatId === displayedChatId,
+                pinned: isPinned,
+                timestamp: msg.created
+            }
+            return result
+        }).sort((item1, item2) => item1.timestamp > item2.timestamp ? 1 : -1).map(item => ({
+            ...item,
+            timeStamp: dayjs(item.timestamp).format('hh:mm')
+        }))
+        return items
     }
 )
 
 
 // ------------------ header ----------------------
-export const selectHeaderInfo = (state: RootState) => {
-    const { displayedChatId, chatInfo } = state.chat
-    if(!(displayedChatId in chatInfo)){
-        return {
-            name: '',
-            iconSrc: '',
-            status: ''
-        }
-    }
-    return chatInfo[displayedChatId]
-}
+export const selectHeaderTitle = (state: RootState) => state.chat.chatInfo[state.chat.displayedChatId].name
+export const selectHeaderIcon = (state: RootState) => state.chat.chatInfo[state.chat.displayedChatId].iconSrc
+export const selectHeaderStatus = (state: RootState) => state.chat.chatInfo[state.chat.displayedChatId].status
 
 
 // ------------------ message container ----------------------

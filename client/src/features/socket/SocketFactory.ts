@@ -26,9 +26,15 @@ class SocketConnection implements SocketInterface {
         const token = JSON.parse(localStorage.getItem('token')!)
         console.log('token', token)
         
-        this.socket = io(this.socketEndpoint, {
-            auth: {token}
-        })
+        if(token){
+            this.socket = io(this.socketEndpoint, {
+                auth: {token}
+            })
+        }
+        else {
+            this.socket = io('wss://localhost:3000')
+            // console.log('endpoint', this.socketEndpoint)
+        }
     }
 }
 

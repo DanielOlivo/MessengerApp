@@ -20,6 +20,7 @@ import { ChatListItem, ChatMessage, ChatSelectRes,
 
 import { handleSelection } from "../ChatPage/components/ChatList/slice";
 import { handleTyping } from "../ChatPage/components/ChatView/slice";
+import { sendNumber } from "../ChatPage/slice";
 
 enum SocketEvent {
     Connect = 'connect',
@@ -28,14 +29,14 @@ enum SocketEvent {
 
 
 const socketMiddleware: Middleware = (store) => {
-
-
     let socket: SocketInterface
 
     return (next) => (action) => {
+
+
         if(initSocket.match(action)) {
 
-
+            // console.log('socket')
             // if(!socket && typeof window !== 'undefined'){
             if(!socket){
                 socket = SocketFactory.create()
@@ -90,6 +91,12 @@ const socketMiddleware: Middleware = (store) => {
         if(disconnect.match(action) && socket){
             socket.socket.disconnect()
         }
+
+
+        if(sendNumber.match(action) && socket){
+            console.log('sending number')
+            socket.socket.emit('number', action.payload)
+        } 
 
         if(handleSelection.match(action) && socket){
             console.log('heeey')

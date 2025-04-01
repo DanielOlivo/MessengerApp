@@ -1,4 +1,5 @@
 import { useAppSelector } from "../../../app/hooks"
+import { selectChatItems } from "../../selectors"
 import { ChatItem } from "./components/ChatItem"
 import { NewGroupButton } from "./components/NewGroupButton"
 import { SearchBar } from "./components/SearchBar"
@@ -6,7 +7,8 @@ import { selectItems } from "./selectors"
 
 export const ChatList = () => {
 
-    const items = useAppSelector(selectItems)
+    // const items = useAppSelector(selectItems)
+    const items = useAppSelector(selectChatItems)
 
     return (
         <div className="flex flex-col justify-start items-stretch min-w-[200px] max-w-[400px] max-h-screen">

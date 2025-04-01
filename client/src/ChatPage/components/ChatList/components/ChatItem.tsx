@@ -12,7 +12,7 @@ export interface ChatItemProps {
     unseenCount: number
     selected: boolean
     pinned: boolean
-    timestamp: number
+    timestamp: string
 }
 
 const { pin } = chatListIcons

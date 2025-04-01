@@ -36,4 +36,13 @@ export default defineConfig({
   //   include: /srs\/.*\.ts$/,
   //   exclude: /node_modules/
   // }
+
+  server: {
+    proxy: {
+      '/socket.io': {
+        target: 'http://localhost:5173',
+        ws: true
+      }
+    }
+  }
 }) satisfies UserConfig
