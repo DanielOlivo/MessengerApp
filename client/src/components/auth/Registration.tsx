@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom"
 import { useApDispatch, useAppSelector } from "@app/hooks"
 import { selectAuthStatus, selectRegisterSuccess } from "@features/auth/selectors"
 import { Credentials } from "@shared/Types"
-import { register } from "@features/auth/authSlice"
+import { register } from "@features/auth/thunks"
 
 const Registration = () => {
 
@@ -23,7 +23,7 @@ const Registration = () => {
     }, [])
 
     useEffect(() => {
-        if(!!registerSuccess){
+        if(registerSuccess){
             navigate('/login')
         }
     }, [registerSuccess])
@@ -74,13 +74,13 @@ const Registration = () => {
                 </div>
                 <button
                         className="border border-black rounded-md px-7 py-1 mt-3"
-                        onClick={(e) => handleSubmit()} 
+                        onClick={() => handleSubmit()} 
                 >Submit</button>
 
                 <div>
                     <button
                         className="text-gray-400"
-                        onClick={(e) => navigate('/login')} 
+                        onClick={() => navigate('/login')} 
                     >Login</button>
                 </div>
 
