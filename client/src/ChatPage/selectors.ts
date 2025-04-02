@@ -70,9 +70,12 @@ export const selectChatMessages = createSelector(
 
 
 // ------------------ typing ----------------------
+
+// todo: use createSelector
 export const selectTypingForContainer = (state: RootState) => {
     const { displayedChatId, typing, users: info } = state.chat
-    const users = Object.values(typing)
-    const ids = Object.keys(users)
-    return ids.filter(id => dayjs().subtract(users[id]).valueOf() < 2000).map(id => info[id])
+    const users = Object.entries(typing[displayedChatId])
+    return users.filter(([, timestamp]) => 
+        dayjs().valueOf() - timestamp < 2000).map(([userId,]) => 
+            info[userId])
 }
