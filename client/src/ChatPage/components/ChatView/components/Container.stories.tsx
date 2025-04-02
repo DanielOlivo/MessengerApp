@@ -1,7 +1,6 @@
 import type {Meta, StoryObj} from '@storybook/react'
 import { Container } from './Container'
 import { Provider } from '../../../../utils/Provider'
-import { getItems } from '../../../../utils/textMessageGen'
 import { getState } from '../../../../utils/getState'
 
 const meta = {
@@ -11,22 +10,14 @@ const meta = {
     layout: 'centered',
   },
   tags: ['autodocs'],
-  // More on argTypes: https://storybook.js.org/docs/api/argtypes
 } satisfies Meta<typeof Container>
 
 export default meta
 type Story = StoryObj<typeof Container>
 
-const items = getItems()
-const chatId = Object.keys(items)[0]
-
-
-const state = getState({
-  chatView2: {
-    items, 
-    chatId
-  }
-})
+const state = getState()
+const chatId = Object.keys(state.chat.chatInfo)[0]
+state.chat.displayedChatId = chatId
 
 export const Primary: Story = {
     decorators: [
