@@ -3,7 +3,7 @@ import { useApDispatch, useAppSelector } from "@app/hooks"
 import { selectAuthStatus } from "@features/auth/selectors"
 import { useNavigate } from "react-router-dom"
 import { Credentials } from "@shared/Types"
-import { fetchToken } from "@features/auth/authSlice"
+import { fetchToken } from "@features/auth/thunks"
 
 const Login = () => {
 
@@ -68,14 +68,14 @@ const Login = () => {
                 <div>
                     <button
                         className="border border-black rounded-md px-7 py-1 mt-3"
-                        onClick={(e) => handleSubmit()} 
+                        onClick={() => handleSubmit()} 
                     >Login</button>
                 </div>
 
                 <div>
                     <button
                         className="text-gray-400"
-                        onClick={(e) => navigate('/register')} 
+                        onClick={() => navigate('/register')} 
                     >Register</button>
                 </div>
             </div>
