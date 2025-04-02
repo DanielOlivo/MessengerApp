@@ -13,8 +13,8 @@ import type { SocketInterface } from "@features/socket/SocketFactory";
 import { ChatListItem, ChatMessage, ChatSelectRes, 
     ContactItem, SendRes, Typing } from "@shared/Types";
 
-import { handleSelection } from "../ChatPage/components/ChatList/slice";
-import { handleTyping } from "../ChatPage/components/ChatView/slice";
+// import { handleSelection } from "../ChatPage/components/ChatList/slice";
+// import { handleTyping } from "../ChatPage/components/ChatView/slice";
 import { sendNumber } from "../ChatPage/slice";
 
 enum SocketEvent {
@@ -65,8 +65,10 @@ const socketMiddleware: Middleware = (store) => {
                     // store.dispatch(insertNewMessage(msg as ChatMessage)) // todo fix
                 })
 
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 socket.socket.on(Commands.TypingRes, (res: Typing) => {
-                    store.dispatch(handleTyping(res))
+
+                    // store.dispatch(handleTyping(res))
                 })
 
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -98,10 +100,11 @@ const socketMiddleware: Middleware = (store) => {
             socket.socket.emit('number', action.payload)
         } 
 
-        if(handleSelection.match(action) && socket){
-            console.log('heeey')
-            socket.socket.emit('fetching', action.payload)
-        } 
+        // if(handleSelection.match(action) && socket){
+        //     console.log('heeey')
+        //     // todo
+        //     // socket.socket.emit('fetching', action.payload)
+        // } 
 
         // if(reqList.match(action) && socket){
         //     socket.socket.emit(Commands.ChatListReq, action.payload)
