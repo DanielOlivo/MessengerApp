@@ -9,11 +9,6 @@ import {
 } from '@features/socket/socketSlice'
 import SocketFactory from "@features/socket/SocketFactory";
 import type { SocketInterface } from "@features/socket/SocketFactory";
-import { handleSearch, reqList, search, setList } from "@features/chatList/chatListSlicer";
-import { handleNewMessage, reqData, reqDataByUser, reqMsgs, setData, setMsgs } from "@features/chatView/chatViewSlice";
-import { send, sendTyping } from "@features/sender/senderSlice";
-import { setHeaderInfo } from "@features/header/headerSlice";
-import { createGroup, reqContacts, setContacts } from "@features/group/groupSlice";
 
 import { ChatListItem, ChatMessage, ChatSelectRes, 
     ContactItem, SendRes, Typing } from "@shared/Types";
@@ -41,26 +36,31 @@ const socketMiddleware: Middleware = (store) => {
             if(!socket){
                 socket = SocketFactory.create()
 
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 socket.socket.on(Commands.ChatListRes, (arg: ChatListItem[]) => {
-                    store.dispatch(setList(arg))
+                    // store.dispatch(setList(arg))
                 })
 
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 socket.socket.on(Commands.SearchRes, (arg: ContactItem[]) => {
-                    store.dispatch(handleSearch(arg))
+                    // store.dispatch(handleSearch(arg))
                 })
 
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 socket.socket.on(Commands.ChatSelectionRes, (arg: ChatSelectRes) => {
-                    store.dispatch(setData(arg))
-                    store.dispatch(setHeaderInfo(arg))
+                    // store.dispatch(setData(arg))
+                    // store.dispatch(setHeaderInfo(arg))
                 })
 
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 socket.socket.on(Commands.ChatMsgRes, (msgs: ChatMessage[]) => {
-                    store.dispatch(setMsgs(msgs))
+                    // store.dispatch(setMsgs(msgs))
                 })
 
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 socket.socket.on(Commands.SendRes, (msg: SendRes) => {
                     // to chatview
-                    store.dispatch(handleNewMessage(msg))
+                    // store.dispatch(handleNewMessage(msg))
                     // to chatlist
                     // store.dispatch(insertNewMessage(msg as ChatMessage)) // todo fix
                 })
@@ -69,8 +69,9 @@ const socketMiddleware: Middleware = (store) => {
                     store.dispatch(handleTyping(res))
                 })
 
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 socket.socket.on(Commands.ContactsRes, (res: ContactItem[]) => {
-                    store.dispatch(setContacts(res))
+                    // store.dispatch(setContacts(res))
                 })
 
                 socket.socket.on(SocketEvent.Connect, () => {
@@ -102,41 +103,41 @@ const socketMiddleware: Middleware = (store) => {
             socket.socket.emit('fetching', action.payload)
         } 
 
-        if(reqList.match(action) && socket){
-            socket.socket.emit(Commands.ChatListReq, action.payload)
-        }
+        // if(reqList.match(action) && socket){
+        //     socket.socket.emit(Commands.ChatListReq, action.payload)
+        // }
 
-        if(search.match(action) && socket){
-            socket.socket.emit(Commands.SearchReq, action.payload)
-        }
+        // if(search.match(action) && socket){
+        //     socket.socket.emit(Commands.SearchReq, action.payload)
+        // }
 
-        if(reqData.match(action) && socket){
-            socket.socket.emit(Commands.ChatSelectionReq, action.payload)
-        }
+        // if(reqData.match(action) && socket){
+        //     socket.socket.emit(Commands.ChatSelectionReq, action.payload)
+        // }
 
-        if(reqDataByUser.match(action) && socket){
-            socket.socket.emit(Commands.ChatSelectionWithUser, action.payload)
-        }
+        // if(reqDataByUser.match(action) && socket){
+        //     socket.socket.emit(Commands.ChatSelectionWithUser, action.payload)
+        // }
 
-        if(reqMsgs.match(action) && socket){
-            socket.socket.emit(Commands.ChatMsgReq, action.payload)
-        }
+        // if(reqMsgs.match(action) && socket){
+        //     socket.socket.emit(Commands.ChatMsgReq, action.payload)
+        // }
 
-        if(send.match(action) && socket){
-            socket.socket.emit(Commands.SendReq, action.payload)
-        }
+        // if(send.match(action) && socket){
+        //     socket.socket.emit(Commands.SendReq, action.payload)
+        // }
 
-        if(sendTyping.match(action) && socket){
-            socket.socket.emit(Commands.TypingReq, action.payload)
-        }
+        // if(sendTyping.match(action) && socket){
+        //     socket.socket.emit(Commands.TypingReq, action.payload)
+        // }
 
-        if(reqContacts.match(action) && socket){
-            socket.socket.emit(Commands.ContactsReq, '')
-        }
+        // if(reqContacts.match(action) && socket){
+        //     socket.socket.emit(Commands.ContactsReq, '')
+        // }
 
-        if(createGroup.match(action) && socket){
-            socket.socket.emit(Commands.NewGroupReq, action.payload)
-        }
+        // if(createGroup.match(action) && socket){
+        //     socket.socket.emit(Commands.NewGroupReq, action.payload)
+        // }
 
         return next(action)
     }
