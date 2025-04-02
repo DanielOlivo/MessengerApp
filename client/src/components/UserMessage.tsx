@@ -7,7 +7,7 @@ export interface UserMessageProp {
     isRead?: boolean
 }
 
-const UserMessage = ({messageId, content, username, created, isOwner, unread}: ChatMessage) => {
+const UserMessage = ({messageId, content, username, isOwner, unread}: ChatMessage) => {
 
     const getReadStatus = () => {
         if(!unread){

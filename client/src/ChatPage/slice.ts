@@ -1,8 +1,9 @@
 import { PayloadAction } from "@reduxjs/toolkit";
 import { createSlice } from "@reduxjs/toolkit";
-import { ChatData, ChatId, ChatPinStatus, Message, MessageId, MessagePost, MessagePostReq, Typing, UserData, UserId } from "@shared/Types";
+import { ChatData, ChatId, ChatPinStatus, MessageId, MessagePost, MessagePostReq, Typing, UserData, UserId } from "@shared/Types";
+import { Message } from "shared/src/Message";
 import { TextMessageProps } from "./components/ChatView/components/TextMessage/TextMessage";
-import { Typing, MessageStatusUpdate } from "@shared/Types";
+import { MessageStatusUpdate } from "@shared/Types";
 
 export type ContainerItem = TextMessageProps
 
@@ -89,9 +90,10 @@ const slice = createSlice({
 
         handleMessage: (state, action: PayloadAction<MessagePost>) => {
             const { chatId, userId, messageId, content, timestamp } = action.payload
-            state.messages[messageId].push({
-                id: messageId, chatId, userId, created: timestamp, content
-            })
+
+            state.messages[messageId] ={
+                messageId, chatId, sender: userId, timestamp, content
+            }
             state.chatMessageIds[chatId] = [messageId].concat(state.chatMessageIds[chatId])
         },
 
