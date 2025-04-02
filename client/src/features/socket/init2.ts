@@ -2,7 +2,8 @@
 
 import { v4 as uuid } from 'uuid'
 import dateGen from '../../utils/getDateGen'
-import { DbUser, DM, Group, Membership, Message } from '@shared/Types'
+import { DbUser, DM, Group, Membership } from '@shared/Types'
+import { Message } from 'shared/src/Message'
 
 const getDate = dateGen()
 
@@ -86,49 +87,49 @@ export const memberships = {
 }
 
 const dmMsg1: Message = {
-    id: uuid(),
-    userId: user1.id,
+    messageId: uuid(),
+    sender: user1.id,
     chatId: dm12.id,
     content: 'hey',
-    created: getDate()
+    timestamp: getDate().getMilliseconds()
 }
 
 const dmMsg2: Message = {
-    id: uuid(),
-    userId: user2.id,
+    messageId: uuid(),
+    sender: user2.id,
     chatId: dm12.id,
     content: 'DUDE',
-    created: getDate()
+    timestamp: getDate().getMilliseconds()
 }
 
 
 const groupMsg1: Message = {
-    id: uuid(),
-    userId: user1.id,
+    messageId: uuid(),
+    sender: user1.id,
     chatId: group1.id,
     content: 'one',
-    created: getDate()
+    timestamp: getDate().getMilliseconds()
 }
 
 const groupMsg2: Message = {
-    id: uuid(),
-    userId: user2.id,
+    messageId: uuid(),
+    sender: user2.id,
     chatId: group1.id,
     content: 'two',
-    created: getDate()
+    timestamp: getDate().getMilliseconds()
 }
 
 const groupMsg3: Message = {
-    id: uuid(),
-    userId: user3.id,
+    messageId: uuid(),
+    sender: user3.id,
     chatId: group1.id,
     content: 'three',
-    created: getDate()
+    timestamp: getDate().getMilliseconds()
 }
 
 export const messages = 
     Object.fromEntries(
         [dmMsg1, dmMsg2, groupMsg1, groupMsg2, groupMsg3].map(msg => 
-            [msg.id, msg]
+            [msg.messageId, msg]
         )
     )

@@ -59,14 +59,6 @@ export interface Membership {
     isAdmin: boolean
 }
 
-// export interface Message {
-//     id: MessageId
-//     userId: UserId
-//     chatId: ChatId
-//     content: string
-//     created: number
-// }
-
 export interface Credentials {
     username: string
     password: string 
