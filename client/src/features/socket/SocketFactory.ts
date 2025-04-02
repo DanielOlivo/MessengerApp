@@ -1,8 +1,8 @@
 'use client';
 
 import {io, Socket} from 'socket.io-client';
-import { useAppSelector } from '../../app/hooks';
-import { selectToken } from '../auth/selectors';
+// import { useAppSelector } from '../../app/hooks';
+// import { selectToken } from '../auth/selectors';
 
 export interface SocketInterface {
     socket: Socket
