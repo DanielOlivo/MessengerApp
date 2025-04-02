@@ -8,6 +8,7 @@ export function getIcon(status: MessageStatus): string{
         case 'pending': return clock
         case 'seen': return seen
         case 'unseen': return unseen
+        default: return clock
     }
 }
 
