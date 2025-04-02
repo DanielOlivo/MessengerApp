@@ -1,30 +1,30 @@
 import dayjs from "dayjs"
 import { useAppSelector } from "../../../../../app/hooks"
-import { selectTyping } from "../../selectors"
 import { join } from "./utils"
+import { selectTypingForContainer } from "../../../../selectors"
 
 export const Typing = () => {
 
-    const typings = useAppSelector(selectTyping)
-    const toDisplay = typings
-        .filter(item => dayjs().subtract(item.timestamp, 'milliseconds').valueOf() < 2000)
-        .map(item => item.username)
+    const typings = useAppSelector(selectTypingForContainer)
+    // const toDisplay = typings
+    //     .filter(item => dayjs().subtract(item.timestamp, 'milliseconds').valueOf() < 2000)
+    //     .map(item => item.username)
 
-    if(toDisplay.length === 0){
+    if(typings.length === 0){
         return null
     }
 
-    if(toDisplay.length === 1){
+    if(typings[0].length === 1){
         return (
             <div>
-                <p>{toDisplay[0]} is typing...</p>
+                <p>{typings[0]} is typing...</p>
             </div>
         )
     }
 
     return (
         <div>
-            <p>{join( toDisplay )} are typing...</p>
+            <p>{join( typings )} are typing...</p>
         </div>
     )
 }
