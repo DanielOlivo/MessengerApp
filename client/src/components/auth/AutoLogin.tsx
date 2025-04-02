@@ -1,7 +1,8 @@
 import { useEffect } from "react"
 import { Credentials } from "@shared/Types"
 import { useApDispatch } from "@app/hooks"
-import { fetchToken, login } from "@features/auth/thunks"
+import { fetchToken } from "@features/auth/thunks"
+import { login } from "../../features/auth/authSlice"
 
 export interface AutoLoginProp {
     credentials?: Credentials
