@@ -14,16 +14,11 @@ import { Routes, Route, useNavigate } from 'react-router-dom'
 import { selectAuthStatus } from './features/auth/selectors'
 
 
-import ChatList from './components/chatList/ChatList'
 import Dialog from './components/Dialog'
-import Header from './components/chatView/Header'
 import MainScreen from './components/MainScreen'
-import Messages from './components/chatView/Messages'
-import SenfField from './components/chatView/SendField'
 import Login from './components/auth/Login'
 import Registration from './components/auth/Registration'
 import AutoLogin from './components/auth/AutoLogin'
-import GroupControl from './components/groupControl/GroupControl'
 
 import { Typing } from './ChatPage/components/ChatView/components/Typing/Typing'
 import { Initializer } from './components/Initializer'
@@ -87,14 +82,14 @@ function App() {
       <Route path='/' element={
         <>
         <MainScreen>
-          <ChatList />
+          {/* <ChatList /> */}
           <Dialog>
-            <Header />  
-            <Messages />
-            <SenfField />        
+            {/* <Header />   */}
+            {/* <Messages /> */}
+            {/* <SenfField />         */}
           </Dialog>
         </MainScreen>
-        <GroupControl />
+        {/* <GroupControl /> */}
         </>
 
       } />

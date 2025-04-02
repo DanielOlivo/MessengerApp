@@ -10,15 +10,17 @@ export const DefaultTypings: Typings = {}
 export function getActiveTyping(): Typing {
     const username = faker.internet.username()
     const userId = uuid()
+    const chatId = uuid()
     const timestamp = dayjs().add(10, 'days').valueOf()
 
-    return {username, userId, timestamp}
+    return {username, userId, timestamp, chatId}
 }
 
 export function getNonactiveTyping(): Typing {
     return {
         username: faker.internet.username(),
         userId: uuid(),
+        chatId: uuid(),
         timestamp: dayjs().subtract(3, 'seconds').valueOf()
     }
 }

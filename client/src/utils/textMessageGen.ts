@@ -2,9 +2,10 @@ import dayjs from 'dayjs'
 import { faker } from '@faker-js/faker'
 import { v4 as uuid} from 'uuid'
 import { ChatId } from '../../../shared/src/Types'
-import { ContainerItem } from '../ChatPage/components/ChatView/slice'
+// import { ContainerItem } from '../ChatPage/components/ChatView/slice'
 import { TextMessageProps } from "../ChatPage/components/ChatView/components/TextMessage/TextMessage"
-import { DateSeparatorProps } from "../ChatPage/components/ChatView/components/DateSeparator/DateSeparator"
+// import { DateSeparatorProps } from "../ChatPage/components/ChatView/components/DateSeparator/DateSeparator"
+import { ContainerItem } from '../ChatPage/slice'
 
 export function* genTextMessage(chatId: ChatId): Generator<ContainerItem> {
     let timestamp = dayjs(faker.date.anytime().getTime())
@@ -12,9 +13,11 @@ export function* genTextMessage(chatId: ChatId): Generator<ContainerItem> {
     while(true){
         const nextTimestamp = timestamp.add(Math.floor(8 * Math.random()), 'hour')
 
-        if(timestamp.day !== nextTimestamp.day){
-            yield {chatId, timestamp: nextTimestamp.format('hh:mm')} as DateSeparatorProps
-        }
+        // if(timestamp.day !== nextTimestamp.day){
+        //     yield {
+        //         chatId, 
+        //         timestamp: nextTimestamp.format('hh:mm')} as DateSeparatorProps
+        // }
 
         yield {
             id: uuid(),
