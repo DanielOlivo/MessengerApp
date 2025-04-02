@@ -1,6 +1,6 @@
 import { UserId, ChatId, MessageId } from "./Types";
 import { v4 as uuid } from "uuid";
-import { faker } from "@faker-js/faker/.";
+import { faker } from "@faker-js/faker";
 
 export interface MessagePostReq {
     chatId: ChatId

@@ -2,7 +2,7 @@ import { PayloadAction } from "@reduxjs/toolkit";
 import { createSlice } from "@reduxjs/toolkit";
 import { ChatData, ChatId, ChatPinStatus, Message, MessageId, MessagePost, MessagePostReq, Typing, UserData, UserId } from "@shared/Types";
 import { TextMessageProps } from "./components/ChatView/components/TextMessage/TextMessage";
-import { TypingInChat, MessageStatusUpdate } from "@shared/Types";
+import { Typing, MessageStatusUpdate } from "@shared/Types";
 
 export type ContainerItem = TextMessageProps
 
@@ -124,7 +124,7 @@ const slice = createSlice({
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         sendTyping: (state, action: PayloadAction<ChatId>) => {},
 
-        handleTyping: (state, action: PayloadAction<TypingInChat>) => {
+        handleTyping: (state, action: PayloadAction<Typing>) => {
             const { chatId, userId, timestamp } = action.payload
             state.typing[chatId][userId] = timestamp 
         },

@@ -10,6 +10,7 @@ export function getChatItem(): ChatItemProps {
         iconSrc: getRandomHumanIcon(),
         unseenCount: faker.number.int({min: 0, max: 10}),
         selected: false,
-        pinned: faker.datatype.boolean()
+        pinned: faker.datatype.boolean(),
+        timestamp: ''
     }
 }

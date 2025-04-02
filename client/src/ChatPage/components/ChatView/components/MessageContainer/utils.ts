@@ -1,5 +1,5 @@
 import { chatViewIcons } from "../../../../../assets/assets"
-import { MessageContainerProps, MessageStatus } from "./MessageContainer"
+import { MessageStatus } from "@shared/Types"
 
 const { clock, seen, unseen } = chatViewIcons
 

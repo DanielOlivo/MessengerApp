@@ -11,10 +11,11 @@ import {
     messages,
     memberships} from './init2'
 
-import { DbUser,ChatId, DM, Message, UserId, MessageId, 
-    Group, Membership, MembershipId } from "@shared/Types";
-import { UserMessageProp } from "../../components/UserMessage";
-import { DateMessageProp } from "../../components/DateMessage";
+import { DbUser,ChatId, DM, UserId, MessageId, 
+    Group, Membership } from "@shared/Types";
+import { Message } from "@shared/Message";
+// import { UserMessageProp } from "../../components/UserMessage";
+// import { DateMessageProp } from "../../components/DateMessage";
 
 export interface SocketState {
     isConnected: boolean
@@ -64,7 +65,7 @@ const initialState: SocketState = {
 }
 
 type RoomAction = PayloadAction<{room: string}>
-type MsgAction = PayloadAction<string>
+// type MsgAction = PayloadAction<string>
 
 const socketSlice = createSlice({
     name: "socket",
@@ -83,11 +84,13 @@ const socketSlice = createSlice({
             state.overlayed = false
         },
 
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         initSocket: (state) => {
             console.log('initSocket: ')//, state)
             return
         },
 
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         disconnect: (state) => {
             console.log('disconnecting')
         },
@@ -97,6 +100,7 @@ const socketSlice = createSlice({
             console.log('connected')
         },
 
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         png: (state) => {
             console.log('PING')
         },
@@ -106,11 +110,12 @@ const socketSlice = createSlice({
         },
 
         joinRoom: (state, action: RoomAction) => {
-            let room = action.payload.room;
+            const room = action.payload.room;
             state.rooms = state.rooms.concat(room)
             return
         },
 
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         say: (state, action: PayloadAction<string>) => {
             // state.msg = action.payload.msg
         }

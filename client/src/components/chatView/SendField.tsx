@@ -41,7 +41,7 @@ const SenfField = () => {
                         handleSend()
                     }
                 }}
-                onChange={(e) => dispatch(sendTyping({
+                onChange={() => dispatch(sendTyping({
                     userId: userId!,
                     username: username!,
                     chatId: chatId!
@@ -49,7 +49,7 @@ const SenfField = () => {
             />
             <button
                 className="w-8" 
-                onClick={(e) => handleSend()}
+                onClick={() => handleSend()}
             >&#9654;</button>
         </div>
     )

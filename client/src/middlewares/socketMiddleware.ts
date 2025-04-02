@@ -9,14 +9,14 @@ import {
 } from '@features/socket/socketSlice'
 import SocketFactory from "@features/socket/SocketFactory";
 import type { SocketInterface } from "@features/socket/SocketFactory";
-import { handleSearch, insertNewMessage, reqList, search, setList } from "@features/chatList/chatListSlicer";
+import { handleSearch, reqList, search, setList } from "@features/chatList/chatListSlicer";
 import { handleNewMessage, reqData, reqDataByUser, reqMsgs, setData, setMsgs } from "@features/chatView/chatViewSlice";
 import { send, sendTyping } from "@features/sender/senderSlice";
-import { receiveTyping, setHeaderInfo } from "@features/header/headerSlice";
+import { setHeaderInfo } from "@features/header/headerSlice";
 import { createGroup, reqContacts, setContacts } from "@features/group/groupSlice";
 
 import { ChatListItem, ChatMessage, ChatSelectRes, 
-    ContactItem, SendRes, Typing, TypingInChat } from "@shared/Types";
+    ContactItem, SendRes, Typing } from "@shared/Types";
 
 import { handleSelection } from "../ChatPage/components/ChatList/slice";
 import { handleTyping } from "../ChatPage/components/ChatView/slice";
@@ -62,10 +62,10 @@ const socketMiddleware: Middleware = (store) => {
                     // to chatview
                     store.dispatch(handleNewMessage(msg))
                     // to chatlist
-                    store.dispatch(insertNewMessage(msg as ChatMessage)) // todo fix
+                    // store.dispatch(insertNewMessage(msg as ChatMessage)) // todo fix
                 })
 
-                socket.socket.on(Commands.TypingRes, (res: TypingInChat) => {
+                socket.socket.on(Commands.TypingRes, (res: Typing) => {
                     store.dispatch(handleTyping(res))
                 })
 

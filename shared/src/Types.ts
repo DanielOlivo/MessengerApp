@@ -1,3 +1,5 @@
+import { Message } from "./Message"
+
 export type UserId = string
 export type ChatId = string
 export type DmId = string
@@ -5,7 +7,6 @@ export type GroupId = string
 export type MembershipId = string
 export type MessageId = string
 export type GroupRole = 'user' | 'admin'
-
 
 // ----------- users ----------------
 export interface UserData {
@@ -58,13 +59,13 @@ export interface Membership {
     isAdmin: boolean
 }
 
-export interface Message {
-    id: MessageId
-    userId: UserId
-    chatId: ChatId
-    content: string
-    created: number
-}
+// export interface Message {
+//     id: MessageId
+//     userId: UserId
+//     chatId: ChatId
+//     content: string
+//     created: number
+// }
 
 export interface Credentials {
     username: string
@@ -179,12 +180,9 @@ export interface Credentials {
 
 export interface Typing {
     username: string 
-    userId: string 
-    timestamp: number
-}
-
-export interface TypingInChat extends Typing {
+    userId: UserId 
     chatId: ChatId
+    timestamp: number
 }
 
 export interface CreateGroupReq {

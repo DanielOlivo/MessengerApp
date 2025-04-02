@@ -6,12 +6,12 @@ import { render, screen, waitFor } from '@testing-library/react'
 import { getState } from '../../../../../utils/getState';
 import { Provider } from '../../../../../utils/Provider';
 import { Provider as RProvider } from 'react-redux'
-import { Typing } from './Typing';
+import { Typing as TypingComponent } from './Typing';
 import { getSocketServer } from '../../../../../utils/getSocketServer';
 import { createStore } from '../../../../../app/store';
 import { Commands } from 'shared/src/MiddlewareCommands';
 import { getActiveTyping, getNonactiveTyping } from './utils';
-import { TypingInChat } from 'shared/src/Types';
+import { Typing } from 'shared/src/Types';
 
 describe('Typing', () => {
 
@@ -25,7 +25,7 @@ describe('Typing', () => {
             }
         })
 
-        render(<Provider state={state}><Typing /></Provider>)
+        render(<Provider state={state}><TypingComponent /></Provider>)
         expect(screen.getByText(/is typing/i)).toBeInTheDocument()
     })
 
@@ -39,7 +39,7 @@ describe('Typing', () => {
             }
         })
 
-        render(<Provider state={state}><Typing /></Provider>)
+        render(<Provider state={state}><TypingComponent /></Provider>)
         expect(screen.queryByText(/are typing/i)).toBeInTheDocument()
     })
 
@@ -53,7 +53,7 @@ describe('Typing', () => {
             }
         })
 
-        render(<Provider state={state}><Typing /></Provider>)
+        render(<Provider state={state}><TypingComponent /></Provider>)
         expect(screen.queryByText(/is typing/i)).not.toBeInTheDocument()
     })
 
@@ -69,10 +69,10 @@ describe('Typing', () => {
 
         await waitFor(() => expect(store.getState().socket.isConnected).toBeTruthy())
 
-        render(<RProvider store={store}><Typing /></RProvider>)
+        render(<RProvider store={store}><TypingComponent /></RProvider>)
         expect(screen.queryByText(/is typing/i)).not.toBeInTheDocument()
 
-        const entry: TypingInChat = {
+        const entry: Typing = {
             username: faker.internet.username(),
             chatId: '1',
             userId: uuid(),

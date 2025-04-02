@@ -1,14 +1,14 @@
 import { describe, test, expect } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import { Provider } from '../../../../../utils/Provider'
 import { MessageContainer, MessageContainerProps } from './MessageContainer'
-import { getSocketServer } from '../../../../../utils/getSocketServer'
-import { createStore } from '../../../../../app/store'
-import { getState } from '../../../../../utils/getState'
-import { genTextMessage } from '../../../../../utils/textMessageGen'
-import { isTextMessage } from '../../utils'
-import { TextMessage, TextMessageProps } from '../TextMessage/TextMessage'
-import { Commands } from 'shared/src/MiddlewareCommands'
+// import { getSocketServer } from '../../../../../utils/getSocketServer'
+// import { createStore } from '../../../../../app/store'
+// import { getState } from '../../../../../utils/getState'
+// import { genTextMessage } from '../../../../../utils/textMessageGen'
+// import { isTextMessage } from '../../utils'
+// import { TextMessage, TextMessageProps } from '../TextMessage/TextMessage'
+// import { Commands } from 'shared/src/MiddlewareCommands'
 
 describe('MessageContainer', () => {
 

@@ -1,4 +1,4 @@
-import {configureStore, applyMiddleware, createAsyncThunk, ThunkAction, Action } from '@reduxjs/toolkit'
+import {configureStore, ThunkAction, Action } from '@reduxjs/toolkit'
 import authReducer from '@features/auth/authSlice'
 import socketReducer, { initSocket } from '@features/socket/socketSlice'
 import chatListReducer from '@features/chatList/chatListSlicer'

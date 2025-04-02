@@ -1,5 +1,4 @@
-import dayjs, { Dayjs } from 'dayjs'
-import { ChatId, MessageId } from 'shared/src/Types'
+import dayjs from 'dayjs'
 import { createSelector } from '@reduxjs/toolkit'
 import { RootState } from '../app/store'
 import { ChatItemProps } from './components/ChatList/components/ChatItem'
