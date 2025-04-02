@@ -1,8 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
-// import { createAppAsyncThunk, type AppThunk, type RootState } from '../../app/store'
-import { Credentials, UserAuthData } from "@shared/Types"
-// import { RootState } from '../../app/store'
-import createAppAsyncThunk from '../../app/createAppAsyncThunk'
+import { UserAuthData } from "@shared/Types"
+import { register, fetchToken } from './thunks'
 
 interface AuthState {
     authenticated: boolean
@@ -13,46 +11,6 @@ interface AuthState {
 const initialState: AuthState = {
     authenticated: false
 }
-
-const url = import.meta.env.VITE_BASE_URL || 'http://localhost:3000'
-
-
-export const register = createAppAsyncThunk('auth/register', async (credentials: Credentials) => {
-    try {
-        const payload = JSON.stringify(credentials)
-        const targetUrl = new URL('/api/user/register', url).href
-        const res = await fetch(targetUrl, {
-            method: 'POST',
-            headers: {"Content-Type": "application/json"},
-            body: payload
-        })
-        const json = await res.json()
-        return json
-    }
-    catch(error){
-        return error
-    }
-})
-
-export const fetchToken = createAppAsyncThunk('auth/fetchToken', async (credentials: Credentials) => {
-    try {
-        const payload = JSON.stringify(credentials)
-        console.log(payload)
-        const targetUrl = new URL('/api/user/login', url).href
-        const res = await fetch(targetUrl, {
-            method: 'POST',
-            headers: {"Content-Type": "application/json"},
-            body: payload
-        })
-        const json = await res.json()
-        return json
-        // return true
-    }
-    catch(error){
-        return error
-    }
-})
-
 
 export const authSlice = createSlice({
     name: 'auth',
@@ -91,6 +49,7 @@ export const authSlice = createSlice({
     },
     extraReducers: builder => {
         builder 
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             .addCase(fetchToken.pending, (state, action) => {
                 console.log('pending')
             })
@@ -108,6 +67,7 @@ export const authSlice = createSlice({
                 localStorage.setItem('userId', JSON.stringify(state.data.id))
             })
 
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             .addCase(register.pending, (state, action) => {
                 console.log('register: pending...')
             })
