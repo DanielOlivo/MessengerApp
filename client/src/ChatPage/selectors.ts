@@ -42,7 +42,7 @@ export const selectChatItems = createSelector(
                 unseenCount: 0,
                 selected: chatId === displayedChatId,
                 pinned: isPinned,
-                timestamp: msg.created
+                timestamp: msg.timestamp
             }
             return result
         }).sort((item1, item2) => item1.timestamp > item2.timestamp ? 1 : -1).map(item => ({
