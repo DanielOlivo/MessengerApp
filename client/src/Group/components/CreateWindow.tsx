@@ -1,6 +1,6 @@
 import React, { useRef } from 'react'
 import { useApDispatch, useAppSelector } from '../../app/hooks'
-import { selectContactsInGroup, selectContactsNotInGroup, selectIsOnSearch } from '../selectors'
+import { selectContactsInGroup, selectContactsNotInGroup } from '../selectors'
 import { Contact, ContactProps } from './Contact'
 import { createGroup, setSearchStatus } from '../slice'
 
@@ -13,7 +13,7 @@ export const CreateWindow = () => {
 
     const propsNotInGroup: ContactProps[] = notInGroup.map(user => ({
         ...user,
-        userId: user.id,
+        userId: user.userId,
         editable: true,
         inGroup: false
     }))
@@ -34,7 +34,7 @@ export const CreateWindow = () => {
         if(nameRef.current && nameRef.current.value.length > 0 && inGroup.length > 0){
             dispatch(createGroup({
                 name: nameRef.current.value,
-                users: inGroup.map(user => user.id)
+                users: inGroup.map(user => user.userId)
             }))            
         }
     }
