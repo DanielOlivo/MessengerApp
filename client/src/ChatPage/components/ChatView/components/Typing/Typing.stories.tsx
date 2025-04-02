@@ -17,15 +17,17 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof Typing>
 
-const someoneTypingStore = createStore(getState({
-    chatView2: {
-        chatId: '1',
-        typing: {
-            '1': [ getActiveTyping() ] 
-        }
-    }
-}))
 
+// const someoneTypingStore = createStore(getState({
+//     chatView2: {
+//         chatId: '1',
+//         typing: {
+//             '1': [ getActiveTyping() ] 
+//         }
+//     }
+// }))
+
+const someoneTypingStore = createStore(getState())
 export const SomeoneTyping: Story = {
     decorators: [
         (Story) => <Provider store={someoneTypingStore}><Story /></Provider>
@@ -34,34 +36,34 @@ export const SomeoneTyping: Story = {
 
 
 
-const bothTypingStore = createStore(getState({
-    chatView2: {
-        chatId: '1',
-        typing: {
-            '1': [ getActiveTyping(), getActiveTyping() ] 
-        }
-    }
-}))
+// const bothTypingStore = createStore(getState({
+//     chatView2: {
+//         chatId: '1',
+//         typing: {
+//             '1': [ getActiveTyping(), getActiveTyping() ] 
+//         }
+//     }
+// }))
 
-export const BothTyping: Story = {
-    decorators: [
-        (Story) => <Provider store={bothTypingStore}><Story /></Provider>
-    ]
-}
+// export const BothTyping: Story = {
+//     decorators: [
+//         (Story) => <Provider store={bothTypingStore}><Story /></Provider>
+//     ]
+// }
 
 
 
-const manyTypingStore = createStore(getState({
-    chatView2: {
-        chatId: '1',
-        typing: {
-            '1': Array.from({length: 4}, () => getActiveTyping())
-        }
-    }
-}))
+// const manyTypingStore = createStore(getState({
+//     chatView2: {
+//         chatId: '1',
+//         typing: {
+//             '1': Array.from({length: 4}, () => getActiveTyping())
+//         }
+//     }
+// }))
 
-export const ManyTyping: Story = {
-    decorators: [
-        (Story) => <Provider store={manyTypingStore}><Story /></Provider>
-    ]
-}
+// export const ManyTyping: Story = {
+//     decorators: [
+//         (Story) => <Provider store={manyTypingStore}><Story /></Provider>
+//     ]
+// }
