@@ -156,6 +156,7 @@ export interface UserInfoReq {
     userId: UserId
 }
 
+
 export interface GroupInfoReq {
     chatId: ChatId
 }

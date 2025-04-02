@@ -8,10 +8,22 @@ export interface UserInfo {
     iconSrc: string
 }
 
+export type UserInfoCollection = { [P: UserId]: UserInfo }
+
 export function getRandom(): UserInfo{
     return {
         id: uuid(),
         name: faker.internet.username(),
         iconSrc: ''
     }
+}
+
+export function getRandomUserInfoCollection(amount: number = 2): UserInfoCollection {
+    const result: UserInfoCollection = {} 
+
+    for(let i = 0; i < amount; i++){
+        const info = getRandom()
+        result[info.id] = info
+    }
+    return result
 }
