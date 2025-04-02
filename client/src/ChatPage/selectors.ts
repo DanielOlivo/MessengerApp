@@ -28,7 +28,7 @@ export const selectSlice = (state: RootState) => state.chat
 // ------------------ chatlist ----------------------
 export const selectChatItems = createSelector(
     selectSlice,
-    (chat) => {
+    (chat): ChatItemProps[] => {
         const { chatMessageIds, chatInfo, messages, pinned, displayedChatId } = chat
         const items = Object.entries(chatMessageIds).filter(([, msgIds]) => msgIds.length > 0).map(([chatId, [msgId,]]) => {
             const info = chatInfo[chatId]
@@ -48,7 +48,7 @@ export const selectChatItems = createSelector(
             return result
         }).sort((item1, item2) => item1.timestamp > item2.timestamp ? 1 : -1).map(item => ({
             ...item,
-            timeStamp: dayjs(item.timestamp).format('hh:mm')
+            timestamp: dayjs(item.timestamp).format('hh:mm')
         }))
         return items
     }

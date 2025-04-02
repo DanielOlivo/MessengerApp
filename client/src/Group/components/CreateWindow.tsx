@@ -1,6 +1,5 @@
 import React, { useRef } from 'react'
 import { useApDispatch, useAppSelector } from '../../app/hooks'
-import { selectAllUsers } from '../../users/selectors'
 import { selectContactsInGroup, selectContactsNotInGroup, selectIsOnSearch } from '../selectors'
 import { Contact, ContactProps } from './Contact'
 import { createGroup, setSearchStatus } from '../slice'

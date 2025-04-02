@@ -32,7 +32,7 @@ class SocketConnection implements SocketInterface {
             })
         }
         else {
-            this.socket = io('wss://localhost:3000')
+            this.socket = io('http://localhost:3000')
             // console.log('endpoint', this.socketEndpoint)
         }
     }

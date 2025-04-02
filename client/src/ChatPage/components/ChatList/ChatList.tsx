@@ -3,7 +3,6 @@ import { selectChatItems } from "../../selectors"
 import { ChatItem } from "./components/ChatItem"
 import { NewGroupButton } from "./components/NewGroupButton"
 import { SearchBar } from "./components/SearchBar"
-import { selectItems } from "./selectors"
 
 export const ChatList = () => {
 

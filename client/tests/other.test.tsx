@@ -9,7 +9,6 @@ import { faker } from '@faker-js/faker'
 import { ChatItem, ChatItemProps } from "../src/ChatPage/components/ChatList/components/ChatItem";
 // import { Provider } from '../src/utils/Provider'
 import { Provider } from 'react-redux'
-import { ChatList } from '../src/ChatPage/components/ChatList/ChatList'
 import { wait } from '../src/utils/wait'
 import { createStore } from '../src/app/store'
 import { getState } from '../src/utils/getState'
@@ -40,7 +39,9 @@ describe('manually', () => {
             content: faker.lorem.sentence(),
             iconSrc: '',
             unseenCount: 1,
-            selected: false
+            selected: false,
+            pinned: false,
+            timestamp: '00:00'
         }
         const store = createStore(getState(), true)
 

@@ -12,11 +12,15 @@ export const Sender = () => {
     const isConnected = useAppSelector(selectConnectionStatus)
 
     useEffect(() => {
+        const timeout = setTimeout(() => dispatch(initSocket()), 2000)
+
         const interval = setInterval(() => {
-            dispatch(initSocket())
             dispatch(sendNumber(1))
         }, 3000)
-        return () => clearInterval(interval)
+        return () => {
+            clearInterval(interval)
+            clearTimeout(timeout)
+        }
     }, [])
 
     return (

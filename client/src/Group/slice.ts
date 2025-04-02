@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { UserId, CreateGroupReq } from "shared/src/Types";
+import { UserId, ChatId, CreateGroupReq } from "shared/src/Types";
 
 export type State = 'idle' | 'onCreate' | 'onUpdate'
 
@@ -58,6 +58,14 @@ const slice = createSlice({
 
         createGroup: (state, action: PayloadAction<CreateGroupReq>) => {},
 
+        applyChanges: (state) => {
+            // todo
+        },
+
+        removeGroup: (state, action: PayloadAction<ChatId>) => {
+            // todo
+        },
+
         setSearchStatus: (state, action: PayloadAction<boolean>) => {
             state.onSearch = action.payload
         },
@@ -75,6 +83,6 @@ export const {
     setIdle,
     setState,
     addToGroup, removeFromGroup,
-    createGroup,
+    createGroup, removeGroup,
     searchContacts: searchContact, setSearchStatus, handleSearchContact
 } = slice.actions

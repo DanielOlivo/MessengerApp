@@ -25,6 +25,12 @@ import { selectAuthStatus } from './features/auth/selectors'
 import { resetChatView } from './features/chatView/chatViewSlice'
 import { resetHeader } from './features/header/headerSlice'
 import GroupControl from './components/groupControl/GroupControl'
+
+import { Typing } from './ChatPage/components/ChatView/components/Typing/Typing'
+import { Initializer } from './components/Initializer'
+import { Sender } from './components/socketTest/Sender'
+
+
 // import DateMessage, { DateMessageProp } from './components/DateMessage'
 // import { ReactNode } from 'react'
 
@@ -33,30 +39,39 @@ function App() {
 
   const dispatch = useApDispatch()
   // const overlayed = useAppSelector(selectOverlayed)
-  const navigate = useNavigate()
-  const isAuthenticated = useAppSelector(selectAuthStatus)
+  // const navigate = useNavigate()
+  // const isAuthenticated = useAppSelector(selectAuthStatus)
 
   // const getOverlayed = () => overlayed ? <Overlay /> : <></>
 
-  useEffect(() => {
-    document.addEventListener('keyup', (e) => {
-      // console.log(e.key)
+  // useEffect(() => {
+  //   document.addEventListener('keyup', (e) => {
+  //     // console.log(e.key)
 
-      if(e.key === 'Escape'){
-        console.log('escape')
-        // dispatch(setState('idle'))
-        // dispatch(unselectChat())
-        dispatch(resetChatView())
-        dispatch(resetHeader())
-      }
-    })
+  //     if(e.key === 'Escape'){
+  //       console.log('escape')
+  //       // dispatch(setState('idle'))
+  //       // dispatch(unselectChat())
+  //       dispatch(resetChatView())
+  //       dispatch(resetHeader())
+  //     }
+  //   })
 
-    // dispatch(initSocket())
-  }, [])
+  //   // dispatch(initSocket())
+  // }, [])
 
-  useEffect(() => {
-    navigate(isAuthenticated ? '/' : '/login')
-  }, [isAuthenticated])
+  // DO NOT REMOVE
+  // useEffect(() => {
+  //   navigate(isAuthenticated ? '/' : '/login')
+  // }, [isAuthenticated])
+
+  return (
+    <>
+      <Initializer /> 
+      {/* <Sender /> */}
+      <Typing />
+    </>
+  )
 
   return (
     <>
@@ -64,9 +79,8 @@ function App() {
     <Routes>
       <Route path='/login' element={ 
         <>
-        <Login /> 
-        {/* <AutoLogin username='user1' password='1234' /> */}
-        <AutoLogin  />
+          <Login /> 
+          <AutoLogin  /> {/* <AutoLogin username='user1' password='1234' /> */}
         </> }
       />
       <Route path='/register' element={ <Registration /> } />
@@ -85,6 +99,7 @@ function App() {
 
       } />
     </Routes>
+
 
     {/* {getOverlayed()} */}
     </>

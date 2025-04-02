@@ -184,7 +184,7 @@ export interface Typing {
 }
 
 export interface TypingInChat extends Typing {
-    chatId: string
+    chatId: ChatId
 }
 
 export interface CreateGroupReq {

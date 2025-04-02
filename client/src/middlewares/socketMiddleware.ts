@@ -16,7 +16,7 @@ import { receiveTyping, setHeaderInfo } from "@features/header/headerSlice";
 import { createGroup, reqContacts, setContacts } from "@features/group/groupSlice";
 
 import { ChatListItem, ChatMessage, ChatSelectRes, 
-    ContactItem, SendRes, Typing } from "@shared/Types";
+    ContactItem, SendRes, Typing, TypingInChat } from "@shared/Types";
 
 import { handleSelection } from "../ChatPage/components/ChatList/slice";
 import { handleTyping } from "../ChatPage/components/ChatView/slice";
@@ -65,8 +65,7 @@ const socketMiddleware: Middleware = (store) => {
                     store.dispatch(insertNewMessage(msg as ChatMessage)) // todo fix
                 })
 
-                socket.socket.on(Commands.TypingRes, (res: Typing) => {
-                    // store.dispatch(receiveTyping(res))
+                socket.socket.on(Commands.TypingRes, (res: TypingInChat) => {
                     store.dispatch(handleTyping(res))
                 })
 

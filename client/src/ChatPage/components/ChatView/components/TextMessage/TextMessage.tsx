@@ -5,7 +5,7 @@ export interface TextMessageProps extends MessageContainerProps {
     text: string
 }
 
-export const TextMessage = ({id, chatId, status, isOwn, timestamp, text}: TextMessageProps) => {
+export const TextMessage = ({id, status, isOwn, timestamp, text}: TextMessageProps) => {
     return (
         <MessageContainer id={id} isOwn={isOwn} timestamp={timestamp} status={status}>
             <p>{text}</p>

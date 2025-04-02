@@ -1,11 +1,13 @@
 import { useAppSelector } from "../../../../app/hooks"
 import { Icon } from "../../../../common/Icon"
-import { selectHeaderInfo } from '../../../selectors'
+import { selectHeaderIcon, selectHeaderStatus, selectHeaderTitle } from '../../../selectors'
 
 
 export const Header = () => {
 
-    const { name, iconSrc, status } = useAppSelector(selectHeaderInfo)
+    const name = useAppSelector(selectHeaderTitle)
+    const iconSrc = useAppSelector(selectHeaderIcon)
+    const status = useAppSelector(selectHeaderStatus)
 
     return (
         <div className="flex flex-row justify-between items-center h-16 px-4 py-2">

@@ -46,6 +46,13 @@ export const selectContactsNotInGroup = createSelector(
     } 
 )
 
+export const selectGroupName = createSelector(
+    selectGroupId,
+    (id): string => {
+        return 'to be done'
+    }
+)
+
 // export const selectSearchResultInGroupProps = createSelector(
 //     selectGroupMemberIds,
 //     selectSearchResult,

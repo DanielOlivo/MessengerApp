@@ -40,6 +40,8 @@ const slice = createSlice({
     reducers: {
 
         // --------------- users ---------------------
+
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         requestUserInfo: (state, action: PayloadAction<UserId>) => {},
 
         handleUser: (state, action: PayloadAction<UserData>) => {
@@ -49,10 +51,13 @@ const slice = createSlice({
 
 
         // --------------- chats ---------------------
+
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         handleAllChats: (state, action) => {
             // todo
         },
 
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         handleChatUpdate: (state, action: PayloadAction<ChatData>) => {
             // todo
         },
@@ -63,6 +68,8 @@ const slice = createSlice({
 
 
         // ------------------ toggle pin ------------------------------
+
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         togglePin: (state, action: PayloadAction<ChatId>) => {},
         
         handleToggle: (state, action: PayloadAction<ChatPinStatus>) => {
@@ -76,6 +83,8 @@ const slice = createSlice({
         },
 
         // ----------------- messages -------------------------
+
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         sendMessage: (state, action: PayloadAction<MessagePostReq>) => {},
 
         handleMessage: (state, action: PayloadAction<MessagePost>) => {
@@ -86,17 +95,23 @@ const slice = createSlice({
             state.chatMessageIds[chatId] = [messageId].concat(state.chatMessageIds[chatId])
         },
 
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         loadAllMessagesAfter: (state, action: PayloadAction<MessageId>) => {},
+
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         loadMessagesBefore: (state, action: PayloadAction<MessageId>) => {},
 
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         sendMessageStatus: (state, action: PayloadAction<string>) => {},
 
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         handleMessageStatusUpdate: (state, action: PayloadAction<MessageStatusUpdate>) => {
             // todo
         },
 
 
 
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         handleChatSelection: (state, action: PayloadAction<ChatId>) => {
             // todo
         },
@@ -105,6 +120,8 @@ const slice = createSlice({
         // --------------- typing -------------------
 
         /** send when user starts typing in ChatInput */
+
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         sendTyping: (state, action: PayloadAction<ChatId>) => {},
 
         handleTyping: (state, action: PayloadAction<TypingInChat>) => {
@@ -113,6 +130,8 @@ const slice = createSlice({
         },
 
         // ----------------- testing ---------------
+
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         sendNumber: (state, action: PayloadAction<number>) => {}
     }
 })
