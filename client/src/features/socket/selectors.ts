@@ -1,7 +1,6 @@
 import { createSelector } from "@reduxjs/toolkit"
 import type { RootState } from "../../app/store"
 import { Group, DM, ChatId, Message } from "@shared/Types"
-import dateGroupFn from "../../utils/dateGroupFn"
 import maxBy from "../../utils/maxBy"
 import { ChatItemProp } from "../../components/chatList/ChatItem"
 import { ServiceMessage } from "./socketSlice"
