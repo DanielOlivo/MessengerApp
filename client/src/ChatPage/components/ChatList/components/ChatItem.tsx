@@ -1,7 +1,7 @@
 import { ChatId } from "shared/src/Types"
 import { useApDispatch } from "../../../../app/hooks"
 import { chatListIcons } from "../../../../assets/assets"
-import { handleSelection } from "../slice"
+// import { handleSelection } from "../slice"
 import { UnseenCount } from "./UnseenCount"
 
 export interface ChatItemProps {
@@ -19,11 +19,13 @@ const { pin } = chatListIcons
 
 export const ChatItem = ({chatId, title, content, iconSrc, unseenCount, selected = false, pinned}: ChatItemProps) => {
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const dispatch = useApDispatch()
 
     const handleClick = () => {
         console.log('doing something with ', chatId)
-        dispatch(handleSelection(chatId))
+        // dispatch(handleSelection(chatId))
+        // TODO
     }
         
     return (

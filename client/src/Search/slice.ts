@@ -19,6 +19,8 @@ const slice = createSlice({
     name: 'search',
     initialState,
     reducers: {
+
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         search: (state, action: PayloadAction<SearchReq>) => {},
         
         handleSearch: (state, action: PayloadAction<SearchCardProps[]>) => {
