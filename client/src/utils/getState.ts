@@ -2,7 +2,8 @@ import { RootState } from "../app/store";
 import { ChatId, MessageId, UserId, UserInfo } from "../../../shared/src/Types";
 import { getRandomSliceState } from "../ChatPage/utils";
 import { ChatInfo } from "../ChatPage/slice";
-import { TextMessageProps } from "../ChatPage/components/ChatView/components/TextMessage/TextMessage";
+// import { TextMessageProps } from "../ChatPage/components/ChatView/components/TextMessage/TextMessage";
+import { Message } from "shared/src/Message";
 import { getDefault } from "../Group/utils";
 import { getRandomUsers } from "../users/utils";
 
@@ -25,7 +26,7 @@ export function getState(state?: DeepPartial<RootState>): RootState {
         chat: {
             chatMessageIds: state?.chat?.chatMessageIds as {[P in ChatId]: MessageId[]} ?? chat.chatMessageIds,
             chatInfo: state?.chat?.chatInfo as {[P in ChatId]: ChatInfo} ?? chat.chatInfo,
-            messages: state?.chat?.messages as {[P in MessageId]: TextMessageProps} ?? chat.messages,
+            messages: state?.chat?.messages as {[P in MessageId]: Message} ?? chat.messages,
             unseenCount: state?.chat?.unseenCount as {[P in ChatId]: number} ?? chat.unseenCount,
             pinned: state?.chat?.pinned ?? chat.pinned,
             displayedChatId: state?.chat?.displayedChatId ?? chat.displayedChatId,
