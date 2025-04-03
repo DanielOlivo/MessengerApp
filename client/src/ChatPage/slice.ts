@@ -115,7 +115,7 @@ const slice = createSlice({
 
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         handleChatSelection: (state, action: PayloadAction<ChatId>) => {
-            // todo
+            state.displayedChatId = action.payload
         },
 
 
@@ -148,7 +148,8 @@ export const {
     togglePin, handleToggle,
     sendTyping, handleTyping,
     deleteChat,
-    sendNumber
+    sendNumber,
+    handleChatSelection
 } = slice.actions
 
 export default slice.reducer

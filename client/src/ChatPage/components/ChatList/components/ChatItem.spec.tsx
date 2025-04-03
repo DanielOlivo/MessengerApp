@@ -19,6 +19,8 @@ describe('ChatItem', () => {
     })
 
     test('click opens the chat', async () => {
+
+        // todo
         const props = getRandomChatItem()
         const store = createStore(getState())
 
