@@ -15,6 +15,7 @@ import userReducer from '../users/slice'
 import chatReducer from '../ChatPage/slice'
 import groupReducer from '../Group/slice'
 import searchReducer from '../Search/slice'
+import contextReducer from '../Context/slice'
 
 const store = configureStore({
     reducer: {
@@ -32,7 +33,8 @@ const store = configureStore({
         users: userReducer,
         chat: chatReducer,
         group: groupReducer,
-        search: searchReducer
+        search: searchReducer,
+        context: contextReducer
     },
     middleware: getDefaultMiddleware => {
         return getDefaultMiddleware().concat([socketMiddleware])
@@ -61,7 +63,8 @@ export function createStore(state: RootState, initialized: boolean = false){
             // chatView2: chatViewReducer2,
             users: userReducer,
             chat: chatReducer,
-            search: searchReducer
+            search: searchReducer,
+            context: contextReducer
         },
         preloadedState: state,
         middleware: getDefaultMiddleware => {

@@ -131,6 +131,10 @@ const slice = createSlice({
             state.typing[chatId][userId] = timestamp 
         },
 
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        deleteChat: (state, action: PayloadAction<ChatId>) => {},
+
+
         // ----------------- testing ---------------
 
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -143,6 +147,7 @@ export const {
     handleMessage, sendMessage,
     togglePin, handleToggle,
     sendTyping, handleTyping,
+    deleteChat,
     sendNumber
 } = slice.actions
 

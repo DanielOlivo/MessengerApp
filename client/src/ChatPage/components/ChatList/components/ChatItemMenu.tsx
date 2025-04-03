@@ -1,18 +1,21 @@
-import React, { FC } from 'react'
+import { FC } from 'react'
 import { useApDispatch } from '../../../../app/hooks'
+import { deleteChat, togglePin } from '../../../slice'
+import { ChatId } from 'shared/src/Types'
 
 export interface ChatItemMenuProps {
+    chatId: ChatId
     pinned: boolean
 }
 
-export const ChatItemMenu: FC<ChatItemMenuProps> = ({pinned}) => {
+export const ChatItemMenu: FC<ChatItemMenuProps> = ({chatId, pinned}) => {
 
     const dispatch = useApDispatch()
 
     return (
-        <div className='flex flex-col justify-start items-stretch'>
-            <button>{pinned ? 'Unpin' : 'Pin'}</button>
-            <button>Delete</button>
+        <div className='flex flex-col justify-start items-stretch w-24 border border-slate-400 rounded-md p-1 bg-white'>
+            <button onClick={() => dispatch(togglePin(chatId))}>{pinned ? 'Unpin' : 'Pin'}</button>
+            <button onClick={() => dispatch(deleteChat(chatId))}>Delete</button>
         </div>
     )
 }
