@@ -1,13 +1,13 @@
 import { useAppSelector } from "../../../app/hooks"
-import { selectChatItems } from "../../selectors"
-import { ChatItem } from "./components/ChatItem"
+import { selectPinnedItems, selectUnpinnedItems } from "../../selectors"
 import { NewGroupButton } from "./components/NewGroupButton"
 import { SearchBar } from "./components/SearchBar"
+import { Section } from "./components/Section"
 
 export const ChatList = () => {
 
-    // const items = useAppSelector(selectItems)
-    const items = useAppSelector(selectChatItems)
+    const pinned = useAppSelector(selectPinnedItems)
+    const unpinned = useAppSelector(selectUnpinnedItems)
 
     return (
         <div className="flex flex-col justify-start items-stretch min-w-[200px] max-w-[400px] max-h-screen">
@@ -16,7 +16,8 @@ export const ChatList = () => {
             <div className="w-full flex-grow overflow-y-auto">
                 <div className="w-full">
                     <NewGroupButton />
-                    {items.map(item => <ChatItem {...item} />)}
+                    <Section title='Pinned' iconSrc='' items={pinned} />
+                    <Section title='All' iconSrc='' items={unpinned} />
                 </div>
             </div>
         </div>

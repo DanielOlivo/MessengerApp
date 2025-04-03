@@ -53,6 +53,16 @@ export const selectChatItems = createSelector(
     }
 )
 
+export const selectPinnedItems = createSelector(
+    selectChatItems,
+    (items) => items.filter(item => item.pinned)
+)
+
+export const selectUnpinnedItems = createSelector(
+    selectChatItems,
+    (items) => items.filter(item => !item.pinned)
+)
+
 
 // ------------------ header ----------------------
 export const selectHeaderTitle = (state: RootState) => state.chat.chatInfo[state.chat.displayedChatId].name
