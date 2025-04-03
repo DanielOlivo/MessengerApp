@@ -3,8 +3,8 @@ import dayjs from "dayjs";
 import { faker } from "@faker-js/faker";
 import { ChatInfo, ChatSliceState } from "./slice";
 import { getRandomHumanIcon } from "../assets/assets";
-import { getTextMessages } from "../utils/textMessageGen";
-import { isTextMessage } from "./components/ChatView/utils";
+// import { getTextMessages } from "../utils/textMessageGen";
+// import { isTextMessage } from "./components/ChatView/utils";
 import { Message } from "shared/src/Message";
 import { ChatId } from "shared/src/Types";
 
@@ -71,12 +71,21 @@ export function getRandomSliceState(): ChatSliceState{
         const chatId = uuid()
         const iconSrc = getRandomHumanIcon()
         const status = 'online'
-        const msgs = getTextMessages(chatId, 10).filter(item => isTextMessage(item))
+        const msgs: Message[] = Array.from({length: 10}, () => ({
+            messageId: uuid(),
+            sender: uuid(),
+            timestamp: dayjs().valueOf(),
+            content: faker.lorem.sentence(),
+            chatId
+        }))
         
+        if(Math.random() > 0.8){
+            state.pinned.push(chatId)
+        }
 
         state.chatMessageIds = {
             ...state.chatMessageIds,
-            [chatId]: msgs.map(msg => msg.id)
+            [chatId]: msgs.map(msg => msg.messageId)
         }
 
         state.chatInfo = {
@@ -90,7 +99,7 @@ export function getRandomSliceState(): ChatSliceState{
 
         state.messages = {
             ...state.messages,
-            ...Object.fromEntries(msgs.map(msg => [msg.id, msg]))
+            ...Object.fromEntries(msgs.map(msg => [msg.messageId, msg]))
         }
     }
 
