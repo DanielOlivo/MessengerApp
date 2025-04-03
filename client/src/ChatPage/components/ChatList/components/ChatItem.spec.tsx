@@ -1,24 +1,13 @@
 import { describe, test, expect } from "vitest";
 import { render, screen } from '@testing-library/react'
-import { faker } from "@faker-js/faker";
-import { v4 as uuid } from "uuid";
-import { ChatItem, ChatItemProps } from "./ChatItem";
-import dayjs from "dayjs";
+import { ChatItem } from "./ChatItem";
 import { Provider } from "../../../../utils/Provider";
+import { getRandomChatItem } from "../utils";
 
 describe('ChatItem', () => {
 
     test('render', () => {
-        const props: ChatItemProps = {
-            chatId: uuid(),
-            title: faker.lorem.sentence(),
-            content: faker.lorem.paragraph(),
-            iconSrc: '',
-            unseenCount: 0,
-            selected: false,
-            pinned: false,
-            timestamp: dayjs().format('hh:mm')
-        }
+        const props = getRandomChatItem()
 
         render(<Provider><ChatItem {...props} /></Provider>)
 
