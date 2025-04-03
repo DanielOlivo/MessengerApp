@@ -1,23 +1,42 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { ChatId } from "shared/src/Types";
 
 export type ContextType = 'idle' | 'chatItem'
 
-export interface ContextState {
-    type: ContextType
+export interface Position {
+    x: number
+    y: number
 }
 
-const initialState: ContextState = {
-    type: 'idle'
+export interface ContextState {
+    type: ContextType
+    id: string
+    position: Position
 }
+
+
+const initialState: ContextState = {
+    type: 'idle',
+    id: '',
+    position: {x: 0, y: 0}
+}
+
+
 
 const slice = createSlice({
     name: 'context',
     initialState,
     reducers: {
 
+        setVisible: (state, action: PayloadAction<ContextState>) => {
+            return action.payload
+        },
 
+        disable: (state) => {
+            state.id = ''
+            state.type = 'idle'
+        }
     }
 })
 
 export default slice.reducer
+export const { setVisible, disable } = slice.actions

@@ -6,6 +6,7 @@ import { ChatInfo } from "../ChatPage/slice";
 import { Message } from "shared/src/Message";
 import { getDefault } from "../Group/utils";
 import { getRandomUsers } from "../users/utils";
+import { Position } from "../Context/slice";
 
 export type DeepPartial<T> = T extends Array<infer U>
     ? T 
@@ -52,7 +53,9 @@ export function getState(state?: DeepPartial<RootState>): RootState {
             result: state?.search?.result ?? [] 
         },
         context: {
-            type: state?.context?.type ?? 'idle'
+            type: state?.context?.type ?? 'idle',
+            id: state?.context?.id ?? '',
+            position: state?.context?.position as Position ?? {x: 0, y: 0}
         }
     }
 
