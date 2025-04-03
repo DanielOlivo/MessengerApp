@@ -16,7 +16,8 @@ type Story = StoryObj<typeof meta>;
 
 export const Pinned: Story = {
     args: {
-        pinned: true
+        pinned: true,
+        chatId: ''
     },
     decorators: [
         (Story) => <Provider><Story /></Provider>
@@ -25,7 +26,8 @@ export const Pinned: Story = {
 
 export const Unpinned: Story = {
     args: {
-        pinned: false
+        pinned: false,
+        chatId: ''
     },
     decorators: [
         (Story) => <Provider><Story /></Provider>

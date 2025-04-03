@@ -50,6 +50,9 @@ export function getState(state?: DeepPartial<RootState>): RootState {
         search: {
             onSearch: state?.search?.onSearch ?? false,
             result: state?.search?.result ?? [] 
+        },
+        context: {
+            type: state?.context?.type ?? 'idle'
         }
     }
 
