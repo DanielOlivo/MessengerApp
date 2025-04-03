@@ -2,6 +2,8 @@ import dayjs from 'dayjs'
 import { createSelector } from '@reduxjs/toolkit'
 import { RootState } from '../app/store'
 import { ChatItemProps } from './components/ChatList/components/ChatItem'
+import { TextMessageProps } from './components/ChatView/components/TextMessage/TextMessage'
+import { selectUserId } from '../features/auth/selectors'
 
 export const selectCurrentChatId = (state: RootState ) => 
     state.chat.displayedChatId
@@ -74,7 +76,18 @@ export const selectHeaderStatus = (state: RootState) => state.chat.chatInfo[stat
 export const selectChatMessages = createSelector(
     selectChatMessageIds,
     selectAllMessages,
-    (ids, msgs) => ids.map(id => msgs[id])
+    selectUserId,
+    (ids, msgs, userId): TextMessageProps[] => ids.map(id => {
+        const {messageId, content, chatId, timestamp, sender} = msgs[id]
+        return {
+            chatId,
+            text: content,
+            id: messageId,
+            timestamp: dayjs(timestamp).format('hh:mm'),
+            status: 'seen',
+            isOwn: sender === userId
+        }
+    })
 )
 
 
