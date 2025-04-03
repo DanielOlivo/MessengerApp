@@ -4,12 +4,18 @@ import { register, fetchToken } from './thunks'
 
 interface AuthState {
     authenticated: boolean
-    data?: UserAuthData
-    registerSuccess?: boolean
+    data: UserAuthData
+    registerSuccess: boolean
 }
 
 const initialState: AuthState = {
-    authenticated: false
+    authenticated: false,
+    data: {
+        id: '',
+        username: '',
+        token: ''
+    },
+    registerSuccess: false
 }
 
 export const authSlice = createSlice({
@@ -39,7 +45,11 @@ export const authSlice = createSlice({
         },
 
         logout: (state) => {
-            state.data = undefined
+            state.data = {
+                id: '',
+                username: '',
+                token: ''
+            }
             state.authenticated = false
 
             localStorage.removeItem('username')

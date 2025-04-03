@@ -44,6 +44,12 @@ export function getState(state?: DeepPartial<RootState>): RootState {
         },
         auth: {
             authenticated: true,
+            data: {
+                id: state?.auth?.data?.id ?? '',
+                username: state?.auth?.data?.username ?? '',
+                token: state?.auth?.data?.token ?? ''
+            },
+            registerSuccess: state?.auth?.registerSuccess ?? false
         },
         socket: {
             isConnected: false,
