@@ -107,7 +107,7 @@ export function getRandomSliceState(): ChatSliceState{
     const idx = Math.floor(Math.random() * chatIds.length)
     state.displayedChatId = chatIds[idx]
     
-    console.log('state', state)
+    // console.log('state', state)
 
     return state
 }

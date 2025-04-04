@@ -23,7 +23,7 @@ export const register = createAsyncThunk('auth/register', async (credentials: Cr
 export const fetchToken = createAsyncThunk('auth/fetchToken', async (credentials: Credentials) => {
     try {
         const payload = JSON.stringify(credentials)
-        console.log(payload)
+        // console.log(payload)
         const targetUrl = new URL('/api/user/login', url).href
         const res = await fetch(targetUrl, {
             method: 'POST',

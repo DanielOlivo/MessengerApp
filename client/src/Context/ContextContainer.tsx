@@ -41,7 +41,7 @@ export const ContextContainer: FC<PropsWithChildren<ContextContainerProps>> = ({
             ref={divRef}            
             onContextMenu={(e) => {
                 e.preventDefault()
-                console.log('dispatching')
+                // console.log('dispatching')
                 dispatch(setVisible({
                     id, type, position: {
                         x: e.clientX,

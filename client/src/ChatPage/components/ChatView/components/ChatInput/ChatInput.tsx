@@ -23,12 +23,12 @@ export const ChatInput = () => {
 
     return (
         <div className="w-full flex flex-row justify-between border-t-2 border-slate-300 p-2">
-            <input type='text' placeholder="type here..." className="flex-grow" ref={inputRef} onKeyUp={(e) => {
+            <input aria-label="chat-input-field" type='text' placeholder="type here..." className="flex-grow" ref={inputRef} onKeyUp={(e) => {
                 if(e.key === 'Enter'){
                     handleSend()
                 }
             }}/>
-            <button className="ml-2" onClick={handleSend}>Send</button>
+            <button aria-label='chat-input-send' className="ml-2" onClick={handleSend}>Send</button>
         </div>
     )
 }

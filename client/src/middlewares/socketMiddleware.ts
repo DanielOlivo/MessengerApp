@@ -15,7 +15,7 @@ import { ChatListItem, ChatMessage, ChatSelectRes,
 
 // import { handleSelection } from "../ChatPage/components/ChatList/slice";
 // import { handleTyping } from "../ChatPage/components/ChatView/slice";
-import { deleteChat, sendNumber, togglePin } from "../ChatPage/slice";
+import { deleteChat, sendMessage, sendNumber, togglePin } from "../ChatPage/slice";
 
 enum SocketEvent {
     Connect = 'connect',
@@ -99,6 +99,10 @@ const socketMiddleware: Middleware = (store) => {
             console.log('sending number')
             socket.socket.emit('number', action.payload)
         } 
+
+        if(sendMessage.match(action) && socket){
+            socket.socket.emit('msg', action.payload)
+        }
 
         if(togglePin.match(action) && socket){
             socket.socket.emit('togglePin', action.payload)

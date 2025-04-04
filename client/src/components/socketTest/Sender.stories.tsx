@@ -23,7 +23,7 @@ type Story = StoryObj<typeof meta>
 const baseUrl = 'wss://localhost:3000'
 
 const chat = ws.link(baseUrl)
-console.log('chat',chat)
+// console.log('chat',chat)
 // const interceptor = new WebSocketInterceptor()
 
 
@@ -42,7 +42,7 @@ export const Primary: Story = {
                 //     const { client } = toSocketIo(connection)
                 // })
                 chat.addEventListener('connection', (connection) => {
-                    console.log('connect!!!', connection)
+                    // console.log('connect!!!', connection)
                     // const io = toSocketIo(connection)
 
                     // io.client.on('number',n => {

@@ -34,7 +34,7 @@ export const authSlice = createSlice({
             }
 
             if(username && token && id){
-                console.log('login')
+                // console.log('login')
                 state.data = {
                     id: JSON.parse(id),
                     username: JSON.parse(username),
@@ -61,14 +61,14 @@ export const authSlice = createSlice({
         builder 
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             .addCase(fetchToken.pending, (state, action) => {
-                console.log('pending')
+                // console.log('pending')
             })
             .addCase(fetchToken.rejected, (state, action) => {
                 const msg = action.error.message
-                console.log('error: ', msg)
+                // console.log('error: ', msg)
             })
             .addCase(fetchToken.fulfilled, (state, action) => {
-                console.log(action.payload)
+                // console.log(action.payload)
                 state.data = action.payload as UserAuthData 
                 state.authenticated = true
 
@@ -79,11 +79,11 @@ export const authSlice = createSlice({
 
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             .addCase(register.pending, (state, action) => {
-                console.log('register: pending...')
+                // console.log('register: pending...')
             })
             .addCase(register.fulfilled, (state, action) => {
                 const result = action.payload
-                console.log('register: ', result)
+                // console.log('register: ', result)
                 state.registerSuccess = true
             })
     }

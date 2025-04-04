@@ -26,7 +26,7 @@ const Login = () => {
             username: usernameRef.current!.value,
             password: passwordRef.current!.value
         }
-        console.log('credentials: ', credentials)
+        // console.log('credentials: ', credentials)
         dispatch(fetchToken(credentials))
     }
 
