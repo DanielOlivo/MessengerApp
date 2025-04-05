@@ -7,6 +7,7 @@ import { Message } from "shared/src/Message";
 import { getDefault } from "../Group/utils";
 import { getRandomUsers } from "../users/utils";
 import { Position } from "../Context/slice";
+import { v4 as uuid } from "uuid";
 
 export type DeepPartial<T> = T extends Array<infer U>
     ? T 
@@ -66,4 +67,12 @@ export function getState(state?: DeepPartial<RootState>): RootState {
     }
 
     return st
+}
+
+export function getRandomState(){
+    // const chat1 = uuid()    
+
+    throw new Error()
+
+
 }

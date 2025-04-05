@@ -34,6 +34,8 @@ describe('ChatInput', () => {
 
         await waitFor(() => expect(text).toEqual('hello'))
         expect(id).toEqual(store.getState().chat.displayedChatId)
+
+        io.close()
     })
 
 })
