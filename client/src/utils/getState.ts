@@ -70,12 +70,24 @@ export function getState(state?: DeepPartial<RootState>): RootState {
     return st
 }
 
-export const makeUser(state: RootState): void{
+export function makeUser(state: RootState): void{
     state.auth.data = {
         id: uuid(),
         token: '',
         username: faker.internet.username()
     }
+}
+
+export function makeUsers(state: RootState, count: number = 4): void {
+    state.users.users = Object.fromEntries(
+        Array.from({length: count}, () => {
+            const id = uuid()
+            return [id, {
+                id,
+                name: faker.internet.username(),
+                iconSrc: '' 
+            }]
+        }))
 }
 
 export function getRandomState(){
