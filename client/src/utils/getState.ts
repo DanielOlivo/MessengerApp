@@ -9,6 +9,8 @@ import { getRandomUsers } from "../users/utils";
 import { Position } from "../Context/slice";
 import { v4 as uuid } from "uuid";
 import { faker } from "@faker-js/faker";
+import { Typing } from "../../../shared/src/Types";
+import dayjs from "dayjs";
 
 export type DeepPartial<T> = T extends Array<infer U>
     ? T 
@@ -121,8 +123,20 @@ export function useRState(){
     const getChatIds = () => Object.keys(state.chat.chatInfo)
     const getUserIds = () => Object.keys(state.users.users)
 
+    const getTying = (chatId: ChatId): Typing => {
+        const userId = getUserIds()[0]
+        const userInfo = state.users.users[userId]
+        return {
+            chatId,
+            userId,
+            username: userInfo.name,
+            timestamp: dayjs().valueOf()
+        }
+    }
+        
+
     return { 
-        state, makeUser, getChatIds, addChat, getUserIds
+        state, makeUser, getChatIds, addChat, getUserIds, getTying
     }
 }
 

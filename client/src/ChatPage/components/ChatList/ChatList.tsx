@@ -5,6 +5,7 @@ import { NewGroupButton } from "./components/NewGroupButton"
 import { SearchBar } from "./components/SearchBar"
 import { Section } from "./components/Section"
 import { initLoading } from "../../slice"
+import { requestUsers } from "../../../users/slice"
 
 export const ChatList = () => {
 
@@ -14,7 +15,10 @@ export const ChatList = () => {
     const dispatch = useApDispatch()
 
     useEffect(() => {
-        setTimeout(() => dispatch(initLoading()), 100)
+        setTimeout(() => {
+            dispatch(requestUsers())
+            dispatch(initLoading())
+        }, 100)
     }, [])
 
     return (

@@ -5,10 +5,7 @@ import { selectTypingForContainer } from "../../../../selectors"
 
 export const Typing = () => {
 
-    const typings = useAppSelector(selectTypingForContainer)
-    // const toDisplay = typings
-    //     .filter(item => dayjs().subtract(item.timestamp, 'milliseconds').valueOf() < 2000)
-    //     .map(item => item.username)
+    const typings: string[] = useAppSelector(selectTypingForContainer)
 
     if(typings.length === 0){
         return null

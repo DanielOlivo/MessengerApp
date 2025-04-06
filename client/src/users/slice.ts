@@ -1,8 +1,10 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { UserId, UserInfo } from "shared/src/Types";
 
+export type UserInfoCollection = { [P: UserId]: UserInfo }
+
 export interface UserSliceState {
-    users: {[P: UserId] : UserInfo}
+    users: UserInfoCollection
     searchTerm: string
 }
 
@@ -16,14 +18,14 @@ const slice = createSlice({
     initialState,
     reducers: {
 
-        addUser: (state, action: PayloadAction<UserInfo>) => {
-            const { id } = action.payload
-            state.users[id] = action.payload
-        },
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        requestUsers: (state) => {},
 
-        updateUser: (state, action: PayloadAction<UserInfo>) => {
-            const { id } = action.payload
-            state.users[id] = action.payload
+        handleUsers: (state, action: PayloadAction<UserInfoCollection>) => {
+            state.users = {
+                ...state.users,
+                ...action.payload
+            }
         },
 
         search: (state, action: PayloadAction<string>) => {
@@ -33,4 +35,4 @@ const slice = createSlice({
 })
 
 export default slice.reducer
-export const { addUser, updateUser, search } = slice.actions
+export const { requestUsers, handleUsers, search } = slice.actions

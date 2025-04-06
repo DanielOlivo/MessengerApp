@@ -141,6 +141,9 @@ const slice = createSlice({
 
         handleTyping: (state, action: PayloadAction<Typing>) => {
             const { chatId, userId, timestamp } = action.payload
+            if(!state.typing[chatId]){
+                state.typing[chatId] = {} // as { [P: UserId]: number } 
+            }
             state.typing[chatId][userId] = timestamp 
         },
 

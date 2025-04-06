@@ -10,8 +10,9 @@ import { Provider } from "react-redux";
 import { ChatPage } from "./ChatPage";
 import { useRState } from "../utils/getState";
 import { Commands } from 'shared/src/MiddlewareCommands';
-import { ChatId } from 'shared/src/Types';
+import { ChatId, Typing } from 'shared/src/Types';
 import { MessagePostReq } from 'shared/src/Message';
+import { faker } from '@faker-js/faker';
 
 describe('ChatPage', () => {
     let io: Server
@@ -30,6 +31,11 @@ describe('ChatPage', () => {
 
         io = getSocketServer()
         io.on('connection', socket => {
+
+            socket.on('requestUsers', () => {
+                socket.emit('handleUsers', initState.users.users)
+            })
+
             socket.on('initLoading', () => {
                 // console.log('initLoading request-----------', initState)
                 socket.emit('initLoadingRes', initState.chat)
@@ -64,6 +70,7 @@ describe('ChatPage', () => {
 
     test('init load', async() => {
         await waitFor(() => expect(Object.keys(store.getState().chat.chatInfo).length > 0).toBeTruthy())
+        expect(Object.keys(store.getState().users.users).length > 0)
     })
 
 
@@ -107,9 +114,15 @@ describe('ChatPage', () => {
         expect(content).toEqual('hey')
     })
 
-    // test('other types a message to chat 1', async () => {
-    //     throwNotImplemented()
-    // })   
+    test('other types a message to chat 1', async () => {
+        const typing = hooks.getTying(chatId)
+        const userIds = Object.keys(store.getState().users.users)
+        expect(userIds.includes(typing.userId))
+
+        io.emit(Commands.TypingRes, typing)
+        
+        await waitFor(() => expect(screen.queryByText(/typing/i)).toBeInTheDocument())
+    })   
 
     // test('other sends a message to chat 2', async () => {
     //     throwNotImplemented()

@@ -15,7 +15,8 @@ import { ChatListItem, ChatMessage, ChatSelectRes,
 
 // import { handleSelection } from "../ChatPage/components/ChatList/slice";
 // import { handleTyping } from "../ChatPage/components/ChatView/slice";
-import { ChatSliceState, deleteChat, handleInitLoading, initLoading, sendMessage, sendNumber, sendTyping, togglePin } from "../ChatPage/slice";
+import { ChatSliceState, deleteChat, handleInitLoading, handleTyping, initLoading, sendMessage, sendNumber, sendTyping, togglePin } from "../ChatPage/slice";
+import { handleUsers, requestUsers, UserInfoCollection } from "../users/slice";
 
 enum SocketEvent {
     Connect = 'connect',
@@ -36,8 +37,11 @@ const socketMiddleware: Middleware = (store) => {
             if(!socket){
                 socket = SocketFactory.create()
 
+                socket.socket.on('handleUsers', (args: UserInfoCollection) => {
+                    store.dispatch(handleUsers(args))
+                })
+
                 socket.socket.on('initLoadingRes', (arg: ChatSliceState) => {
-                    // console.log('----------RES----------')
                     store.dispatch(handleInitLoading(arg))
                 })
 
@@ -73,8 +77,7 @@ const socketMiddleware: Middleware = (store) => {
 
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 socket.socket.on(Commands.TypingRes, (res: Typing) => {
-
-                    // store.dispatch(handleTyping(res))
+                    store.dispatch(handleTyping(res))
                 })
 
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -93,6 +96,10 @@ const socketMiddleware: Middleware = (store) => {
                 })
             }
             
+        }
+
+        if(requestUsers.match(action) && socket){
+            socket.socket.emit('requestUsers', '')
         }
 
         if(initLoading.match(action) && socket){

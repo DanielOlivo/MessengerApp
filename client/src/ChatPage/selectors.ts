@@ -4,6 +4,7 @@ import { RootState } from '../app/store'
 import { ChatItemProps } from './components/ChatList/components/ChatItem'
 import { TextMessageProps } from './components/ChatView/components/TextMessage/TextMessage'
 import { selectUserId } from '../features/auth/selectors'
+import { selectFiltered } from '../users/selectors'
 
 export const selectChat = (state: RootState) => state.chat
 
@@ -119,11 +120,21 @@ export const selectChatMessages = createSelector(
 
 // ------------------ typing ----------------------
 
-// todo: use createSelector
-export const selectTypingForContainer = (state: RootState) => {
-    const { displayedChatId, typing, users: info } = state.chat
-    const users = Object.entries(typing[displayedChatId])
-    return users.filter(([, timestamp]) => 
-        dayjs().valueOf() - timestamp < 2000).map(([userId,]) => 
-            info[userId])
-}
+const selectTyping = (state: RootState) => state.chat.typing
+
+export const selectTypingForContainer = createSelector(
+    selectCurrentChatId,
+    selectTyping,
+    selectFiltered,    
+    ( displayedChatId, typing, userInfo ): string[] => {
+        if(!typing[displayedChatId]){
+            return []
+        }
+        const users = Object.entries(typing[displayedChatId])
+        // console.log('now', dayjs().valueOf())
+        // console.log('users', users)
+        return users.filter(([, timestamp]) => 
+            dayjs().valueOf() - timestamp < 2000).map(([userId,]) => 
+                userInfo[userId].name)
+    }
+)
