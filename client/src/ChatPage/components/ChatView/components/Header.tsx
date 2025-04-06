@@ -1,16 +1,22 @@
 import { useAppSelector } from "../../../../app/hooks"
 import { Icon } from "../../../../common/Icon"
-import { selectHeaderIcon, selectHeaderStatus, selectHeaderTitle } from '../../../selectors'
+import { selectCurrentChatId, selectHeaderIcon, selectHeaderStatus, selectHeaderTitle } from '../../../selectors'
 
 
 export const Header = () => {
+
+    const chatId = useAppSelector(selectCurrentChatId) 
 
     const name = useAppSelector(selectHeaderTitle)
     const iconSrc = useAppSelector(selectHeaderIcon)
     const status = useAppSelector(selectHeaderStatus)
 
+    if(chatId === ''){
+        return null
+    }
+
     return (
-        <div className="flex flex-row justify-between items-center h-16 px-4 py-2">
+        <div aria-label='header' className="flex flex-row justify-between items-center h-16 px-4 py-2">
 
             <div className="flex flex-row justify-start items-center">
                 <Icon iconSrc={iconSrc} isOnline={false}/>                

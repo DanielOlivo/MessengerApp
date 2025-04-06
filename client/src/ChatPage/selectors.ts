@@ -30,6 +30,7 @@ export const selectSlice = (state: RootState) => state.chat
 export const selectChatItems = createSelector(
     selectSlice,
     (chat): ChatItemProps[] => {
+        // console.log('CHATMESSAGEIDS', chat)
         const { chatMessageIds, chatInfo, messages, pinned, displayedChatId } = chat
         const items = Object.entries(chatMessageIds).filter(([, msgIds]) => msgIds.length > 0).map(([chatId, [msgId,]]) => {
             const info = chatInfo[chatId]
@@ -67,9 +68,27 @@ export const selectUnpinnedItems = createSelector(
 
 
 // ------------------ header ----------------------
-export const selectHeaderTitle = (state: RootState) => state.chat.chatInfo[state.chat.displayedChatId].name
-export const selectHeaderIcon = (state: RootState) => state.chat.chatInfo[state.chat.displayedChatId].iconSrc
-export const selectHeaderStatus = (state: RootState) => state.chat.chatInfo[state.chat.displayedChatId].status
+export const selectHeaderTitle = (state: RootState) => {
+    const { chatInfo, displayedChatId } = state.chat
+    if(displayedChatId in chatInfo){
+        return chatInfo[displayedChatId].name
+    }
+    return ''
+}
+export const selectHeaderIcon = (state: RootState) => {
+    const { chatInfo, displayedChatId } = state.chat
+    if(displayedChatId in chatInfo){
+        return chatInfo[displayedChatId].iconSrc
+    }
+    return ''
+}
+export const selectHeaderStatus = (state: RootState) => {
+    const { chatInfo, displayedChatId } = state.chat
+    if(displayedChatId in chatInfo){
+        return chatInfo[displayedChatId].status
+    }
+    return ''
+}
 
 
 // ------------------ message container ----------------------

@@ -70,6 +70,54 @@ export function getState(state?: DeepPartial<RootState>): RootState {
     return st
 }
 
+export function getEmpty(): RootState {
+    return {
+        users: {
+            users: {},
+            searchTerm: ''
+        },
+        chat: {
+            chatMessageIds: {},
+            chatInfo: {},
+            messages: {},
+            unseenCount: {},
+            pinned:[],
+            displayedChatId: '',
+            typing: {},
+            users: {} 
+        },
+        group: {
+            state: 'idle',
+            groupId: '',
+            isAdmin: false,
+            inGroup: [],
+            onSearch: false,
+            searchResult: []
+        },
+        auth: {
+            authenticated: false,
+            data: {
+                id: '',
+                username: '',
+                token: ''
+            },
+            registerSuccess: false
+        },
+        socket: {
+            isConnected: false,
+        },
+        search: {
+            onSearch: false,
+            result: []
+        },
+        context: {
+            type: 'idle',
+            id: '',
+            position: {x: 0, y: 0}
+        }
+    }
+}
+
 export function makeUser(state: RootState): void{
     state.auth.data = {
         id: uuid(),
@@ -90,10 +138,35 @@ export function makeUsers(state: RootState, count: number = 4): void {
         }))
 }
 
+export function makeChatWithUser(state: RootState): void {
+    const chatId = uuid()
+    const otherId = uuid()
+    state.users.users[otherId] = {
+        name: faker.internet.username(),
+        id: otherId,
+        iconSrc: ''
+    }
+
+    const messages: Message[] = Array.from({length: 10}, (_, idx) => ({
+        messageId: uuid(),
+        content: faker.lorem.sentence(),
+        sender: idx % 2 === 0 ? otherId : state.auth.data.id,
+        timestamp: 0,
+        chatId
+    }))
+
+    state.chat.messages = {
+        ...state.chat.messages,
+        ...Object.fromEntries(messages.map(msg => [msg.messageId, msg]))
+    }
+
+    state.chat.chatMessageIds[chatId] = messages.map(msg => msg.messageId)
+}
+
+// todo: replace getState
 export function getRandomState(){
-    // const chat1 = uuid()    
-
-    throw new Error()
-
-
+    const state = getEmpty()
+    makeUser(state)
+    makeChatWithUser(state)
+    return state
 }

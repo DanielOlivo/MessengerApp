@@ -40,6 +40,13 @@ const slice = createSlice({
     initialState,
     reducers: {
 
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        initLoading: (state) => {},
+
+        handleInitLoading: (state, action: PayloadAction<ChatSliceState>) => {
+            return action.payload
+        },
+
         // --------------- users ---------------------
 
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -143,6 +150,7 @@ const slice = createSlice({
 })
 
 export const {
+    initLoading, handleInitLoading,
     handleMessageStatusUpdate, 
     handleMessage, sendMessage,
     togglePin, handleToggle,
