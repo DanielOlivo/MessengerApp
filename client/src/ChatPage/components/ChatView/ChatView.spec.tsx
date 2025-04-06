@@ -18,4 +18,24 @@ describe('ChatView', () => {
         expect(screen.queryByLabelText('chat-input')).not.toBeInTheDocument()
     })    
 
+    test('chat selected', () => {
+        const state = getEmpty()
+        makeUser(state)
+        makeChatWithUser(state)
+        const chatId = Object.keys(state.chat.chatInfo)[0]
+        state.chat.displayedChatId = chatId
+        const store = createStore(state)
+        render(<Provider store={store}><ChatView /></Provider>)
+        expect(screen.queryByLabelText('header')).toBeInTheDocument()
+        expect(screen.queryAllByLabelText('message-container').length === 0).toBeFalsy()
+        expect(screen.queryByLabelText('chat-input')).toBeInTheDocument()
+
+        expect(screen.queryByText(new RegExp(state.chat.chatInfo[chatId].name, 'i'))).toBeInTheDocument()
+
+        for(const msgId of state.chat.chatMessageIds[chatId]){
+            expect(screen.queryByText(new RegExp(state.chat.messages[msgId].content, 'i'))).toBeInTheDocument()
+        }
+
+    })
+
 })

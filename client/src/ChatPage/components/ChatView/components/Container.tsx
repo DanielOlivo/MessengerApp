@@ -10,7 +10,7 @@ export const Container = () => {
     return (
         <div className="flex-grow flex flex-col justify-start items-stretch bg-slate-200 px-3 pt-14 overflow-y-auto">
             <div className="w-full">
-                {chatId !== '' && items.map(item => <TextMessage {...item} />)}
+                {chatId !== '' && items.map(item => <TextMessage key={item.id} {...item} />)}
             </div>
         </div>
     )
