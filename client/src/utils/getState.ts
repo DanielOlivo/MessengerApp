@@ -70,6 +70,63 @@ export function getState(state?: DeepPartial<RootState>): RootState {
     return st
 }
 
+export function useRState(){
+    const state = getEmpty()
+
+    const makeUser = (): UserId => {
+        state.auth.data = {
+            id: uuid(),
+            token: '',
+            username: faker.internet.username()
+        }
+        return state.auth.data.id
+    }
+
+    const addChat = (pinned: boolean = false, userId?: UserId ) => {
+        const chatId = uuid()
+        const otherId = userId ?? uuid()
+        state.users.users[otherId] = {
+            name: faker.internet.username(),
+            id: otherId,
+            iconSrc: ''
+        }
+
+        const messages: Message[] = Array.from({length: 10}, (_, idx) => ({
+            messageId: uuid(),
+            content: faker.lorem.sentence(),
+            sender: idx % 2 === 0 ? otherId : state.auth.data.id,
+            timestamp: 0,
+            chatId
+        }))
+
+        state.chat.messages = {
+            ...state.chat.messages,
+            ...Object.fromEntries(messages.map(msg => [msg.messageId, msg]))
+        }
+
+        state.chat.chatInfo[chatId] = {
+            name: state.users.users[otherId].name,
+            iconSrc: state.users.users[otherId].iconSrc,
+            status: 'online'
+        }
+
+        if(pinned){
+            state.chat.pinned.push(chatId)
+        }
+
+        state.chat.chatMessageIds[chatId] = messages.map(msg => msg.messageId)
+        return { chatId, userId: otherId }
+    }
+
+    const getChatIds = () => Object.keys(state.chat.chatInfo)
+    const getUserIds = () => Object.keys(state.users.users)
+
+
+    return { 
+        state, makeUser, getChatIds, addChat, getUserIds
+    }
+}
+
 export function getEmpty(): RootState {
     return {
         users: {
