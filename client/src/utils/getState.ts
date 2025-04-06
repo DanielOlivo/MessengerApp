@@ -121,7 +121,6 @@ export function useRState(){
     const getChatIds = () => Object.keys(state.chat.chatInfo)
     const getUserIds = () => Object.keys(state.users.users)
 
-
     return { 
         state, makeUser, getChatIds, addChat, getUserIds
     }
@@ -225,6 +224,8 @@ export function makeChatWithUser(state: RootState): void {
 
     state.chat.chatMessageIds[chatId] = messages.map(msg => msg.messageId)
 }
+
+export type StateHook = ReturnType<typeof useRState>
 
 // todo: replace getState
 export function getRandomState(){

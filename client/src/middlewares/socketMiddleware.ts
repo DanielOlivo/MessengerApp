@@ -15,7 +15,7 @@ import { ChatListItem, ChatMessage, ChatSelectRes,
 
 // import { handleSelection } from "../ChatPage/components/ChatList/slice";
 // import { handleTyping } from "../ChatPage/components/ChatView/slice";
-import { deleteChat, sendMessage, sendNumber, togglePin } from "../ChatPage/slice";
+import { ChatSliceState, deleteChat, handleInitLoading, initLoading, sendMessage, sendNumber, togglePin } from "../ChatPage/slice";
 
 enum SocketEvent {
     Connect = 'connect',
@@ -35,6 +35,12 @@ const socketMiddleware: Middleware = (store) => {
             // if(!socket && typeof window !== 'undefined'){
             if(!socket){
                 socket = SocketFactory.create()
+
+                socket.socket.on('initLoadingRes', (arg: ChatSliceState) => {
+                    // console.log('----------RES----------')
+                    store.dispatch(handleInitLoading(arg))
+                })
+
 
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 socket.socket.on(Commands.ChatListRes, (arg: ChatListItem[]) => {
@@ -89,6 +95,9 @@ const socketMiddleware: Middleware = (store) => {
             
         }
 
+        if(initLoading.match(action) && socket){
+            socket.socket.emit('initLoading', '')
+        }
 
         if(disconnect.match(action) && socket){
             socket.socket.disconnect()
