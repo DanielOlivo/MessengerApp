@@ -160,6 +160,12 @@ export function makeChatWithUser(state: RootState): void {
         ...Object.fromEntries(messages.map(msg => [msg.messageId, msg]))
     }
 
+    state.chat.chatInfo[chatId] = {
+        name: state.users.users[otherId].name,
+        iconSrc: state.users.users[otherId].iconSrc,
+        status: 'online'
+    }
+
     state.chat.chatMessageIds[chatId] = messages.map(msg => msg.messageId)
 }
 
