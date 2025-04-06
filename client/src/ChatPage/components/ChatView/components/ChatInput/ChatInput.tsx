@@ -2,7 +2,7 @@ import { useApDispatch, useAppSelector } from "@app/hooks"
 import { useRef } from "react"
 import { selectCurrentChatId } from "../../../../selectors"
 import { MessagePostReq } from "shared/src/Types"
-import { sendMessage } from "../../../../slice"
+import { sendMessage, sendTyping } from "../../../../slice"
 
 export const ChatInput = () => {
 
@@ -27,11 +27,18 @@ export const ChatInput = () => {
 
     return (
         <div aria-label='chat-input' className="w-full flex flex-row justify-between border-t-2 border-slate-300 p-2">
-            <input aria-label="chat-input-field" type='text' placeholder="type here..." className="flex-grow" ref={inputRef} onKeyUp={(e) => {
-                if(e.key === 'Enter'){
-                    handleSend()
-                }
-            }}/>
+            <input 
+                aria-label="chat-input-field" 
+                type='text' 
+                placeholder="type here..." 
+                className="flex-grow" 
+                ref={inputRef} 
+                onChange={() => dispatch(sendTyping(chatId))}  
+                onKeyUp={(e) => {
+                    if(e.key === 'Enter'){
+                        handleSend()
+                    }
+                }}/>
             <button aria-label='chat-input-send' className="ml-2" onClick={handleSend}>Send</button>
         </div>
     )

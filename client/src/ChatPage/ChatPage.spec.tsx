@@ -5,16 +5,19 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { getSocketServer } from "../utils/getSocketServer";
 import { Server } from "socket.io";
 import { AppStore, createStore } from "../app/store";
-import { getEmpty, getState, makeChatWithUser, makeUser, StateHook } from "../utils/getState";
+import { StateHook } from "../utils/getState";
 import { Provider } from "react-redux";
 import { ChatPage } from "./ChatPage";
 import { useRState } from "../utils/getState";
-import { ChatId } from "shared/src/Types";
+import { Commands } from 'shared/src/MiddlewareCommands';
+import { ChatId } from 'shared/src/Types';
 
 describe('ChatPage', () => {
     let io: Server
     let store: AppStore
     let hooks: StateHook
+    let typedChatId: ChatId = ''
+
 
 
     beforeAll(() => {
@@ -28,6 +31,10 @@ describe('ChatPage', () => {
             socket.on('initLoading', () => {
                 // console.log('initLoading request-----------', initState)
                 socket.emit('initLoadingRes', initState.chat)
+            })
+
+            socket.on(Commands.TypingReq, chatId => {
+                typedChatId = chatId
             })
         })
 
@@ -71,13 +78,16 @@ describe('ChatPage', () => {
     })
 
     test('user types message to chat 1', async () => {
-        
-        throwNotImplemented()
+        expect(typedChatId).toEqual('')
+        const field = screen.getByLabelText('chat-input-field') 
+        expect(field).toBeInTheDocument()
+        fireEvent.change(field, {target: { value: 'hey'}})
+        await waitFor(() => expect(typedChatId).not.toEqual(''))
     })
 
-    // test('user sends message to chat 1', async () => {
-    //     throwNotImplemented()
-    // })
+    test('user sends message to chat 1', async () => {
+        throwNotImplemented()
+    })
 
     // test('other types a message to chat 1', async () => {
     //     throwNotImplemented()
