@@ -10,6 +10,10 @@ export const ChatInput = () => {
     const chatId = useAppSelector(selectCurrentChatId)
     const dispatch = useApDispatch()
 
+    if(chatId === ''){
+        return null
+    }
+
     const handleSend = () => {
         if(inputRef.current){
             const content = inputRef.current.value
@@ -22,7 +26,7 @@ export const ChatInput = () => {
     }
 
     return (
-        <div className="w-full flex flex-row justify-between border-t-2 border-slate-300 p-2">
+        <div aria-label='chat-input' className="w-full flex flex-row justify-between border-t-2 border-slate-300 p-2">
             <input aria-label="chat-input-field" type='text' placeholder="type here..." className="flex-grow" ref={inputRef} onKeyUp={(e) => {
                 if(e.key === 'Enter'){
                     handleSend()
