@@ -11,14 +11,16 @@ import { ChatPage } from "./ChatPage";
 import { useRState } from "../utils/getState";
 import { Commands } from 'shared/src/MiddlewareCommands';
 import { ChatId } from 'shared/src/Types';
+import { MessagePostReq } from 'shared/src/Message';
 
 describe('ChatPage', () => {
     let io: Server
     let store: AppStore
     let hooks: StateHook
     let typedChatId: ChatId = ''
+    let chatId: ChatId
 
-
+    let msgPostreq: MessagePostReq
 
     beforeAll(() => {
         hooks = useRState()
@@ -35,6 +37,10 @@ describe('ChatPage', () => {
 
             socket.on(Commands.TypingReq, chatId => {
                 typedChatId = chatId
+            })
+
+            socket.on('msg', data => {
+                msgPostreq = data
             })
         })
 
@@ -63,7 +69,7 @@ describe('ChatPage', () => {
 
     test('user selects chat 1', async () => {
         const { state, getChatIds } = hooks
-        const chatId = getChatIds()[0]
+        chatId = getChatIds()[0]
         expect(chatId).toBeDefined()
         const chatInfo = state.chat.chatInfo[chatId]
         expect(chatInfo).toBeDefined()
@@ -86,7 +92,19 @@ describe('ChatPage', () => {
     })
 
     test('user sends message to chat 1', async () => {
-        throwNotImplemented()
+        expect(msgPostreq).toBeUndefined()
+
+        const btn = screen.getByLabelText('chat-input-send')
+        expect(btn).toBeInTheDocument()
+        fireEvent.click(btn)
+
+        await waitFor(() => expect(msgPostreq).toBeDefined())
+        expect('chatId' in msgPostreq)
+        expect('content' in msgPostreq)
+
+        const { chatId: id, content } = msgPostreq
+        expect(id).toEqual(chatId)
+        expect(content).toEqual('hey')
     })
 
     // test('other types a message to chat 1', async () => {
