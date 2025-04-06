@@ -5,19 +5,26 @@ import { ChatItemProps } from './components/ChatList/components/ChatItem'
 import { TextMessageProps } from './components/ChatView/components/TextMessage/TextMessage'
 import { selectUserId } from '../features/auth/selectors'
 
+export const selectChat = (state: RootState) => state.chat
+
 export const selectCurrentChatId = (state: RootState ) => 
     state.chat.displayedChatId
 
-export const selectAllMessages = (state: RootState) =>
-    state.chat.messages
+export const selectAllMessages = createSelector(
+    selectChat,
+    (chat) => chat.messages
+)
 
-export const selectChatMessageIds = (state: RootState) => {
-    const { displayedChatId, chatMessageIds } = state.chat
-    if(displayedChatId === ''){
-        return []
+export const selectChatMessageIds = createSelector(
+    selectCurrentChatId,
+    selectChat,
+    (chatId, chat) => {
+        if(chatId === ''){
+            return []
+        }
+        return chat.chatMessageIds[chatId]
     }
-    return chatMessageIds[displayedChatId]
-}
+)
 
 export const selectChatInfo = (state: RootState) => state.chat.chatInfo
 
