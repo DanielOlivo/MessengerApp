@@ -160,6 +160,22 @@ const slice = createSlice({
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         deleteChat: (state, action: PayloadAction<ChatId>) => {},
 
+        handleChatDeletion: (state, action: PayloadAction<ChatId>) => {
+            const chatId = action.payload
+            if(chatId in state.chatMessageIds){
+                for(const msgId of state.chatMessageIds[chatId]){
+                    delete state.messages[msgId]
+                }
+                delete state.chatMessageIds[chatId]
+            }
+            if(chatId in state.chatInfo){
+                delete state.chatInfo[chatId]
+            }
+            if(chatId in state.typing){
+                delete state.typing[chatId]
+            }
+            state.pinned = state.pinned.filter(id => id !== chatId)
+        },
 
         // ----------------- testing ---------------
 
@@ -174,7 +190,7 @@ export const {
     handleMessage, sendMessage,
     togglePin, handleToggle,
     sendTyping, handleTyping,
-    deleteChat,
+    deleteChat, handleChatDeletion,
     sendNumber,
     handleChatSelection
 } = slice.actions

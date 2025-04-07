@@ -5,9 +5,11 @@ import { useRState } from "../../../utils/getState";
 import { Provider } from "react-redux";
 import { ChatList } from "./ChatList";
 import { getSocketServer } from "../../../utils/getSocketServer";
+import { wait } from "../../../utils/wait";
+// import { Commands } from "shared/src/MiddlewareCommands";
 
 describe('ChatList', () => {
-    
+
     test('render', () => {
         const { state, makeUser, addChat } = useRState()
         makeUser()
@@ -70,4 +72,37 @@ describe('ChatList', () => {
 
         io.close()
     })
+
+
+    test('delete chat', async() => {
+        const io = getSocketServer()
+
+        io.on('connection', socket => {
+            socket.on('deleteChat', chatId => {
+                socket.emit('handleChatDeletion', chatId)  
+            })
+        })
+
+        const { state, addChat } = useRState()
+        const { chatId } = addChat()
+        const chatInfo = state.chat.chatInfo[chatId]
+
+        const store = createStore(state, true)
+        render(<Provider store={store}><ChatList /></Provider>)
+        await wait(100)
+        await waitFor(() => expect(store.getState().socket.isConnected))
+
+        const item = screen.getByText(new RegExp(chatInfo.name, 'i'))
+        expect(item).toBeInTheDocument()
+
+        fireEvent.contextMenu(item)
+        const deleteBtn = screen.getByText(/Delete/)
+        expect(deleteBtn).toBeInTheDocument()
+        fireEvent.click(deleteBtn)
+        await wait(200)
+
+        await waitFor(() => expect(screen.queryByText(new RegExp(chatInfo.name, 'i'))).not.toBeInTheDocument())
+
+        io.close()
+    })  
 })

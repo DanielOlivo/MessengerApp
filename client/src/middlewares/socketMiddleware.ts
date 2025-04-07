@@ -10,12 +10,12 @@ import {
 import SocketFactory from "@features/socket/SocketFactory";
 import type { SocketInterface } from "@features/socket/SocketFactory";
 
-import { ChatListItem, ChatMessage, ChatPinStatus, ChatSelectRes, 
+import { ChatId, ChatListItem, ChatMessage, ChatPinStatus, ChatSelectRes, 
     ContactItem, SendRes, Typing } from "@shared/Types";
 
 // import { handleSelection } from "../ChatPage/components/ChatList/slice";
 // import { handleTyping } from "../ChatPage/components/ChatView/slice";
-import { ChatSliceState, deleteChat, handleInitLoading, handleToggle, handleTyping, initLoading, sendMessage, sendNumber, sendTyping, togglePin } from "../ChatPage/slice";
+import { ChatSliceState, deleteChat, handleChatDeletion, handleInitLoading, handleToggle, handleTyping, initLoading, sendMessage, sendNumber, sendTyping, togglePin } from "../ChatPage/slice";
 import { handleUsers, requestUsers, UserInfoCollection } from "../users/slice";
 
 enum SocketEvent {
@@ -79,6 +79,9 @@ const socketMiddleware: Middleware = (store) => {
                     store.dispatch(handleToggle(res))
                 })
 
+                socket.socket.on('handleChatDeletion', (res: ChatId) => {
+                    store.dispatch(handleChatDeletion(res))
+                })
 
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 socket.socket.on(Commands.TypingRes, (res: Typing) => {
