@@ -16,7 +16,7 @@ import { ChatId, ChatListItem, ChatMessage, ChatPinStatus, ChatSelectRes,
 
 // import { handleSelection } from "../ChatPage/components/ChatList/slice";
 // import { handleTyping } from "../ChatPage/components/ChatView/slice";
-import { ChatSliceState, deleteChat, handleChatDeletion, handleInitLoading, handleToggle, handleTyping, initLoading, sendMessage, sendNumber, sendTyping, togglePin } from "../ChatPage/slice";
+import { ChatData, ChatSliceState, deleteChat, handleChatDeletion, handleChatWithUser, handleInitLoading, handleToggle, handleTyping, initLoading, reqChatWithUser, sendMessage, sendNumber, sendTyping, togglePin } from "../ChatPage/slice";
 import { handleSearch, handleUsers, requestUsers, UserInfoCollection } from "../users/slice";
 import { SearchCardProps } from "../ChatPage/components/ChatList/components/SearchCard";
 import { search } from "../users/slice";
@@ -86,6 +86,10 @@ const socketMiddleware: Middleware = (store) => {
                     store.dispatch(handleChatDeletion(res))
                 })
 
+                socket.socket.on('handleChatWithUser', (res: ChatData) => {
+                    store.dispatch(handleChatWithUser(res))
+                })
+
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 socket.socket.on(Commands.TypingRes, (res: Typing) => {
                     store.dispatch(handleTyping(res))
@@ -141,6 +145,10 @@ const socketMiddleware: Middleware = (store) => {
 
         if(deleteChat.match(action) && socket){
             socket.socket.emit('deleteChat', action.payload)
+        }
+
+        if(reqChatWithUser.match(action) && socket){
+            socket.socket.emit('reqChatWithUser', action.payload)
         }
 
 

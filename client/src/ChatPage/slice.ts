@@ -1,6 +1,6 @@
 import { PayloadAction } from "@reduxjs/toolkit";
 import { createSlice } from "@reduxjs/toolkit";
-import { ChatData, ChatId, ChatPinStatus, MessageId, MessagePost, MessagePostReq, Typing, UserData, UserId } from "@shared/Types";
+import { ChatId, ChatPinStatus, MessageId, MessagePost, MessagePostReq, Typing, UserData, UserId } from "@shared/Types";
 import { Message } from "shared/src/Message";
 import { TextMessageProps } from "./components/ChatView/components/TextMessage/TextMessage";
 import { MessageStatusUpdate } from "@shared/Types";
@@ -11,6 +11,13 @@ export interface ChatInfo {
     name: string
     iconSrc: string
     status: string // (n) online | offline 
+}
+
+export interface ChatData {
+    chatId: ChatId
+    info: ChatInfo
+    chatMessageIds: { [P: ChatId]: MessageId[]}
+    messages: { [P in MessageId] : Message}
 }
 
 export interface ChatSliceState {
@@ -72,8 +79,20 @@ const slice = createSlice({
         },
 
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        handleChatUpdate: (state, action: PayloadAction<ChatData>) => {
-            // todo
+        // handleChatUpdate: (state, action: PayloadAction<ChatData>) => {
+        //     // todo
+        // },
+
+        reqChatWithUser: (state, action: PayloadAction<UserId>) => {},
+        handleChatWithUser: (state, action: PayloadAction<ChatData>) => {
+            const { chatId, info, messages, chatMessageIds } = action.payload
+            state.displayedChatId = chatId
+            state.chatInfo[chatId] = info
+            state.messages = {...state.messages, ...messages}
+            state.chatMessageIds = {
+                ...state.chatMessageIds,
+                ...chatMessageIds
+            }
         },
 
         handleChatDelete: (state, action: PayloadAction<ChatId>) => {
@@ -188,6 +207,7 @@ export const {
     initLoading, handleInitLoading,
     handleMessageStatusUpdate, 
     handleMessage, sendMessage,
+    reqChatWithUser, handleChatWithUser,
     togglePin, handleToggle,
     sendTyping, handleTyping,
     deleteChat, handleChatDeletion,
