@@ -26,7 +26,9 @@ export function getState(state?: DeepPartial<RootState>): RootState {
     const st: RootState = {
         users: {
             users: state?.users?.users as {[P: UserId] : UserInfo} ?? getRandomUsers(),
-            searchTerm: ''
+            searchTerm: '',
+            searchResult: [],
+            onSearch: false
         },
         chat: {
             chatMessageIds: state?.chat?.chatMessageIds as {[P in ChatId]: MessageId[]} ?? chat.chatMessageIds,
@@ -144,7 +146,9 @@ export function getEmpty(): RootState {
     return {
         users: {
             users: {},
-            searchTerm: ''
+            searchTerm: '',
+            onSearch: false,
+            searchResult: []
         },
         chat: {
             chatMessageIds: {},

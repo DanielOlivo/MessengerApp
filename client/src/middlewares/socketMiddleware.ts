@@ -11,12 +11,15 @@ import SocketFactory from "@features/socket/SocketFactory";
 import type { SocketInterface } from "@features/socket/SocketFactory";
 
 import { ChatId, ChatListItem, ChatMessage, ChatPinStatus, ChatSelectRes, 
-    ContactItem, SendRes, Typing } from "@shared/Types";
+    ContactItem, SendRes, Typing, 
+    UserInfo} from "@shared/Types";
 
 // import { handleSelection } from "../ChatPage/components/ChatList/slice";
 // import { handleTyping } from "../ChatPage/components/ChatView/slice";
 import { ChatSliceState, deleteChat, handleChatDeletion, handleInitLoading, handleToggle, handleTyping, initLoading, sendMessage, sendNumber, sendTyping, togglePin } from "../ChatPage/slice";
-import { handleUsers, requestUsers, UserInfoCollection } from "../users/slice";
+import { handleSearch, handleUsers, requestUsers, UserInfoCollection } from "../users/slice";
+import { SearchCardProps } from "../ChatPage/components/ChatList/components/SearchCard";
+import { search } from "../users/slice";
 
 enum SocketEvent {
     Connect = 'connect',
@@ -88,6 +91,10 @@ const socketMiddleware: Middleware = (store) => {
                     store.dispatch(handleTyping(res))
                 })
 
+                socket.socket.on('handleSearch', (res: UserInfoCollection) => {
+                    store.dispatch(handleSearch(res))
+                })
+
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 socket.socket.on(Commands.ContactsRes, (res: ContactItem[]) => {
                     // store.dispatch(setContacts(res))
@@ -147,9 +154,9 @@ const socketMiddleware: Middleware = (store) => {
         //     socket.socket.emit(Commands.ChatListReq, action.payload)
         // }
 
-        // if(search.match(action) && socket){
-        //     socket.socket.emit(Commands.SearchReq, action.payload)
-        // }
+        if(search.match(action) && socket){
+            socket.socket.emit('search', action.payload)
+        }
 
         // if(reqData.match(action) && socket){
         //     socket.socket.emit(Commands.ChatSelectionReq, action.payload)

@@ -6,11 +6,15 @@ export type UserInfoCollection = { [P: UserId]: UserInfo }
 export interface UserSliceState {
     users: UserInfoCollection
     searchTerm: string
+    onSearch: boolean
+    searchResult: UserId[]
 }
 
 const initialState: UserSliceState = {
     users: {},
     searchTerm: '',
+    onSearch: false,
+    searchResult: [] 
 }
 
 const slice = createSlice({
@@ -22,6 +26,7 @@ const slice = createSlice({
         requestUsers: (state) => {},
 
         handleUsers: (state, action: PayloadAction<UserInfoCollection>) => {
+            console.log('handling users')
             state.users = {
                 ...state.users,
                 ...action.payload
@@ -29,10 +34,24 @@ const slice = createSlice({
         },
 
         search: (state, action: PayloadAction<string>) => {
+            state.onSearch = true
             state.searchTerm = action.payload
-        }
+        },
+
+        handleSearch: (state, action: PayloadAction<UserInfoCollection>) => {
+            state.users = {
+                ...state.users,
+                ...action.payload
+            }
+            state.searchResult = Object.keys(action.payload)
+        },
+
+        disableSearch: (state) => {
+            state.onSearch = false
+            state.searchResult = []
+        } 
     }
 })
 
 export default slice.reducer
-export const { requestUsers, handleUsers, search } = slice.actions
+export const { requestUsers, handleUsers, search, handleSearch, disableSearch } = slice.actions

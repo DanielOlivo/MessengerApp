@@ -6,6 +6,7 @@ export const selectUserInfo = (userId: UserId) => (state: RootState) => state.us
 
 export const selectAllUsers = (state: RootState) => state.users.users
 export const selectSearchTerm = (state: RootState) => state.users.searchTerm
+export const selectIsOnSearch = (state: RootState): boolean => state.users.onSearch
 
 export const selectFiltered = createSelector(
     selectAllUsers,
@@ -21,8 +22,11 @@ export const selectFiltered = createSelector(
     }
 )
 
-export const selectSearchResult = createSelector(
+export const selectSearchResult = (state: RootState): UserId[] => state.users.searchResult
+
+export const selectSearchResultItems = createSelector(
+    selectIsOnSearch,
     selectAllUsers,
-    selectSearchTerm,
-    (users, term): UserInfo[] => Object.values(users).filter(user => user.name.includes(term))
+    selectSearchResult,
+    (onSearch, users, ids): UserInfo[] => !onSearch ? [] : ids.map(id => users[id])
 )
