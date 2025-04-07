@@ -85,6 +85,16 @@ const slice = createSlice({
 
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         togglePin: (state, action: PayloadAction<ChatId>) => {},
+
+        // handleTogglePin: (state, action: PayloadAction<{chatId: ChatId, pinned: boolean}>) => {
+        //     const { chatId, pinned } = action.payload
+        //     if(pinned){
+        //         state.pinned.push(chatId)
+        //     }
+        //     else {
+        //         state.pinned = state.pinned.filter(id => id !== chatId)
+        //     }
+        // },
         
         handleToggle: (state, action: PayloadAction<ChatPinStatus>) => {
             const { chatId, pinned } = action.payload

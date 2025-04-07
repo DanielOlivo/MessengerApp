@@ -129,7 +129,23 @@ describe('ChatPage', () => {
     // })
 
     // test('user pins chat 1', async () => {
-    //     throwNotImplemented()
+    //     const chatInfo = store.getState().chat.chatInfo[chatId]        
+    //     expect(chatInfo).toBeDefined()
+    //     const item = screen.getAllByText(new RegExp(chatInfo.name, 'i'))[0]
+    //     expect(item).toBeInTheDocument()
+
+    //     const isPinned = store.getState().chat.pinned.includes(chatId)
+
+    //     fireEvent.contextMenu(item)
+    //     // screen.debug(undefined, 10000)
+
+    //     const pattern = isPinned ? /unpin/i : /^\s*pin/i
+    //     const togglePin = screen.getAllByText(pattern)[0]
+    //     expect(togglePin).toBeInTheDocument()
+    //     expect(screen.getAllByText(/delete/i)[0]).toBeInTheDocument()
+
+    //     fireEvent.click(togglePin)
+
     // })
 
     // test('user unpins chat 1', async () => {
