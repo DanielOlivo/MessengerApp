@@ -3,12 +3,14 @@ import { UserAuthData } from "@shared/Types"
 import { register, fetchToken } from './thunks'
 
 interface AuthState {
+    onWaiting: boolean
     authenticated: boolean
     data: UserAuthData
     registerSuccess: boolean
 }
 
 const initialState: AuthState = {
+    onWaiting: false,
     authenticated: false,
     data: {
         id: '',
@@ -61,13 +63,15 @@ export const authSlice = createSlice({
         builder 
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             .addCase(fetchToken.pending, (state, action) => {
+                state.onWaiting = true
                 // console.log('pending')
             })
             .addCase(fetchToken.rejected, (state, action) => {
-                const msg = action.error.message
+                state.onWaiting = false
                 // console.log('error: ', msg)
             })
             .addCase(fetchToken.fulfilled, (state, action) => {
+                state.onWaiting = false
                 // console.log(action.payload)
                 state.data = action.payload as UserAuthData 
                 state.authenticated = true

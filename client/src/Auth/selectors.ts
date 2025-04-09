@@ -1,5 +1,6 @@
 import { RootState } from "@app/store";
 
+export const selectIsOnWaiting = (state: RootState) => state.auth.onWaiting
 export const selectAuthStatus = (state: RootState) => state.auth.authenticated
 
 export const tokenExists = (state: RootState) => 
