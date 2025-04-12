@@ -11,7 +11,7 @@ import { useApDispatch, useAppSelector } from './app/hooks'
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Routes, Route, useNavigate } from 'react-router-dom'
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { selectAuthStatus } from './features/auth/selectors'
+import { selectAuthStatus } from './Auth/selectors'
 
 
 import Dialog from './components/Dialog'

@@ -38,7 +38,7 @@ const store = createStore(getState({
     users: { users } ,
     group: { 
         state: 'onCreate',
-        groupId: '',
+        chatId: '',
         isAdmin: false,
         inGroup ,
         onSearch: false,

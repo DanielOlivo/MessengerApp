@@ -1,50 +1,34 @@
 import React, { useRef } from 'react'
 import { useApDispatch, useAppSelector } from '../../app/hooks'
-import { selectContactsInGroup, selectContactsNotInGroup } from '../selectors'
+import { selectContactsInGroup, selectContactsNotInGroup, selectIsOnSearch } from '../selectors'
+import { searchContact } from '../slice'
 import { Contact, ContactProps } from './Contact'
-import { createGroup, setSearchStatus } from '../slice'
 
-export const CreateWindow = () => {
+export const Membership = () => {
 
     const dispatch = useApDispatch()
-
+    const onSearch = useAppSelector(selectIsOnSearch)
     const inGroup = useAppSelector(selectContactsInGroup)
     const notInGroup = useAppSelector(selectContactsNotInGroup)
 
+    const searchRef = useRef<HTMLInputElement>(null)
+    
     const propsNotInGroup: ContactProps[] = notInGroup.map(user => ({
         ...user,
         userId: user.userId,
         editable: true,
         inGroup: false
     }))
-
-    const nameRef = useRef<HTMLInputElement>(null)
-
-    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.currentTarget.value
-
-        if(value.length === 0){
-            dispatch(setSearchStatus(false))
-            return
-        }
-        dispatch(setSearchStatus(true))
-    } 
-
-    const submit = () => {
-        if(nameRef.current && nameRef.current.value.length > 0 && inGroup.length > 0){
-            dispatch(createGroup({
-                name: nameRef.current.value,
-                users: inGroup.map(user => user.userId)
-            }))            
-        }
-    }
+    // const inGroup = useAppSelector(select)
 
     return (
-        <div className='flex flex-col justify-start items-start p-2'>
-
-            <input placeholder='group name' ref={nameRef}/>
-
-            <input placeholder='search' onChange={handleSearch}/>
+        <div>
+            <input 
+                aria-label='contact-search-field'
+                placeholder='search contacts'
+                ref={searchRef}
+                onChange={(e) => dispatch(searchContact(e.currentTarget.value))}
+            />
 
             <div className='w-full h-48 overflow-y-auto'>
                 <div>
@@ -60,8 +44,7 @@ export const CreateWindow = () => {
                 </div>
             </div>     
 
-            <button onClick={submit}>Create</button>
-
+            
         </div>
     )
 }

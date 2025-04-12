@@ -5,6 +5,8 @@ import { Message } from "shared/src/Message";
 import { TextMessageProps } from "./components/ChatView/components/TextMessage/TextMessage";
 import { MessageStatusUpdate } from "@shared/Types";
 
+import { addInputHandler, addOutputHandler } from "../utils/socketActions";
+
 export type ContainerItem = TextMessageProps
 
 export interface ChatInfo {
@@ -216,3 +218,9 @@ export const {
 } = slice.actions
 
 export default slice.reducer
+
+addInputHandler('handleToggle', (args: ChatPinStatus, store) => store.dispatch(handleToggle(args)))
+addOutputHandler(togglePin, 'togglePin')
+
+addInputHandler('handleChatDeletion', (arg: ChatId, store) => store.dispatch(handleChatDeletion(arg)))
+addOutputHandler(deleteChat, 'deleteChat')

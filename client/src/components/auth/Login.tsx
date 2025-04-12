@@ -1,9 +1,9 @@
 import { useEffect, useRef } from "react"
 import { useApDispatch, useAppSelector } from "@app/hooks"
-import { selectAuthStatus } from "@features/auth/selectors"
+import { selectAuthStatus } from "@src/Auth/selectors"
 import { useNavigate } from "react-router-dom"
 import { Credentials } from "@shared/Types"
-import { fetchToken } from "@features/auth/thunks"
+import { fetchToken } from "@src/Auth/thunks"
 
 const Login = () => {
 

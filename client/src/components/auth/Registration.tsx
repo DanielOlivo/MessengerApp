@@ -1,9 +1,9 @@
 import { useRef, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { useApDispatch, useAppSelector } from "@app/hooks"
-import { selectAuthStatus, selectRegisterSuccess } from "@features/auth/selectors"
+import { selectAuthStatus, selectRegisterSuccess } from "@src/Auth/selectors"
 import { Credentials } from "@shared/Types"
-import { register } from "@features/auth/thunks"
+import { register } from "@src/Auth/thunks"
 
 const Registration = () => {
 

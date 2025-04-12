@@ -1,13 +1,13 @@
 import { FC } from 'react'
 import { useApDispatch, useAppSelector } from '../../app/hooks'
-import { selectContactsInGroup, selectGroupId, selectGroupName } from '../selectors'
+import { selectContactsInGroup, selectChatId, selectGroupName } from '../selectors'
 import { Contact } from './Contact'
 import { removeGroup } from '../slice'
 
 export const UpdateWindow: FC = () => {
 
     const dispatch = useApDispatch()
-    const chatId = useAppSelector(selectGroupId)
+    const chatId = useAppSelector(selectChatId)
     const members = useAppSelector(selectContactsInGroup) 
     const groupName = useAppSelector(selectGroupName)
 

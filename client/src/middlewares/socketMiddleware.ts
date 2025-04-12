@@ -20,6 +20,9 @@ import { ChatData, ChatSliceState, deleteChat, handleChatDeletion, handleChatWit
 import { handleSearch, handleUsers, requestUsers, UserInfoCollection } from "../users/slice";
 import { SearchCardProps } from "../ChatPage/components/ChatList/components/SearchCard";
 import { search } from "../users/slice";
+import { handleSearchContact, searchContact } from "../ChatControl/slice";
+
+import { inputHandlers, outputHandlers } from "../utils/socketActions";
 
 enum SocketEvent {
     Connect = 'connect',
@@ -39,6 +42,10 @@ const socketMiddleware: Middleware = (store) => {
             // if(!socket && typeof window !== 'undefined'){
             if(!socket){
                 socket = SocketFactory.create()
+
+                for(const action of inputHandlers){
+                    action(store, socket)
+                }
 
                 socket.socket.on('handleUsers', (args: UserInfoCollection) => {
                     store.dispatch(handleUsers(args))
@@ -78,13 +85,13 @@ const socketMiddleware: Middleware = (store) => {
                     // store.dispatch(insertNewMessage(msg as ChatMessage)) // todo fix
                 })
 
-                socket.socket.on('handleToggle', (res: ChatPinStatus) => {
-                    store.dispatch(handleToggle(res))
-                })
+                // socket.socket.on('handleToggle', (res: ChatPinStatus) => {
+                //     store.dispatch(handleToggle(res))
+                // })
 
-                socket.socket.on('handleChatDeletion', (res: ChatId) => {
-                    store.dispatch(handleChatDeletion(res))
-                })
+                // socket.socket.on('handleChatDeletion', (res: ChatId) => {
+                //     store.dispatch(handleChatDeletion(res))
+                // })
 
                 socket.socket.on('handleChatWithUser', (res: ChatData) => {
                     store.dispatch(handleChatWithUser(res))
@@ -98,6 +105,11 @@ const socketMiddleware: Middleware = (store) => {
                 socket.socket.on('handleSearch', (res: UserInfoCollection) => {
                     store.dispatch(handleSearch(res))
                 })
+
+                // socket.socket.on('handleContactsSearch', (res: UserInfoCollection) => {
+                //     store.dispatch(handleUsers(res))
+                //     store.dispatch(handleSearchContact(Object.keys(res)))
+                // })
 
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 socket.socket.on(Commands.ContactsRes, (res: ContactItem[]) => {
@@ -139,13 +151,17 @@ const socketMiddleware: Middleware = (store) => {
             socket.socket.emit('msg', action.payload)
         }
 
-        if(togglePin.match(action) && socket){
-            socket.socket.emit('togglePin', action.payload)
+        for(const handler of outputHandlers){
+            handler(action, socket)
         }
 
-        if(deleteChat.match(action) && socket){
-            socket.socket.emit('deleteChat', action.payload)
-        }
+        // if(togglePin.match(action) && socket){
+        //     socket.socket.emit('togglePin', action.payload)
+        // }
+
+        // if(deleteChat.match(action) && socket){
+        //     socket.socket.emit('deleteChat', action.payload)
+        // }
 
         if(reqChatWithUser.match(action) && socket){
             socket.socket.emit('reqChatWithUser', action.payload)
@@ -165,6 +181,10 @@ const socketMiddleware: Middleware = (store) => {
         if(search.match(action) && socket){
             socket.socket.emit('search', action.payload)
         }
+
+        // if(searchContact.match(action) && socket){
+        //     socket.socket.emit('searchContacts', action.payload)
+        // }
 
         // if(reqData.match(action) && socket){
         //     socket.socket.emit(Commands.ChatSelectionReq, action.payload)

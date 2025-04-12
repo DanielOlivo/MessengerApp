@@ -3,7 +3,7 @@ import { GroupSliceState } from "./slice";
 export function getDefault(): GroupSliceState {
     return {
         state: 'idle',
-        groupId: '',
+        chatId: '',
         isAdmin: false,
 
         inGroup: [],

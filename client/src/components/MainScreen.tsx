@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom"
 import { ChildrenProp } from "./ChildrenProp"
 import { useEffect } from "react"
 import { useApDispatch, useAppSelector } from "../app/hooks"
-import { selectAuthStatus, tokenExists } from "../features/auth/selectors"
+import { selectAuthStatus, tokenExists } from "../Auth/selectors"
 import { initSocket } from "../features/socket/socketSlice"
 
 

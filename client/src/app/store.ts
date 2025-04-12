@@ -13,7 +13,7 @@ import socketMiddleware from "../middlewares/socketMiddleware"
 
 import userReducer from '../users/slice'
 import chatReducer from '../ChatPage/slice'
-import groupReducer from '../Group/slice'
+import groupReducer from '../ChatControl/slice'
 import searchReducer from '../Search/slice'
 import contextReducer from '../Context/slice'
 

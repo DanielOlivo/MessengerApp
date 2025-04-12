@@ -3,7 +3,7 @@ import { createSelector } from '@reduxjs/toolkit'
 import { RootState } from '../app/store'
 import { ChatItemProps } from './components/ChatList/components/ChatItem'
 import { TextMessageProps } from './components/ChatView/components/TextMessage/TextMessage'
-import { selectUserId } from '../features/auth/selectors'
+import { selectUserId } from '../Auth/selectors'
 import { selectFiltered } from '../users/selectors'
 
 export const selectChat = (state: RootState) => state.chat

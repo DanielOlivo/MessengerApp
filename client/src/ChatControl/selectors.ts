@@ -1,15 +1,48 @@
 import { createSelector } from "@reduxjs/toolkit";
 import { RootState } from "../app/store";
-import { selectFiltered } from "../users/selectors";
+import { selectAllUsers, selectFiltered } from "../users/selectors";
 import { UserId, UserInfo } from "shared/src/Types";
 import { ContactProps } from "./components/Contact";
 
 export const selectState = (state: RootState) => state.group.state
-export const selectGroupId = (state: RootState) => state.group.groupId
+export const selectChatId = (state: RootState) => state.group.chatId
 export const selectGroupMemberIds = (state: RootState) => state.group.inGroup
 export const selectIsOnSearch = (state: RootState) => state.group.onSearch
 export const selectSearchResultIds = (state: RootState) => state.group.searchResult
 export const selectIsAdmin = (state: RootState) => state.group.isAdmin
+export const selectName = (state: RootState) => state.group.name
+const selectSearchResult = (state: RootState) => state.group.searchResult
+const selectMembers = (state: RootState) => state.group.inGroup
+export const selectIsGroup = (state: RootState) => state.group.isGroup
+
+
+export const selectContactsOnSearch = createSelector(
+    selectAllUsers,
+    selectSearchResult,
+    selectMembers,
+    selectState,
+    selectIsAdmin,
+    (users, ids, members, state, isAdmin): ContactProps[] => {
+        return ids.map(id => ({
+            userId: id,
+            name: users[id].name,
+            iconSrc: users[id].iconSrc,
+            editable: state === 'onCreate' || (state === 'onUpdate' && isAdmin),
+            inGroup: members.includes(id)
+        }))
+    }
+)
+
+export const selectMemberProps = createSelector(
+    selectContactsOnSearch,
+    (contacts) => contacts.filter(contact => contact.inGroup)
+)
+
+export const selectNonMemberProps = createSelector(
+    selectContactsOnSearch,
+    (contacts) => contacts.filter(contact => !contact.inGroup)
+)
+
 
 export const selectContactsInGroup = createSelector(
     selectGroupMemberIds,
@@ -46,12 +79,12 @@ export const selectContactsNotInGroup = createSelector(
     } 
 )
 
-export const selectGroupName = createSelector(
-    selectGroupId,
-    (id): string => {
-        return 'to be done'
-    }
-)
+// export const selectGroupName = createSelector(
+//     selectGroupId,
+//     (id): string => {
+//         return 'to be done'
+//     }
+// )
 
 // export const selectSearchResultInGroupProps = createSelector(
 //     selectGroupMemberIds,

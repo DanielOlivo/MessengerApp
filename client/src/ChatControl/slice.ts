@@ -1,5 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { UserId, ChatId, CreateGroupReq } from "shared/src/Types";
+import { handleUsers, UserInfoCollection } from "../users/slice";
+import { addInputHandler, addOutputHandler } from "../utils/socketActions";
 
 export type State = 'idle' | 'onCreate' | 'onUpdate'
 
@@ -11,9 +13,11 @@ export interface Contact {
 
 export interface GroupSliceState {
     state: State
-    groupId: string
+    isGroup: boolean
+    chatId: string
     isAdmin: boolean
 
+    name: string
     inGroup: UserId[]
 
     onSearch: boolean
@@ -22,9 +26,11 @@ export interface GroupSliceState {
 
 const initialState: GroupSliceState = {
     state: 'idle',
-    groupId: '',
+    isGroup: true,
+    chatId: '',
     isAdmin: false,
 
+    name: '',
     inGroup: [],
 
     onSearch: false,
@@ -37,15 +43,23 @@ const slice = createSlice({
     reducers: {
         setIdle: (state) => {
             state.state = 'idle'
-            state.groupId = ''
+            state.chatId = ''
             state.isAdmin = false
             state.inGroup = []
             state.onSearch = false
             state.searchResult = []
         },
 
+        setCreate: (state) => {
+            state.state = 'onCreate'
+        },
+
         setState: (state, action: PayloadAction<State>) => {
             state.state = action.payload
+        },
+
+        setName: (state, action: PayloadAction<string>) => {
+            state.name = action.payload
         },
 
         addToGroup: (state, action: PayloadAction<UserId>) => {
@@ -66,23 +80,37 @@ const slice = createSlice({
             // todo
         },
 
+        leaveGroup: (state, action: PayloadAction<ChatId>) => {
+            // todo
+        },
+
         setSearchStatus: (state, action: PayloadAction<boolean>) => {
             state.onSearch = action.payload
         },
+
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         searchContacts: (state, action: PayloadAction<string>) => {
-            // state.searchResult = 
+            state.onSearch = true
         },
         handleSearchContact: (state, action: PayloadAction<UserId[]>) => {
-            state.searchResult = action.payload
+            state.searchResult = action.payload 
         }
     }
 })
 
 export default slice.reducer
 export const {  
-    setIdle,
+    setIdle, setCreate,
     setState,
-    addToGroup, removeFromGroup,
+    setName,
+    addToGroup, removeFromGroup, leaveGroup,
     createGroup, removeGroup,
     searchContacts: searchContact, setSearchStatus, handleSearchContact
 } = slice.actions
+
+addInputHandler('handleContactsSearch', (users: UserInfoCollection, store) => {
+    store.dispatch(handleUsers(users))
+    store.dispatch(handleSearchContact(Object.keys(users)))
+})
+addOutputHandler(searchContact, 'searchContacts')
+

@@ -4,7 +4,7 @@ import { getRandomSliceState } from "../ChatPage/utils";
 import { ChatInfo } from "../ChatPage/slice";
 // import { TextMessageProps } from "../ChatPage/components/ChatView/components/TextMessage/TextMessage";
 import { Message } from "shared/src/Message";
-import { getDefault } from "../Group/utils";
+import { getDefault } from "../ChatControl/utils";
 import { getRandomUsers } from "../users/utils";
 import { Position } from "../Context/slice";
 import { v4 as uuid } from "uuid";
@@ -41,14 +41,17 @@ export function getState(state?: DeepPartial<RootState>): RootState {
             users: state?.chat?.users as {[P in UserId]: string} ?? chat.users
         },
         group: {
+            name: '',
+            isGroup: false,
             state: state?.group?.state ?? defaultGroup.state,
-            groupId: state?.group?.groupId ?? defaultGroup.groupId,
+            chatId: state?.group?.chatId ?? defaultGroup.chatId,
             isAdmin: state?.group?.isAdmin ?? defaultGroup.isAdmin,
             inGroup: state?.group?.inGroup ?? defaultGroup.inGroup,
             onSearch: state?.group?.onSearch ?? defaultGroup.onSearch,
             searchResult: state?.group?.searchResult ?? defaultGroup.searchResult
         },
         auth: {
+            onWaiting: false,
             authenticated: true,
             data: {
                 id: state?.auth?.data?.id ?? '',
@@ -84,6 +87,16 @@ export function useRState(){
             username: faker.internet.username()
         }
         return state.auth.data.id
+    }
+
+    const addContact = (): UserId => {
+        const user: UserInfo = {
+            id: uuid(),
+            name: faker.internet.username(),
+            iconSrc: ''
+        }
+        state.users.users[user.id] = user
+        return user.id
     }
 
     const addChat = (pinned: boolean = false, userId?: UserId ) => {
@@ -138,7 +151,7 @@ export function useRState(){
         
 
     return { 
-        state, makeUser, getChatIds, addChat, getUserIds, getTying
+        state, makeUser, getChatIds, addChat, getUserIds, getTying, addContact
     }
 }
 
@@ -161,14 +174,17 @@ export function getEmpty(): RootState {
             users: {} 
         },
         group: {
+            isGroup: true,
             state: 'idle',
-            groupId: '',
+            chatId: '',
+            name: '',
             isAdmin: false,
             inGroup: [],
             onSearch: false,
             searchResult: []
         },
         auth: {
+            onWaiting: false,
             authenticated: false,
             data: {
                 id: '',

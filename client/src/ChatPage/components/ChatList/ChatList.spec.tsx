@@ -1,3 +1,4 @@
+import { act } from 'react'
 import { v4 as uuid } from "uuid";
 import { describe, test, expect } from "vitest";
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
@@ -91,17 +92,17 @@ describe('ChatList', () => {
         const chatInfo = state.chat.chatInfo[chatId]
 
         const store = createStore(state, true)
-        render(<Provider store={store}><ChatList /></Provider>)
-        await wait(100)
+        await act(() => render(<Provider store={store}><ChatList /></Provider>))
+        // await wait(100)
         await waitFor(() => expect(store.getState().socket.isConnected))
 
         const item = screen.getByText(new RegExp(chatInfo.name, 'i'))
         expect(item).toBeInTheDocument()
 
-        fireEvent.contextMenu(item)
+        await act(() => fireEvent.contextMenu(item))
         const deleteBtn = screen.getByText(/Delete/)
         expect(deleteBtn).toBeInTheDocument()
-        fireEvent.click(deleteBtn)
+        await act(() => fireEvent.click(deleteBtn))
         await wait(200)
 
         await waitFor(() => expect(screen.queryByText(new RegExp(chatInfo.name, 'i'))).not.toBeInTheDocument())

@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { UserId, UserInfo } from "shared/src/Types";
+import { login, LoginResponse } from "./thunks";
 
 export type UserInfoCollection = { [P: UserId]: UserInfo }
 
@@ -50,6 +51,18 @@ const slice = createSlice({
             state.onSearch = false
             state.searchResult = []
         } 
+    },
+    extraReducers: (builder) => {
+        builder
+            .addCase(login.pending, (state) => {
+
+            })
+            .addCase(login.rejected, (state) => {
+
+            })
+            .addCase(login.fulfilled, (state, action: PayloadAction<LoginResponse>) => {
+
+            })
     }
 })
 
