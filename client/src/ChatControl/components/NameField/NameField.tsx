@@ -1,6 +1,6 @@
-import { useApDispatch, useAppSelector } from "../../app/hooks"
-import { selectIsAdmin, selectIsGroup, selectName } from "../selectors"
-import { setName } from "../slice"
+import { useApDispatch, useAppSelector } from "../../../app/hooks"
+import { selectIsAdmin, selectIsGroup, selectName } from "../../selectors"
+import { setName } from "../../slice"
 
 export const NameField = () => {
 
