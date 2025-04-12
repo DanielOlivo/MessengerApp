@@ -76,12 +76,25 @@ const slice = createSlice({
             // todo
         },
 
-        removeGroup: (state, action: PayloadAction<ChatId>) => {
+
+        deleteGroup: (state, action: PayloadAction<GroupDelete>) => {
             // todo
         },
 
-        leaveGroup: (state, action: PayloadAction<ChatId>) => {
+        handleGroupDelete: (state, action: PayloadAction<GroupDelete>) => {
             // todo
+            if(state.state !== 'idle'){
+                state.state = 'idle'
+            }
+        },
+
+        leaveGroup: (state, action: PayloadAction<GroupLeaving>) => {
+            // todo
+        },
+        handleGroupLeave: (state, action: PayloadAction<GroupLeaving>) => {
+            // todo
+
+            state.state = 'idle'
         },
 
         setSearchStatus: (state, action: PayloadAction<boolean>) => {
@@ -103,8 +116,9 @@ export const {
     setIdle, setCreate,
     setState,
     setName,
-    addToGroup, removeFromGroup, leaveGroup,
-    createGroup, removeGroup,
+    addToGroup, removeFromGroup, 
+    leaveGroup, handleGroupLeave,
+    createGroup, deleteGroup,
     searchContacts: searchContact, setSearchStatus, handleSearchContact
 } = slice.actions
 
@@ -113,4 +127,21 @@ addInputHandler('handleContactsSearch', (users: UserInfoCollection, store) => {
     store.dispatch(handleSearchContact(Object.keys(users)))
 })
 addOutputHandler(searchContact, 'searchContacts')
+
+
+export interface GroupLeaving {
+    chatId: ChatId
+    userId: UserId
+    actor: UserId
+}
+
+export interface GroupDelete {
+    chatId: ChatId
+    actor: UserId
+}
+
+addInputHandler('handleLeave', (arg: GroupLeaving, store) => {
+    store.dispatch(handleGroupLeave(arg))
+})
+addOutputHandler(leaveGroup, 'leave')
 

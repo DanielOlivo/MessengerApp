@@ -2,7 +2,7 @@ import { FC } from 'react'
 import { useApDispatch, useAppSelector } from '../../app/hooks'
 import { selectContactsInGroup, selectChatId, selectGroupName } from '../selectors'
 import { Contact } from './Contact'
-import { removeGroup } from '../slice'
+import { deleteGroup } from '../slice'
 
 export const UpdateWindow: FC = () => {
 
@@ -21,7 +21,7 @@ export const UpdateWindow: FC = () => {
             </div>
             <div className='flex flex-row justify-between items-center'>
                 <button>Apply</button>
-                <button className='text-red-500' onClick={() => dispatch(removeGroup(chatId))}>Remove group</button>
+                <button className='text-red-500' onClick={() => dispatch(deleteGroup(chatId))}>Remove group</button>
             </div>
         </div>
     )

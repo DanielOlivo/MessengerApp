@@ -1,8 +1,8 @@
 import { Meta, StoryObj } from "@storybook/react";
 import { ApplyInput } from "./ApplyInput";
-import { useRState } from "../../utils/getState";
+import { useRState } from "../../../utils/getState";
 import { Provider } from "react-redux";
-import { createStore } from "../../app/store";
+import { createStore } from "../../../app/store";
 
 const meta = {
   title: 'ChatControl/ApplyInput',
@@ -27,7 +27,7 @@ export const OnDM: Story = {
     ]
 }
 
-
+// eslint-disable-next-line
 const { state: state2 } = useRState()
 state2.group.isGroup = true
 state2.group.isAdmin = false
@@ -38,6 +38,7 @@ export const OnGroupNonAdmin: Story = {
 }
 
 
+// eslint-disable-next-line
 const { state: state3 } = useRState()
 state3.group.isGroup = true
 state3.group.isAdmin = true
