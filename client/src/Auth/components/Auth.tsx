@@ -41,17 +41,21 @@ export const Auth = () => {
                 <div className='flex flex-col justify-start items-start'>
                     <div className='flex flex-row justify-start items-center'>
                         <label>Username:</label>
-                        <input {...register('username', { 
-                            required: 'Username is required', 
-                            minLength: {
-                                value: 4,
-                                message: "Password size must be at least 4 symbols"
-                            },
-                            pattern: {
-                                value: /[a-zA-z][a-zA-Z0-9]+/,
-                                message: "Username should start with a letter and contain only letters or digits"
-                            }
-                        })} />
+                        <input 
+                            aria-label='username-field'
+                            {
+                                ...register('username', { 
+                                required: 'Username is required', 
+                                minLength: {
+                                    value: 4,
+                                    message: "Password size must be at least 4 symbols"
+                                },
+                                pattern: {
+                                    value: /[a-zA-z][a-zA-Z0-9]+/,
+                                    message: "Username should start with a letter and contain only letters or digits"
+                                }
+                            })} 
+                        />
                     </div> 
                     <ErrorMessage 
                         errors={errors}
@@ -67,13 +71,16 @@ export const Auth = () => {
                 <div className='mt-3 flex flex-col justify-start items-start'>
                     <div className='flex flex-row justify-start items-center'>
                         <label>Password:</label>
-                        <input {...register('password', { 
-                            required: 'Password is required', 
-                            minLength: {
-                                value: 4,
-                                message: 'Password must contain at least 4 symbols'
-                            }
-                        })} />
+                        <input 
+                            aria-label='password-field'
+                            {...register('password', { 
+                                required: 'Password is required', 
+                                minLength: {
+                                    value: 4,
+                                    message: 'Password must contain at least 4 symbols'
+                                }
+                            })} 
+                        />
                     </div>
                     <ErrorMessage 
                         errors={errors}
@@ -101,6 +108,7 @@ export const Auth = () => {
             </form> 
 
             <button
+                aria-label='switch-button'
                 onClick={() => setOnLogin(!onLogin)} 
             >{onLogin ? "Register" : "Login"}?</button>
         </div>
