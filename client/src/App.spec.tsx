@@ -16,6 +16,8 @@ import { initSocket } from './features/socket/socketSlice';
 import { getSocketServer } from './utils/getSocketServer';
 import { Message, MessagePostReq } from 'shared/src/Message';
 import dayjs from 'dayjs';
+import { selectChat } from './ChatPage/selectors';
+import { handleChatSelection } from './ChatPage/slice';
 
 
 describe('App', () => {
@@ -64,6 +66,20 @@ describe('App', () => {
 
     const server = setupServer(...handlers)
     const io = getSocketServer()
+
+    const emitMessage = (chatId: ChatId): Message => {
+        const res: Message = {
+            messageId: uuid(),
+            sender: otherChats.find(({chatId: id}) => id === chatId)!.chatId,
+            content: faker.lorem.sentence(),
+            timestamp: dayjs().valueOf(),
+            chatId
+        }
+        serverState.chat.messages[res.messageId] = res
+        serverState.chat.chatMessageIds[chatId].unshift(res.messageId)
+        io.emit('msgRes', res)
+        return res
+    }
 
     io.on('connect', socket => {
         socket.on('requestUsers', () => {
@@ -225,4 +241,14 @@ describe('App', () => {
         // to be displayed both at chat view and chat item, as it is a last message
         expect(screen.getAllByText(new RegExp(newMessageContent)).length === 2).toBeTruthy()
     })  
+
+
+
+    test('handle message from other chat', async () => {
+        // deselect chat
+        clientStore.dispatch(handleChatSelection(''))
+
+        const message = emitMessage(otherChats[2].chatId)
+        await waitFor(() => expect(screen.getByText(new RegExp(message.content))).toBeInTheDocument()) 
+    })
 })

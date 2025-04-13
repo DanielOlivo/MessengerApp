@@ -80,6 +80,12 @@ export function getState(state?: DeepPartial<RootState>): RootState {
 export function useRState(){
     const state = getEmpty()
 
+    let initTimestamp = dayjs().subtract(2, 'days').valueOf()
+    let interval = 10000
+
+    const setInitTimestamp = (timestamp: number) => initTimestamp = timestamp
+    const setInterval = (value: number) => interval = value
+
     const makeUser = (): UserId => {
         state.auth.data = {
             id: uuid(),
@@ -112,7 +118,7 @@ export function useRState(){
             messageId: uuid(),
             content: faker.lorem.sentence(),
             sender: idx % 2 === 0 ? otherId : state.auth.data.id,
-            timestamp: 0,
+            timestamp: initTimestamp + idx * interval,
             chatId
         }))
 
@@ -151,7 +157,8 @@ export function useRState(){
         
 
     return { 
-        state, makeUser, getChatIds, addChat, getUserIds, getTying, addContact
+        state, makeUser, getChatIds, addChat, getUserIds, getTying, addContact,
+        setInterval, setInitTimestamp
     }
 }
 
