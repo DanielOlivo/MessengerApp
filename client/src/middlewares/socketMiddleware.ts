@@ -93,9 +93,9 @@ const socketMiddleware: Middleware = (store) => {
                 //     store.dispatch(handleChatDeletion(res))
                 // })
 
-                socket.socket.on('handleChatWithUser', (res: ChatData) => {
-                    store.dispatch(handleChatWithUser(res))
-                })
+                // socket.socket.on('handleChatWithUser', (res: ChatData) => {
+                //     store.dispatch(handleChatWithUser(res))
+                // })
 
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 socket.socket.on(Commands.TypingRes, (res: Typing) => {
@@ -163,9 +163,9 @@ const socketMiddleware: Middleware = (store) => {
         //     socket.socket.emit('deleteChat', action.payload)
         // }
 
-        if(reqChatWithUser.match(action) && socket){
-            socket.socket.emit('reqChatWithUser', action.payload)
-        }
+        // if(reqChatWithUser.match(action) && socket){
+        //     socket.socket.emit('reqChatWithUser', action.payload)
+        // }
 
 
         // if(handleSelection.match(action) && socket){

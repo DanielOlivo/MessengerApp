@@ -17,8 +17,9 @@ import { getSocketServer } from './utils/getSocketServer';
 import { Message, MessagePostReq } from 'shared/src/Message';
 import dayjs from 'dayjs';
 import { selectChat } from './ChatPage/selectors';
-import { handleChatSelection } from './ChatPage/slice';
+import { ChatData, ChatInfo, handleChatSelection } from './ChatPage/slice';
 import { UserInfoCollection } from './users/slice';
+import { wait } from './utils/wait';
 
 
 describe('App', () => {
@@ -58,7 +59,6 @@ describe('App', () => {
     const loginUrl = new URL('/api/user/login', baseUrl).href
     const handlers = [
         http.post(loginUrl, async ({request}) => {
-            console.log('HEEELOO')
             const data = await request.json() as Credentials
             expect(data.username).toEqual('username')
             expect(data.password).toEqual('password')
@@ -110,7 +110,23 @@ describe('App', () => {
         socket.on('search', () => {
             userIdToSearch = addContact()
             const res: UserInfoCollection = { [userIdToSearch]: serverState.users.users[userIdToSearch] }
+            console.log('handleSearch', res)
             socket.emit('handleSearch', res)
+        })
+
+        socket.on('reqChatWithUser', userId => {
+            const chatId = uuid()
+            const chatInfo: ChatData = {
+                chatId,
+                info: {
+                    name: serverState.users.users[userIdToSearch].name,
+                    iconSrc: '',
+                    status: 'online'
+                },
+                messages: {},
+                chatMessageIds: { [chatId]: [] } 
+            }
+            socket.emit('handleChatWithUser', chatInfo)
         })
     })
 
@@ -276,7 +292,33 @@ describe('App', () => {
         expect(clientStore.getState().users.onSearch).toBeFalsy()
     }) 
 
+    test('search user and start chat', async () => {
+        const field = screen.getByLabelText('search-field')        
+        const getUserCount = () => Object.keys(clientStore.getState().users.users).length
+        const count = getUserCount()
 
+        fireEvent.change(field, { target: { value: 'some other user'}})
+
+        expect(() => expect(clientStore.getState().users.onSearch).toBeTruthy())
+        await waitFor(() => expect(getUserCount() - count).toEqual(1))
+
+        const newUser = serverState.users.users[userIdToSearch]
+        const item = screen.getByText(new RegExp(newUser.name))
+        expect(item).toBeInTheDocument()
+
+        // not yet implemented
+        fireEvent.click(item) 
+        
+        // should be twice: in chat items and header
+        await waitFor(() => expect(screen.getAllByText(new RegExp(newUser.name)).length === 2).toBeTruthy())
+    })
+
+    // test('deselect chat, should be not visible in chat items', async () => {
+    //     clientStore.dispatch(handleChatSelection(''))
+
+    //     const newUser = serverState.users.users[userIdToSearch]
+    //     await waitFor(() => expect(screen.queryByText(new RegExp(newUser.name))).not.toBeInTheDocument())
+    // })
 
     // test('create a group', async () => {
     //     const btn = screen.getByLabelText('new-group-btn')

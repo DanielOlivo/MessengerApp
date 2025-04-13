@@ -229,3 +229,6 @@ addOutputHandler(deleteChat, 'deleteChat')
 
 addOutputHandler(sendMessage, 'msg')
 addInputHandler('msgRes', (msg: Message, store) => store.dispatch(handleMessage(msg)))
+
+addOutputHandler(reqChatWithUser,'reqChatWithUser')
+addInputHandler('handleChatWithUser', (res: ChatData, store) => store.dispatch(handleChatWithUser(res)))
