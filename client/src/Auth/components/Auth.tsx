@@ -3,14 +3,18 @@ import { ErrorMessage } from '@hookform/error-message'
 import { Credentials } from 'shared/src/Types'
 import { fetchToken, register as regUser } from '../thunks'
 import { useApDispatch, useAppSelector } from '../../app/hooks'
-import { selectIsOnWaiting } from '../selectors'
-import { useState } from 'react'
+import { selectAuthStatus, selectIsOnWaiting } from '../selectors'
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 export const Auth = () => {
 
     const dispatch = useApDispatch()
     const onWaiting = useAppSelector(selectIsOnWaiting)
     const [onLogin, setOnLogin] = useState<boolean>(true)
+
+    const navigate = useNavigate()
+    const isAuthenticated = useAppSelector(selectAuthStatus)
 
     const { 
         register, 
@@ -27,6 +31,12 @@ export const Auth = () => {
             dispatch(regUser(data))
         }
     }
+
+    useEffect(() => {
+        if(isAuthenticated){
+            navigate('/')
+        }
+    }, [isAuthenticated])
 
     return (
         <div className='flex flex-col justify-center items-center w-full h-full'>
@@ -93,7 +103,7 @@ export const Auth = () => {
                     />
                 </div>
 
-                <input type='submit' disabled={onWaiting} className='mt-3' />
+                <input aria-label='submit-button' type='submit' disabled={onWaiting} className='mt-3' />
 
                 <div className='h-7 flex flex-row justify-start items-center'>
                     

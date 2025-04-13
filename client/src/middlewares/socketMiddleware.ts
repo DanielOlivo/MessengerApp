@@ -47,13 +47,13 @@ const socketMiddleware: Middleware = (store) => {
                     action(store, socket)
                 }
 
-                socket.socket.on('handleUsers', (args: UserInfoCollection) => {
-                    store.dispatch(handleUsers(args))
-                })
+                // socket.socket.on('handleUsers', (args: UserInfoCollection) => {
+                //     store.dispatch(handleUsers(args))
+                // })
 
-                socket.socket.on('initLoadingRes', (arg: ChatSliceState) => {
-                    store.dispatch(handleInitLoading(arg))
-                })
+                // socket.socket.on('initLoadingRes', (arg: ChatSliceState) => {
+                //     store.dispatch(handleInitLoading(arg))
+                // })
 
 
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -129,13 +129,13 @@ const socketMiddleware: Middleware = (store) => {
             
         }
 
-        if(requestUsers.match(action) && socket){
-            socket.socket.emit('requestUsers', '')
-        }
+        // if(requestUsers.match(action) && socket){
+        //     socket.socket.emit('requestUsers', '')
+        // }
 
-        if(initLoading.match(action) && socket){
-            socket.socket.emit('initLoading', '')
-        }
+        // if(initLoading.match(action) && socket){
+        //     socket.socket.emit('initLoading', '')
+        // }
 
         if(disconnect.match(action) && socket){
             socket.socket.disconnect()

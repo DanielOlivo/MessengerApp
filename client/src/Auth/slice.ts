@@ -43,6 +43,9 @@ export const authSlice = createSlice({
                     token: JSON.parse(token)
                 }
                 state.authenticated = true
+                localStorage.setItem('username', username) 
+                localStorage.setItem('token', token)
+                localStorage.setItem('userId', id)
             }
         },
 

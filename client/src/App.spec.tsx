@@ -1,5 +1,7 @@
 import '@testing-library/react/dont-cleanup-after-each'
 
+import { v4 as uuid } from 'uuid'
+import { faker } from '@faker-js/faker';
 import { describe, test, expect } from "vitest";
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { AppStore, createStore, RootState } from './app/store';
@@ -7,17 +9,67 @@ import { useRState } from './utils/getState';
 import App from './App';
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
+import { setupServer } from 'msw/node';
+import { http, HttpResponse } from 'msw';
+import { Credentials, UserAuthData } from 'shared/src/Types';
+import { initSocket } from './features/socket/socketSlice';
+import { getSocketServer } from './utils/getSocketServer';
+
 
 describe('App', () => {
 
+    const baseUrl = import.meta.env.VITE__BASE_URL
+    const loginResponse: UserAuthData = {
+        id: uuid(),
+        username: faker.internet.username(),
+        token: 'token'
+    }
+
     let clientState: RootState 
     let clientStore: AppStore
+
+    const { state: serverState, addChat } = useRState()
+    const otherChats = [
+        addChat(false),
+        addChat(false),
+        addChat(true)
+    ]
+
 
     const getUsernameField = () => screen.getByLabelText('username-field')
     const getPasswordField = () => screen.getByLabelText('password-field')
     const getSwitchButton = () => screen.getByLabelText('switch-button')
 
+    const getPinnedLabel = () => screen.getByText(/Pinned/)
+    const getAllLabel = () => screen.getByText(/All/)
+
+    const loginUrl = new URL('/api/user/login', baseUrl).href
+    const handlers = [
+        http.post(loginUrl, async ({request}) => {
+            console.log('HEEELOO')
+            const data = await request.json() as Credentials
+            expect(data.username).toEqual('username')
+            expect(data.password).toEqual('password')
+            
+            return HttpResponse.json(loginResponse)
+        }) 
+    ]
+
+    const server = setupServer(...handlers)
+    const io = getSocketServer()
+
+    io.on('connect', socket => {
+        socket.on('requestUsers', () => {
+            socket.emit('handleUsers', serverState.users.users)
+        })
+
+        socket.on('initLoading', () => {
+            socket.emit('initLoadingRes', serverState.chat)
+        })
+    })
+
     beforeAll(() => {
+        server.listen()
 
         const { state } = useRState()
         clientState = state
@@ -34,7 +86,8 @@ describe('App', () => {
     })
 
     afterAll(() => {
-
+        // server.close()
+        io.close()
     })
 
     test('start with Auth page', () => {
@@ -76,8 +129,30 @@ describe('App', () => {
         expect(header).toBeInTheDocument()
     })
 
+    test('start socket', async () => {
+        expect(clientStore.getState().socket.isConnected).toBeFalsy()
+        clientStore.dispatch(initSocket())
+        await waitFor(() => expect(clientStore.getState().socket.isConnected).toBeTruthy())
+    })
+
     test('Auth: login to account', async () => {
-        
+        server.listen()
+        const usernameField = getUsernameField()
+        const passwordField = getPasswordField()
+        const submitBtn = screen.getByLabelText('submit-button')
+        expect(submitBtn).toBeInTheDocument()
+
+        fireEvent.change(usernameField, { target: { value: 'username'}})
+        fireEvent.change(passwordField, { target: { value: 'password'}})
+        fireEvent.click(submitBtn)
+
+        await waitFor(() => expect(screen.queryByText(/Login/)).not.toBeInTheDocument())
+        server.close()
+    }) 
+
+    test('ChatList, chat list loaded', async () => {
+        await waitFor(() => expect(getAllLabel()).toBeInTheDocument())
+        expect(getPinnedLabel()).toBeInTheDocument()
     }) 
 
 })

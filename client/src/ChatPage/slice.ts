@@ -55,11 +55,12 @@ const slice = createSlice({
         handleInitLoading: (state, action: PayloadAction<ChatSliceState>) => {
             // return action.payload
             // console.log(action.payload)
-            const { chatInfo, chatMessageIds, displayedChatId, messages } = action.payload
+            const { chatInfo, chatMessageIds, messages, pinned } = action.payload
             state.chatInfo = chatInfo
             state.chatMessageIds = chatMessageIds
-            state.displayedChatId = displayedChatId
+            state.displayedChatId = '' 
             state.messages = messages
+            state.pinned = pinned
         },
 
         // --------------- users ---------------------

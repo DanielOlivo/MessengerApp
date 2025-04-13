@@ -1,6 +1,8 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { UserId, UserInfo } from "shared/src/Types";
 import { login, LoginResponse } from "./thunks";
+import { addInputHandler, addOutputHandler } from "../utils/socketActions";
+import { ChatSliceState, handleInitLoading, initLoading } from "../ChatPage/slice";
 
 export type UserInfoCollection = { [P: UserId]: UserInfo }
 
@@ -68,3 +70,9 @@ const slice = createSlice({
 
 export default slice.reducer
 export const { requestUsers, handleUsers, search, handleSearch, disableSearch } = slice.actions
+
+addOutputHandler(requestUsers, 'requestUsers')
+addInputHandler('handleUsers', (users: UserInfoCollection, store) => store.dispatch(handleUsers(users)))
+
+addOutputHandler(initLoading, 'initLoading')
+addInputHandler('initLoadingRes', (state: ChatSliceState, store) => store.dispatch(handleInitLoading(state)))
