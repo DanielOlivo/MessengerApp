@@ -34,7 +34,7 @@ describe('App', () => {
         addChat(false),
         addChat(true)
     ]
-
+    const chatInfos = otherChats.map(ids => serverState.chat.chatInfo[ids.chatId])
 
     const getUsernameField = () => screen.getByLabelText('username-field')
     const getPasswordField = () => screen.getByLabelText('password-field')
@@ -153,6 +153,32 @@ describe('App', () => {
     test('ChatList, chat list loaded', async () => {
         await waitFor(() => expect(getAllLabel()).toBeInTheDocument())
         expect(getPinnedLabel()).toBeInTheDocument()
+
+        for(const chatInfo of chatInfos){
+            expect(screen.getByText(new RegExp(chatInfo.name))).toBeInTheDocument()
+        }
     }) 
+
+    test('select all chat one by one and check messages', () => {
+        for(let i = 0; i < otherChats.length; i++){
+            const { chatId } = otherChats[i]
+            const chatInfo = serverState.chat.chatInfo[chatId]
+            const item = screen.getByText(new RegExp(chatInfo.name))
+
+            fireEvent.click(item)
+
+            expect(clientStore.getState().chat.displayedChatId).toEqual(chatId)
+            expect(screen.getAllByText(new RegExp(chatInfo.name)).length).toEqual(2)
+
+            const messageIds = serverState.chat.chatMessageIds[chatId]
+
+            screen.debug(undefined, 10000)
+
+            for(const msgId of messageIds){
+                const message = serverState.chat.messages[msgId]
+                expect(screen.getAllByText(new RegExp(message.content)).length > 0).toBeTruthy()
+            }
+        }
+    })
 
 })
