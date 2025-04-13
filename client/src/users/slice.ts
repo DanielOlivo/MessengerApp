@@ -78,3 +78,6 @@ addInputHandler('handleUsers', (users: UserInfoCollection, store) => store.dispa
 
 addOutputHandler(initLoading, 'initLoading')
 addInputHandler('initLoadingRes', (state: ChatSliceState, store) => store.dispatch(handleInitLoading(state)))
+
+addOutputHandler(search, 'search')
+addInputHandler('handleSearch', (users: UserInfoCollection, store) => store.dispatch(handleSearch(users)))

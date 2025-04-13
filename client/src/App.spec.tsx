@@ -18,6 +18,7 @@ import { Message, MessagePostReq } from 'shared/src/Message';
 import dayjs from 'dayjs';
 import { selectChat } from './ChatPage/selectors';
 import { handleChatSelection } from './ChatPage/slice';
+import { UserInfoCollection } from './users/slice';
 
 
 describe('App', () => {
@@ -32,13 +33,15 @@ describe('App', () => {
     let clientState: RootState 
     let clientStore: AppStore
 
-    const { state: serverState, addChat } = useRState()
+    const { state: serverState, addChat, addContact } = useRState()
     const otherChats = [
         addChat(false),
         addChat(false),
         addChat(true)
     ]
     const chatInfos = otherChats.map(ids => serverState.chat.chatInfo[ids.chatId])
+    let userIdToSearch: UserId
+
 
     const getUsernameField = () => screen.getByLabelText('username-field')
     const getPasswordField = () => screen.getByLabelText('password-field')
@@ -102,6 +105,12 @@ describe('App', () => {
             serverState.chat.chatMessageIds[chatId].unshift(res.messageId)
             serverState.chat.messages[res.messageId] = res
             socket.emit('msgRes', res)
+        })
+
+        socket.on('search', () => {
+            userIdToSearch = addContact()
+            const res: UserInfoCollection = { [userIdToSearch]: serverState.users.users[userIdToSearch] }
+            socket.emit('handleSearch', res)
         })
     })
 
@@ -251,6 +260,25 @@ describe('App', () => {
         await waitFor(() => expect(screen.getByText(new RegExp(message.content))).toBeInTheDocument()) 
     })
 
+    test('search some other user and reset', async () => {
+        const field = screen.getByLabelText('search-field')
+        expect(field).toBeInTheDocument()
+
+        fireEvent.change(field, { target: {value: 'some other user'}})        
+        expect(clientStore.getState().users.onSearch).toBeTruthy()
+
+        await waitFor(() => expect(clientStore.getState().users.searchResult.length === 1).toBeTruthy())
+        const name = serverState.users.users[userIdToSearch].name
+        expect(screen.getByText(new RegExp(name))).toBeInTheDocument()
+
+        // disable search
+        fireEvent.change(field, { target: { value: ''}})
+        expect(clientStore.getState().users.onSearch).toBeFalsy()
+    }) 
 
 
+
+    // test('create a group', async () => {
+    //     const btn = screen.getByLabelText('new-group-btn')
+    // })
 })

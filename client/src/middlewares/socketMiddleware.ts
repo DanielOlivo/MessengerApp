@@ -102,9 +102,9 @@ const socketMiddleware: Middleware = (store) => {
                     store.dispatch(handleTyping(res))
                 })
 
-                socket.socket.on('handleSearch', (res: UserInfoCollection) => {
-                    store.dispatch(handleSearch(res))
-                })
+                // socket.socket.on('handleSearch', (res: UserInfoCollection) => {
+                //     store.dispatch(handleSearch(res))
+                // })
 
                 // socket.socket.on('handleContactsSearch', (res: UserInfoCollection) => {
                 //     store.dispatch(handleUsers(res))
@@ -178,9 +178,9 @@ const socketMiddleware: Middleware = (store) => {
         //     socket.socket.emit(Commands.ChatListReq, action.payload)
         // }
 
-        if(search.match(action) && socket){
-            socket.socket.emit('search', action.payload)
-        }
+        // if(search.match(action) && socket){
+        //     socket.socket.emit('search', action.payload)
+        // }
 
         // if(searchContact.match(action) && socket){
         //     socket.socket.emit('searchContacts', action.payload)
