@@ -78,22 +78,3 @@ export const selectContactsNotInGroup = createSelector(
         }))
     } 
 )
-
-// export const selectGroupName = createSelector(
-//     selectGroupId,
-//     (id): string => {
-//         return 'to be done'
-//     }
-// )
-
-// export const selectSearchResultInGroupProps = createSelector(
-//     selectGroupMemberIds,
-//     selectSearchResult,
-//     (ids, infos): ContactProps[] => infos.filter(info => ids.includes(info.id)).map(info => ({
-//         ...info,
-//         userId: info.id,
-//         editable: true,
-//         inGroup: true        
-//     }))
-// )
-

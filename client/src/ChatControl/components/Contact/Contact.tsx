@@ -1,6 +1,6 @@
 import React, {FC} from 'react'
-import { useApDispatch } from '../../app/hooks'
-import { addToGroup, removeFromGroup } from '../slice'
+import { useApDispatch } from '../../../app/hooks'
+import { addToGroup, removeFromGroup } from '../../slice'
 
 export interface ContactProps {
     userId: string
