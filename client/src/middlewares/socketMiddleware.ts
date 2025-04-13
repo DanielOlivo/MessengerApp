@@ -147,9 +147,9 @@ const socketMiddleware: Middleware = (store) => {
             socket.socket.emit('number', action.payload)
         } 
 
-        if(sendMessage.match(action) && socket){
-            socket.socket.emit('msg', action.payload)
-        }
+        // if(sendMessage.match(action) && socket){
+        //     socket.socket.emit('msg', action.payload)
+        // }
 
         for(const handler of outputHandlers){
             handler(action, socket)

@@ -1,7 +1,7 @@
 import { PayloadAction } from "@reduxjs/toolkit";
 import { createSlice } from "@reduxjs/toolkit";
-import { ChatId, ChatPinStatus, MessageId, MessagePost, MessagePostReq, Typing, UserData, UserId } from "@shared/Types";
-import { Message } from "shared/src/Message";
+import { ChatId, ChatPinStatus, MessageId, Typing, UserData, UserId } from "@shared/Types";
+import { Message, MessagePostReq } from "shared/src/Message";
 import { TextMessageProps } from "./components/ChatView/components/TextMessage/TextMessage";
 import { MessageStatusUpdate } from "@shared/Types";
 
@@ -133,13 +133,14 @@ const slice = createSlice({
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         sendMessage: (state, action: PayloadAction<MessagePostReq>) => {},
 
-        handleMessage: (state, action: PayloadAction<MessagePost>) => {
-            const { chatId, userId, messageId, content, timestamp } = action.payload
+        handleMessage: (state, action: PayloadAction<Message>) => {
+            const { chatId, sender: userId, messageId, content, timestamp } = action.payload
 
             state.messages[messageId] ={
                 messageId, chatId, sender: userId, timestamp, content
             }
-            state.chatMessageIds[chatId] = [messageId].concat(state.chatMessageIds[chatId])
+            // state.chatMessageIds[chatId] = [messageId].concat(state.chatMessageIds[chatId])
+            state.chatMessageIds[chatId].unshift(messageId)
         },
 
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -225,3 +226,6 @@ addOutputHandler(togglePin, 'togglePin')
 
 addInputHandler('handleChatDeletion', (arg: ChatId, store) => store.dispatch(handleChatDeletion(arg)))
 addOutputHandler(deleteChat, 'deleteChat')
+
+addOutputHandler(sendMessage, 'msg')
+addInputHandler('msgRes', (msg: Message, store) => store.dispatch(handleMessage(msg)))

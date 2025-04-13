@@ -11,9 +11,11 @@ import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 import { setupServer } from 'msw/node';
 import { http, HttpResponse } from 'msw';
-import { Credentials, UserAuthData } from 'shared/src/Types';
+import { ChatId, Credentials, UserAuthData } from 'shared/src/Types';
 import { initSocket } from './features/socket/socketSlice';
 import { getSocketServer } from './utils/getSocketServer';
+import { Message, MessagePostReq } from 'shared/src/Message';
+import dayjs from 'dayjs';
 
 
 describe('App', () => {
@@ -43,6 +45,11 @@ describe('App', () => {
     const getPinnedLabel = () => screen.getByText(/Pinned/)
     const getAllLabel = () => screen.getByText(/All/)
 
+    const getChatInputField = () => screen.getByLabelText('chat-input-field')
+    const getChatInputSend = () => screen.getByLabelText('chat-input-send')
+
+    const getMessageCount = (chatId: ChatId) => clientStore.getState().chat.chatMessageIds[chatId].length
+
     const loginUrl = new URL('/api/user/login', baseUrl).href
     const handlers = [
         http.post(loginUrl, async ({request}) => {
@@ -65,6 +72,20 @@ describe('App', () => {
 
         socket.on('initLoading', () => {
             socket.emit('initLoadingRes', serverState.chat)
+        })
+
+        socket.on('msg', (req: MessagePostReq) => {
+            const { chatId, content } = req
+            const res: Message = {
+                chatId, content,
+                sender: loginResponse.id,
+                timestamp: dayjs().valueOf(),
+                messageId: uuid()
+            } 
+
+            serverState.chat.chatMessageIds[chatId].unshift(res.messageId)
+            serverState.chat.messages[res.messageId] = res
+            socket.emit('msgRes', res)
         })
     })
 
@@ -172,8 +193,6 @@ describe('App', () => {
 
             const messageIds = serverState.chat.chatMessageIds[chatId]
 
-            screen.debug(undefined, 10000)
-
             for(const msgId of messageIds){
                 const message = serverState.chat.messages[msgId]
                 expect(screen.getAllByText(new RegExp(message.content)).length > 0).toBeTruthy()
@@ -181,4 +200,29 @@ describe('App', () => {
         }
     })
 
+    test('select chat and send message', async () => {
+        const { chatId } = otherChats[0]
+        const chatInfo = serverState.chat.chatInfo[chatId]
+
+        const item = screen.getAllByText(new RegExp(chatInfo.name))[0]  
+        fireEvent.click(item)
+
+        const field = getChatInputField()
+        const btn = getChatInputSend()
+        expect(field).toBeInTheDocument()
+        expect(btn).toBeInTheDocument()
+
+        
+        const count1 = getMessageCount(chatId)
+        
+        const newMessageContent = faker.lorem.sentence()
+        fireEvent.change(field, { target: { value: newMessageContent }})
+        fireEvent.click(btn)
+
+        
+        await waitFor(() => expect(getMessageCount(chatId) - count1).toEqual(1))
+
+        // to be displayed both at chat view and chat item, as it is a last message
+        expect(screen.getAllByText(new RegExp(newMessageContent)).length === 2).toBeTruthy()
+    })  
 })

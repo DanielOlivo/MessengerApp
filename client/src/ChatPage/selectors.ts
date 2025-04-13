@@ -56,7 +56,7 @@ export const selectChatItems = createSelector(
                 timestamp: msg.timestamp
             }
             return result
-        }).sort((item1, item2) => item1.timestamp > item2.timestamp ? 1 : -1).map(item => ({
+        }).sort((item1, item2) => item1.timestamp > item2.timestamp ? -1 : 1).map(item => ({
             ...item,
             timestamp: dayjs(item.timestamp).format('hh:mm')
         }))
