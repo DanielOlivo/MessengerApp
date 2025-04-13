@@ -8,6 +8,7 @@ export type UserInfoCollection = { [P: UserId]: UserInfo }
 
 export interface UserSliceState {
     users: UserInfoCollection
+    online: UserId[]
     searchTerm: string
     onSearch: boolean
     searchResult: UserId[]
@@ -15,6 +16,7 @@ export interface UserSliceState {
 
 const initialState: UserSliceState = {
     users: {},
+    online: [],
     searchTerm: '',
     onSearch: false,
     searchResult: [] 

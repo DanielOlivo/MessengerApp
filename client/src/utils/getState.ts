@@ -26,6 +26,7 @@ export function getState(state?: DeepPartial<RootState>): RootState {
     const st: RootState = {
         users: {
             users: state?.users?.users as {[P: UserId] : UserInfo} ?? getRandomUsers(),
+            online: [],
             searchTerm: '',
             searchResult: [],
             onSearch: false
@@ -166,6 +167,7 @@ export function getEmpty(): RootState {
     return {
         users: {
             users: {},
+            online: [],
             searchTerm: '',
             onSearch: false,
             searchResult: []

@@ -238,11 +238,10 @@ describe('App', () => {
         
         await waitFor(() => expect(getMessageCount(chatId) - count1).toEqual(1))
 
+        // this line still returns error: fix later
         // to be displayed both at chat view and chat item, as it is a last message
         expect(screen.getAllByText(new RegExp(newMessageContent)).length === 2).toBeTruthy()
     })  
-
-
 
     test('handle message from other chat', async () => {
         // deselect chat
@@ -251,4 +250,7 @@ describe('App', () => {
         const message = emitMessage(otherChats[2].chatId)
         await waitFor(() => expect(screen.getByText(new RegExp(message.content))).toBeInTheDocument()) 
     })
+
+
+
 })
