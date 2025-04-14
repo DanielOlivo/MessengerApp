@@ -20,6 +20,7 @@ import { selectChat } from './ChatPage/selectors';
 import { ChatData, ChatInfo, handleChatSelection } from './ChatPage/slice';
 import { UserInfoCollection } from './users/slice';
 import { wait } from './utils/wait';
+import { ChatControlGetters } from './utils/testUtils';
 
 
 describe('App', () => {
@@ -56,6 +57,9 @@ describe('App', () => {
 
     const getChatInputField = () => screen.getByLabelText('chat-input-field')
     const getChatInputSend = () => screen.getByLabelText('chat-input-send')
+
+    const getChatControl = () => screen.queryByLabelText('chat-control')
+    const getNameField = () => screen.queryByLabelText('chat-control-name-field') 
 
     const getMessageCount = (chatId: ChatId) => clientStore.getState().chat.chatMessageIds[chatId].length
 
@@ -336,8 +340,30 @@ describe('App', () => {
         await waitFor(() => expect(screen.queryByText(new RegExp(newUser.name))).not.toBeInTheDocument())
     })
 
-    test('user creates a group', async () => {
+    test('user presses create group button', async () => {
         const btn = screen.getByLabelText('new-group-btn')
         expect(btn).toBeInTheDocument()
+
+        fireEvent.click(btn)        
+
+        const panel = getChatControl()        
+        expect(panel).toBeInTheDocument()
+
+        const nameField = ChatControlGetters.getNameField()
+        expect(nameField).toBeInTheDocument()
+        expect(nameField).not.toBeDisabled()
+
+        const createBtn = ChatControlGetters.getCreateBtn()          
+        expect(createBtn).toBeInTheDocument()
+    })
+
+    test('user closes the panel', () => {
+        const closeBtn = ChatControlGetters.getCloseControlsBtn() 
+        expect(closeBtn).toBeInTheDocument()
+
+        fireEvent.click(closeBtn!)  
+
+        const panel = ChatControlGetters.getPanel()
+        expect(panel).not.toBeInTheDocument()
     })
 })

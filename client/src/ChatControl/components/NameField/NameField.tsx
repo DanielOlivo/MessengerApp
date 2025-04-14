@@ -1,16 +1,17 @@
 import { useApDispatch, useAppSelector } from "../../../app/hooks"
-import { selectIsAdmin, selectIsGroup, selectName } from "../../selectors"
+import { selectIsAdmin, selectIsGroup, selectName, selectState } from "../../selectors"
 import { setName } from "../../slice"
 
 export const NameField = () => {
 
     const dispatch = useApDispatch()
 
+    const state = useAppSelector(selectState)
     const name = useAppSelector(selectName)
     const isGroup = useAppSelector(selectIsGroup)
     const isAdmin = useAppSelector(selectIsAdmin)
 
-    const isEditable = isGroup && isAdmin
+    const isEditable = state === 'onCreate' || isGroup && isAdmin
     const invalidLength = isEditable && name.length < 4
     const invalidPattern = isEditable && !new RegExp(/^[a-zA-Z][a-zA-Z0-9 ]*$/).test(name)
 

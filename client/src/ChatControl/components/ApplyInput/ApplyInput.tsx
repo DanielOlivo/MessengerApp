@@ -16,7 +16,10 @@ export const ApplyInput = () => {
 
     if(state === 'onCreate'){
         return (
-            <div className='flex flex-row justify-center items-center'>
+            <div 
+                className='flex flex-row justify-center items-center'
+                aria-label='apply-input'
+            >
                 <button>Create</button>
             </div>
         )
@@ -24,7 +27,10 @@ export const ApplyInput = () => {
 
     if(!isGroup){
         return (
-            <div className='flex flex-row justify-start items-center h-5'>
+            <div 
+                className='flex flex-row justify-start items-center h-5'
+                aria-label='apply-input'
+            >
                 <button
                     onClick={() => dispatch(setIdle())} 
                 >Ok</button>
@@ -34,7 +40,9 @@ export const ApplyInput = () => {
 
     // onUpdate
     return (
-        <div>
+        <div
+            aria-label='apply-input'
+        >
             <button
                 onClick={() => dispatch(leaveGroup({chatId, userId, actor: userId}))} 
             >Leave</button>

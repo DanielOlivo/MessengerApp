@@ -1,8 +1,8 @@
 import React, { useRef } from 'react'
-import { useApDispatch, useAppSelector } from '../../app/hooks'
-import { selectContactsInGroup, selectContactsNotInGroup, selectIsOnSearch } from '../selectors'
-import { searchContact } from '../slice'
-import { Contact, ContactProps } from './Contact'
+import { useApDispatch, useAppSelector } from '../../../app/hooks'
+import { selectContactsInGroup, selectContactsNotInGroup, selectIsOnSearch } from '../../selectors'
+import { searchContact } from '../../slice'
+import { Contact, ContactProps } from '../Contact/Contact'
 
 export const Membership = () => {
 

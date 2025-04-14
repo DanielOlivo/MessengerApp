@@ -1,8 +1,8 @@
 import React, { useRef } from 'react'
 import { useApDispatch, useAppSelector } from '../app/hooks'
-import { ApplyInput } from './components/ApplyInput'
-import { NameField } from './components/NameField'
-import { Membership } from './components/Membership'
+import { ApplyInput } from './components/ApplyInput/ApplyInput'
+import { NameField } from './components/NameField/NameField'
+import { Membership } from './components/Membership/Membership'
 import { selectIsGroup } from './selectors'
 
 export const Controls = () => {
@@ -11,7 +11,9 @@ export const Controls = () => {
     const isGroup = useAppSelector(selectIsGroup)
 
     return (
-        <div>
+        <div
+            aria-label='chat-control' 
+        >
             <NameField />
             <p>{description}</p>
             {isGroup && <Membership />}
