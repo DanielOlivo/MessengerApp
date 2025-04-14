@@ -46,7 +46,8 @@ export const selectNonMemberProps = createSelector(
 
 export const selectContactsInGroup = createSelector(
     selectGroupMemberIds,
-    selectFiltered,
+    // selectFiltered,
+    selectAllUsers,
     selectState,
     selectIsAdmin,
     (members, users, state, isAdmin): ContactProps[] => {
@@ -65,7 +66,8 @@ export const selectContactsInGroup = createSelector(
 
 export const selectContactsNotInGroup = createSelector(
     selectGroupMemberIds,
-    selectFiltered,
+    // selectFiltered,
+    selectAllUsers,
     selectState,
     selectIsAdmin,
     (members, users, state, isAdmin): ContactProps[] => {

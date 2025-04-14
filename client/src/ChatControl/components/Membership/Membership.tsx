@@ -22,7 +22,9 @@ export const Membership = () => {
     // const inGroup = useAppSelector(select)
 
     return (
-        <div>
+        <div
+            aria-label='membership' 
+        >
             <input 
                 aria-label='contact-search-field'
                 placeholder='search contacts'

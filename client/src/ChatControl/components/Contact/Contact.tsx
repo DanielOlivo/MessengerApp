@@ -15,7 +15,11 @@ export const Contact: FC<ContactProps> = ({userId, editable, inGroup, name, icon
     const dispatch = useApDispatch()
 
     return (
-        <div className='w-full h-8 flex flex-row justify-between items-center'>
+        <div 
+            className='w-full h-8 flex flex-row justify-between items-center'
+            aria-label='contact'
+            data-testid={userId}
+        >
             <img src={iconSrc}  className='w-7 h-7 rounded-full'/>
 
             <label className='flex-grow'>{name}</label>

@@ -64,6 +64,7 @@ const slice = createSlice({
 
         addToGroup: (state, action: PayloadAction<UserId>) => {
             state.inGroup.push(action.payload)
+            return
         },
 
         removeFromGroup: (state, action: PayloadAction<UserId>) => {

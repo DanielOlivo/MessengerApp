@@ -20,7 +20,8 @@ import { selectChat } from './ChatPage/selectors';
 import { ChatData, ChatInfo, handleChatSelection } from './ChatPage/slice';
 import { UserInfoCollection } from './users/slice';
 import { wait } from './utils/wait';
-import { ChatControlGetters } from './utils/testUtils';
+import { ChatControlGetters, ChatListGetters, StoreGetters } from './utils/testUtils';
+import userEvent from '@testing-library/user-event';
 
 
 describe('App', () => {
@@ -353,6 +354,16 @@ describe('App', () => {
         expect(nameField).toBeInTheDocument()
         expect(nameField).not.toBeDisabled()
 
+        const membership = ChatControlGetters.getMembershipDiv()
+        expect(membership).toBeInTheDocument()
+
+
+        const expectedUsers = StoreGetters.getAllUsers(clientStore)
+        for(const info of expectedUsers){
+            const contact = within(membership!).getByText(info.name)
+            expect(contact).toBeInTheDocument()
+        }
+
         const createBtn = ChatControlGetters.getCreateBtn()          
         expect(createBtn).toBeInTheDocument()
     })
@@ -366,4 +377,36 @@ describe('App', () => {
         const panel = ChatControlGetters.getPanel()
         expect(panel).not.toBeInTheDocument()
     })
+
+    test('user opens new group controls again, types name and chooses two other users', () => {
+        const newGroupBtn = ChatListGetters.getNewGroupBtn()
+        expect(newGroupBtn).toBeInTheDocument()
+
+        fireEvent.click(newGroupBtn!)
+
+        const nameField = ChatControlGetters.getNameField() 
+        expect(nameField).toBeInTheDocument()
+
+        fireEvent.change(nameField!, { target: {value: 'My new group'}})
+
+        const expectedUsers = StoreGetters.getAllUsers(clientStore).slice(0, 2)
+        expect(StoreGetters.getInGroup(clientStore).length).toEqual(0)
+
+        const panel = screen.getByLabelText('chat-control')
+        const membership = within(panel).getByLabelText('membership')
+        expect(membership).toBeInTheDocument()
+
+        const item1 = within(membership).getByTestId(expectedUsers[0].id)
+        expect(item1).toBeInTheDocument()
+        const add1 = within(item1).getByRole('button')
+
+        screen.debug(undefined, 10000)
+        fireEvent.click(add1) // this somehow destroys the chat control panel
+        screen.debug(undefined, 10000)
+    })
+
+    // test('membership contains "Members" header', () => {
+    //     const membership = ChatControlGetters.getMembershipDiv()
+    //     expect(membership).toBeInTheDocument()
+    // })
 })
