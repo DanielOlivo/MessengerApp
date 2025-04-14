@@ -21,6 +21,7 @@ export const ChatInput = () => {
                 return
             }
             const req: MessagePostReq = { chatId, content }
+            inputRef.current.value = ''
             dispatch(sendMessage(req))
         }
     }

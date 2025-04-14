@@ -53,13 +53,14 @@ export const selectChatItems = createSelector(
                 unseenCount: 0,
                 selected: chatId === displayedChatId,
                 pinned: isPinned,
-                timestamp: msg.timestamp
+                // timestamp: msg.timestamp,
+                timestamp: dayjs(msg.timestamp).format('hh:mm')
             }
             return result
-        }).sort((item1, item2) => item1.timestamp > item2.timestamp ? -1 : 1).map(item => ({
-            ...item,
-            timestamp: dayjs(item.timestamp).format('hh:mm')
-        }))
+        })//.sort((item1, item2) => item1.timestamp > item2.timestamp ? -1 : 1).map(item => ({
+        //     ...item,
+        //     timestamp: dayjs(item.timestamp).format('hh:mm')
+        // }))
         return items
     }
 )

@@ -3,7 +3,7 @@ import '@testing-library/react/dont-cleanup-after-each'
 import { v4 as uuid } from 'uuid'
 import { faker } from '@faker-js/faker';
 import { describe, test, expect } from "vitest";
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { AppStore, createStore, RootState } from './app/store';
 import { useRState } from './utils/getState';
 import App from './App';
@@ -47,6 +47,9 @@ describe('App', () => {
     const getUsernameField = () => screen.getByLabelText('username-field')
     const getPasswordField = () => screen.getByLabelText('password-field')
     const getSwitchButton = () => screen.getByLabelText('switch-button')
+
+    const getChatList = () => screen.getByLabelText('chat-list')
+    const getChatView = () => screen.getByLabelText('chat-view') 
 
     const getPinnedLabel = () => screen.getByText(/Pinned/)
     const getAllLabel = () => screen.getByText(/All/)
@@ -247,6 +250,8 @@ describe('App', () => {
 
         const item = screen.getAllByText(new RegExp(chatInfo.name))[0]  
         fireEvent.click(item)
+        expect(clientStore.getState().chat.displayedChatId).toEqual(chatId)
+        
 
         const field = getChatInputField()
         const btn = getChatInputSend()
@@ -259,13 +264,22 @@ describe('App', () => {
         const newMessageContent = faker.lorem.sentence()
         fireEvent.change(field, { target: { value: newMessageContent }})
         fireEvent.click(btn)
-
+        expect(clientStore.getState().chat.displayedChatId).toEqual(chatId)
         
         await waitFor(() => expect(getMessageCount(chatId) - count1).toEqual(1))
+        // somehow handleChatSelection triggered
+        expect(clientStore.getState().chat.displayedChatId).toEqual(chatId) // it fails here. why?
 
         // this line still returns error: fix later
+        const chatList = getChatList()
+        const chatView = getChatView() 
+
+        expect(within(chatList).getByText(newMessageContent)).toBeInTheDocument()
+        expect(within(chatView).getByText(newMessageContent)).toBeInTheDocument()
         // to be displayed both at chat view and chat item, as it is a last message
         expect(screen.getAllByText(new RegExp(newMessageContent)).length === 2).toBeTruthy()
+
+        await wait(200)
     })  
 
     test('handle message from other chat', async () => {
@@ -313,14 +327,17 @@ describe('App', () => {
         await waitFor(() => expect(screen.getAllByText(new RegExp(newUser.name)).length === 2).toBeTruthy())
     })
 
-    // test('deselect chat, should be not visible in chat items', async () => {
-    //     clientStore.dispatch(handleChatSelection(''))
+    test('deselect chat, should be not visible in chat items', async () => {
+        clientStore.dispatch(handleChatSelection(''))
+        const searchField = screen.getByLabelText('search-field')
+        fireEvent.change(searchField, { target: { value: ''}})
 
-    //     const newUser = serverState.users.users[userIdToSearch]
-    //     await waitFor(() => expect(screen.queryByText(new RegExp(newUser.name))).not.toBeInTheDocument())
-    // })
+        const newUser = serverState.users.users[userIdToSearch]
+        await waitFor(() => expect(screen.queryByText(new RegExp(newUser.name))).not.toBeInTheDocument())
+    })
 
-    // test('create a group', async () => {
-    //     const btn = screen.getByLabelText('new-group-btn')
-    // })
+    test('user creates a group', async () => {
+        const btn = screen.getByLabelText('new-group-btn')
+        expect(btn).toBeInTheDocument()
+    })
 })

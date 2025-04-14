@@ -26,7 +26,11 @@ export const ChatList = () => {
     }, [])
 
     return (
-        <div className="flex flex-col justify-start items-stretch min-w-[200px] max-w-[400px] max-h-screen">
+        <div 
+            className="flex flex-col justify-start items-stretch min-w-[200px] max-w-[400px] max-h-screen"
+            aria-label="chat-list"
+        >
+
             <SearchBar />
 
             <div className="w-full flex-grow overflow-y-auto">
