@@ -3,6 +3,7 @@ import { UserId, UserInfo } from "shared/src/Types";
 import { login, LoginResponse } from "./thunks";
 import { addInputHandler, addOutputHandler } from "../utils/socketActions";
 import { ChatSliceState, handleInitLoading, initLoading } from "../ChatPage/slice";
+import { Commands } from "shared/src/MiddlewareCommands";
 
 export type UserInfoCollection = { [P: UserId]: UserInfo }
 
@@ -73,11 +74,11 @@ const slice = createSlice({
 export default slice.reducer
 export const { requestUsers, handleUsers, search, handleSearch, disableSearch } = slice.actions
 
-addOutputHandler(requestUsers, 'requestUsers')
-addInputHandler('handleUsers', (users: UserInfoCollection, store) => store.dispatch(handleUsers(users)))
+addOutputHandler(requestUsers, Commands.UsersRequest)
+addInputHandler(Commands.UsersResponse, (users: UserInfoCollection, store) => store.dispatch(handleUsers(users)))
 
-addOutputHandler(initLoading, 'initLoading')
-addInputHandler('initLoadingRes', (state: ChatSliceState, store) => store.dispatch(handleInitLoading(state)))
+// addOutputHandler(initLoading, Commands.InitLoadingRequest)
+// addInputHandler(Commands.InitLoadingResponse, (state: ChatSliceState, store) => store.dispatch(handleInitLoading(state)))
 
-addOutputHandler(search, 'search')
-addInputHandler('handleSearch', (users: UserInfoCollection, store) => store.dispatch(handleSearch(users)))
+addOutputHandler(search, Commands.SearchReq)
+addInputHandler(Commands.SearchRes, (users: UserInfoCollection, store) => store.dispatch(handleSearch(users)))

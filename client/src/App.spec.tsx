@@ -22,6 +22,7 @@ import { wait } from './utils/wait';
 import { ChatControlGetters, ChatListGetters, StoreGetters } from './utils/testUtils';
 import { GroupCreateReq, GroupCreateRes } from 'shared/src/ChatControl';
 import { EditChanges } from './ChatControl/slice';
+import { Commands } from 'shared/src/MiddlewareCommands';
 
 
 describe('App', () => {
@@ -84,26 +85,26 @@ describe('App', () => {
         const res: Message = {
             messageId: uuid(),
             sender: otherChats.find(({chatId: id}) => id === chatId)!.chatId,
-            content: faker.lorem.sentence(),
+            content: faker.lorem.word(),
             timestamp: dayjs().valueOf(),
             chatId
         }
         serverState.chat.messages[res.messageId] = res
         serverState.chat.chatMessageIds[chatId].unshift(res.messageId)
-        io.emit('msgRes', res)
+        io.emit(Commands.MessagePostRes, res)
         return res
     }
 
     io.on('connect', socket => {
-        socket.on('requestUsers', () => {
-            socket.emit('handleUsers', serverState.users.users)
+        socket.on(Commands.UsersRequest, () => {
+            socket.emit(Commands.UsersResponse, serverState.users.users)
         })
 
-        socket.on('initLoading', () => {
-            socket.emit('initLoadingRes', serverState.chat)
+        socket.on(Commands.InitLoadingRequest, () => {
+            socket.emit(Commands.InitLoadingResponse, serverState.chat)
         })
 
-        socket.on('msg', (req: MessagePostReq) => {
+        socket.on(Commands.MessagePostReq, (req: MessagePostReq) => {
             const { chatId, content } = req
             const res: Message = {
                 chatId, content,
@@ -114,17 +115,17 @@ describe('App', () => {
 
             serverState.chat.chatMessageIds[chatId].unshift(res.messageId)
             serverState.chat.messages[res.messageId] = res
-            socket.emit('msgRes', res)
+            socket.emit(Commands.MessagePostRes, res)
         })
 
-        socket.on('search', () => {
+        socket.on(Commands.SearchReq, () => {
             userIdToSearch = addContact()
             const res: UserInfoCollection = { [userIdToSearch]: serverState.users.users[userIdToSearch] }
-            console.log('handleSearch', res)
-            socket.emit('handleSearch', res)
+            // console.log('handleSearch', res)
+            socket.emit(Commands.SearchRes, res)
         })
 
-        socket.on('reqChatWithUser', (userId) => {
+        socket.on(Commands.ChatWithUserReq, (userId) => {
             const chatId = uuid()
             const chatInfo: ChatData = {
                 chatId,
@@ -139,10 +140,10 @@ describe('App', () => {
                 members: [userId],
                 admins: []
             }
-            socket.emit('handleChatWithUser', chatInfo)
+            socket.emit(Commands.ChatWithUserRes, chatInfo)
         })
 
-        socket.on('createGroup', (req: GroupCreateReq) => {
+        socket.on(Commands.GroupCreateReq, (req: GroupCreateReq) => {
 
             const chatId = uuid()
             const timestamp = dayjs().valueOf()
@@ -164,12 +165,11 @@ describe('App', () => {
                 messages: { [message.messageId ]: message }
             }
 
-            //handleGroupCreate
-            socket.emit('handleGroupCreate', res)
+            socket.emit(Commands.GroupCreateRes, res)
         })
 
-        socket.on('applyChanges', (arg: EditChanges) => {
-            socket.emit('groupEdit', arg)
+        socket.on(Commands.GroupEditReq, (arg: EditChanges) => {
+            socket.emit(Commands.GroupEditRes, arg)
         })
     })
 
@@ -266,6 +266,7 @@ describe('App', () => {
         }
     }) 
 
+
     test('select all chat one by one and check messages', () => {
         for(let i = 0; i < otherChats.length; i++){
             const { chatId } = otherChats[i]
@@ -324,6 +325,7 @@ describe('App', () => {
         await wait(200)
     })  
 
+    // sometimes this fails
     test('handle message from other chat', async () => {
         // deselect chat
         clientStore.dispatch(handleChatSelection(''))

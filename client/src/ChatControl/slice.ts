@@ -3,6 +3,7 @@ import { UserId, ChatId, } from "shared/src/Types";
 import { handleUsers, UserInfoCollection } from "../users/slice";
 import { addInputHandler, addOutputHandler } from "../utils/socketActions";
 import { GroupCreateReq } from '@shared/ChatControl'
+import { Commands } from "shared/src/MiddlewareCommands";
 
 export type State = 'idle' | 'onCreate' | 'onUpdate'
 
@@ -164,11 +165,11 @@ export const {
     searchContacts: searchContact, setSearchStatus, handleSearchContact
 } = slice.actions
 
-addInputHandler('handleContactsSearch', (users: UserInfoCollection, store) => {
+addInputHandler(Commands.ContactSearchRes, (users: UserInfoCollection, store) => {
     store.dispatch(handleUsers(users))
     store.dispatch(handleSearchContact(Object.keys(users)))
 })
-addOutputHandler(searchContact, 'searchContacts')
+addOutputHandler(searchContact, Commands.ContactSearchReq)
 
 
 export interface GroupLeaving {
@@ -182,13 +183,13 @@ export interface GroupDelete {
     actor: UserId
 }
 
-addInputHandler('handleLeave', (arg: GroupLeaving, store) => {
+addInputHandler(Commands.LeaveRes, (arg: GroupLeaving, store) => {
     store.dispatch(handleGroupLeave(arg))
 })
-addOutputHandler(leaveGroup, 'leave')
+addOutputHandler(leaveGroup, Commands.LeaveReq)
 
 
-addOutputHandler(createGroup, 'createGroup')
+addOutputHandler(createGroup, Commands.GroupCreateReq)
 // addInputHandler('handleGroupCreate', (res: GroupCreateRes, store) => store.dispatch(handleGroupCreate(res)))
 
-addOutputHandler(applyChanges, 'applyChanges')
+addOutputHandler(applyChanges, Commands.GroupEditReq)

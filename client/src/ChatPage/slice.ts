@@ -8,6 +8,7 @@ import { GroupCreateRes } from "shared/src/ChatControl";
 
 import { addInputHandler, addOutputHandler } from "../utils/socketActions";
 import { EditChanges } from "../ChatControl/slice";
+import { Commands } from "shared/src/MiddlewareCommands";
 
 export type ContainerItem = TextMessageProps
 
@@ -174,6 +175,7 @@ const slice = createSlice({
         sendMessage: (state, action: PayloadAction<MessagePostReq>) => {},
 
         handleMessage: (state, action: PayloadAction<Message>) => {
+            console.log('------------- handling message ---------------')
             const { chatId, sender: userId, messageId, content, timestamp } = action.payload
 
             state.messages[messageId] ={
@@ -260,18 +262,22 @@ export const {
 
 export default slice.reducer
 
-addInputHandler('handleToggle', (args: ChatPinStatus, store) => store.dispatch(handleToggle(args)))
-addOutputHandler(togglePin, 'togglePin')
+addOutputHandler(initLoading, Commands.InitLoadingRequest)
+addInputHandler(Commands.InitLoadingResponse, (res: ChatSliceState, store) => store.dispatch(handleInitLoading(res)))
 
-addInputHandler('handleChatDeletion', (arg: ChatId, store) => store.dispatch(handleChatDeletion(arg)))
-addOutputHandler(deleteChat, 'deleteChat')
+addInputHandler(Commands.TogglePinRes, (args: ChatPinStatus, store) => store.dispatch(handleToggle(args)))
+addOutputHandler(togglePin, Commands.TogglePinReq)
 
-addOutputHandler(sendMessage, 'msg')
-addInputHandler('msgRes', (msg: Message, store) => store.dispatch(handleMessage(msg)))
+addInputHandler(Commands.GroupDeleteRes, (arg: ChatId, store) => store.dispatch(handleChatDeletion(arg)))
+addOutputHandler(deleteChat, Commands.GroupDeleteReq)
 
-addOutputHandler(reqChatWithUser,'reqChatWithUser')
-addInputHandler('handleChatWithUser', (res: ChatData, store) => store.dispatch(handleChatWithUser(res)))
+addOutputHandler(sendMessage, Commands.MessagePostReq)
+addInputHandler(Commands.MessagePostRes, (msg: Message, store) => 
+    store.dispatch(handleMessage(msg)))
 
-addInputHandler('handleGroupCreate', (res: GroupCreateRes, store) => store.dispatch(handleGroupCreate(res)))
+addOutputHandler(reqChatWithUser,Commands.ChatWithUserReq)
+addInputHandler(Commands.ChatWithUserRes, (res: ChatData, store) => store.dispatch(handleChatWithUser(res)))
 
-addInputHandler('groupEdit', (res: EditChanges, store) => store.dispatch(handleChatEdit(res)))
+addInputHandler(Commands.GroupCreateRes, (res: GroupCreateRes, store) => store.dispatch(handleGroupCreate(res)))
+
+addInputHandler(Commands.GroupEditRes, (res: EditChanges, store) => store.dispatch(handleChatEdit(res)))
