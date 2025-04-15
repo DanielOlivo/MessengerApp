@@ -217,8 +217,16 @@ export type StateHook = ReturnType<typeof getState>
 
 // todo: replace getState
 export function getRandomState(){
-    const state = getEmpty()
-    makeUser(state)
-    makeChatWithUser(state)
+    const { state, addChat, makeUser } = getState()
+    makeUser()
+
+    for(let i = 0; i < 4; i++){
+        addChat(true)
+    }
+
+    const ids = Array.from({length: 10}, () => addChat().chatId)
+    const idx = Math.floor(Math.random() * 10) 
+    state.chat.displayedChatId = ids[idx]
+
     return state
 }

@@ -15,7 +15,7 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof Container>
 
-const state = getState()
+const { state } = getState()
 const chatId = Object.keys(state.chat.chatInfo)[0]
 state.chat.displayedChatId = chatId
 

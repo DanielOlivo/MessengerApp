@@ -1,16 +1,13 @@
+import { FC } from "react";
 import { Provider as ReduxProvider } from "react-redux";
 import { PropsWithChildren } from "react";
-import { createStore, RootState } from "../app/store";
-import { DeepPartial, getState } from "./getState";
+import { createStore } from "../app/store";
+import { getRandomState } from "./getState";
 
 
-export interface ProviderProps {
-    state?: DeepPartial<RootState>
-}
-
-export const Provider = ({state, children}: PropsWithChildren<ProviderProps> ) => {
+export const Provider: FC<PropsWithChildren> = ({children}) => {
     return (
-        <ReduxProvider store={createStore(getState(state))}>
+        <ReduxProvider store={createStore(getRandomState())}>
             {children}
         </ReduxProvider>
     )
