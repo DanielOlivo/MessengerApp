@@ -11,7 +11,7 @@ import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 import { setupServer } from 'msw/node';
 import { http, HttpResponse } from 'msw';
-import { ChatId, Credentials, UserAuthData } from 'shared/src/Types';
+import { ChatId, Credentials, UserAuthData, UserId } from 'shared/src/Types';
 import { initSocket } from './features/socket/socketSlice';
 import { getSocketServer } from './utils/getSocketServer';
 import { Message, MessagePostReq } from 'shared/src/Message';
@@ -22,6 +22,7 @@ import { UserInfoCollection } from './users/slice';
 import { wait } from './utils/wait';
 import { ChatControlGetters, ChatListGetters, StoreGetters } from './utils/testUtils';
 import userEvent from '@testing-library/user-event';
+import { GroupCreateReq, GroupCreateRes } from 'shared/src/ChatControl';
 
 
 describe('App', () => {
@@ -35,6 +36,8 @@ describe('App', () => {
 
     let clientState: RootState 
     let clientStore: AppStore
+
+    // let actorId: UserId // this should be held in socket data
 
     const { state: serverState, addChat, addContact } = useRState()
     const otherChats = [
@@ -136,6 +139,32 @@ describe('App', () => {
             }
             socket.emit('handleChatWithUser', chatInfo)
         })
+
+        socket.on('createGroup', (req: GroupCreateReq) => {
+
+            const chatId = uuid()
+            const timestamp = dayjs().valueOf()
+
+            const message: Message = {
+                messageId: uuid(),
+                sender: '',
+                content: `Chat ${req.name} was created`,
+                timestamp,
+                chatId
+            }
+
+            const res: GroupCreateRes = {
+                ...req,
+                id: chatId,
+                // actor: actorId!,
+                created: timestamp,
+                chatMessageIds: [ message.messageId ],
+                messages: { [message.messageId ]: message }
+            }
+
+            //handleGroupCreate
+            socket.emit('handleGroupCreate', res)
+        })
     })
 
     beforeAll(() => {
@@ -218,6 +247,8 @@ describe('App', () => {
 
         await waitFor(() => expect(screen.queryByText(/Login/)).not.toBeInTheDocument())
         server.close()
+
+        // actorId = clientStore.getState().auth.data.id
     }) 
 
     test('ChatList, chat list loaded', async () => {
@@ -400,13 +431,31 @@ describe('App', () => {
         expect(item1).toBeInTheDocument()
         const add1 = within(item1).getByRole('button')
 
-        screen.debug(undefined, 10000)
         fireEvent.click(add1) // this somehow destroys the chat control panel
-        screen.debug(undefined, 10000)
+
+        const item2 = within(membership).getByTestId(expectedUsers[1].id)
+        expect(item2).toBeInTheDocument()
+        const add2 = within(item2).getByRole('button')
+        expect(add2).toBeInTheDocument()
+
+        fireEvent.click(add2)
+
+        const inGroup = clientStore.getState().group.inGroup
+        expect(inGroup.length).toEqual(2)
     })
 
-    // test('membership contains "Members" header', () => {
-    //     const membership = ChatControlGetters.getMembershipDiv()
-    //     expect(membership).toBeInTheDocument()
-    // })
+    test('user presses Create button', async () => {
+        const createBtn = ChatControlGetters.getCreateBtn()
+        expect(createBtn).toBeInTheDocument()
+
+        fireEvent.click(createBtn)
+
+        const panel = screen.queryByLabelText('chat-control')
+        expect(panel).not.toBeInTheDocument()
+
+        await waitFor(() => expect(screen.queryAllByText(/My new group/i).length > 0).toBeTruthy())
+    })
+
+    // todo: test case when someone else creates the group
+
 })

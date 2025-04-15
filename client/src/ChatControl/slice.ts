@@ -1,7 +1,8 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { UserId, ChatId, CreateGroupReq } from "shared/src/Types";
+import { UserId, ChatId, } from "shared/src/Types";
 import { handleUsers, UserInfoCollection } from "../users/slice";
 import { addInputHandler, addOutputHandler } from "../utils/socketActions";
+import { GroupCreateReq, GroupCreateRes } from '@shared/ChatControl'
 
 export type State = 'idle' | 'onCreate' | 'onUpdate'
 
@@ -71,7 +72,18 @@ const slice = createSlice({
             state.inGroup = state.inGroup.filter(id => id !== action.payload)
         },
 
-        createGroup: (state, action: PayloadAction<CreateGroupReq>) => {},
+        createGroup: (state, action: PayloadAction<GroupCreateReq>) => {
+            state.state = 'idle'
+            state.inGroup = [] 
+            state.onSearch = false
+            state.searchResult = []
+            state.name = ''
+        },
+        // handleGroupCreate: (state, action: PayloadAction<GroupCreateRes>) => {
+        //     const { name, admins, members, id, actor, created, chatMessageIds, messages } = action.payload
+            
+        //     // todo
+        // },
 
         applyChanges: (state) => {
             // todo
@@ -119,7 +131,8 @@ export const {
     setName,
     addToGroup, removeFromGroup, 
     leaveGroup, handleGroupLeave,
-    createGroup, deleteGroup,
+    createGroup, handleGroupCreate,
+    deleteGroup,
     searchContacts: searchContact, setSearchStatus, handleSearchContact
 } = slice.actions
 
@@ -146,3 +159,6 @@ addInputHandler('handleLeave', (arg: GroupLeaving, store) => {
 })
 addOutputHandler(leaveGroup, 'leave')
 
+
+addOutputHandler(createGroup, 'createGroup')
+// addInputHandler('handleGroupCreate', (res: GroupCreateRes, store) => store.dispatch(handleGroupCreate(res)))

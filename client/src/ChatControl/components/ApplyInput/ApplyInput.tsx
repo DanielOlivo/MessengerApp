@@ -1,6 +1,6 @@
 import { useApDispatch, useAppSelector } from '../../../app/hooks'
-import { leaveGroup, deleteGroup, setIdle } from '../../slice'
-import { selectChatId, selectIsAdmin, selectIsGroup, selectState } from '../../selectors'
+import { leaveGroup, deleteGroup, setIdle, createGroup } from '../../slice'
+import { selectChatId, selectGroupMemberIds, selectIsAdmin, selectIsGroup, selectName, selectState } from '../../selectors'
 import { selectUserId } from '../../../Auth/selectors'
 
 export const ApplyInput = () => {
@@ -14,13 +14,22 @@ export const ApplyInput = () => {
     const isAdmin = useAppSelector(selectIsAdmin)
     const state = useAppSelector(selectState)
 
+    const name = useAppSelector(selectName)
+    const inGroup = useAppSelector(selectGroupMemberIds)
+
     if(state === 'onCreate'){
         return (
             <div 
                 className='flex flex-row justify-center items-center'
                 aria-label='apply-input'
             >
-                <button>Create</button>
+                <button
+                    onClick={() => dispatch(createGroup({
+                        name, 
+                        admin: [ userId],
+                        members: inGroup
+                    }))} 
+                >Create</button>
             </div>
         )
     }

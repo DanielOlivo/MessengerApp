@@ -210,9 +210,6 @@ const socketMiddleware: Middleware = (store) => {
         //     socket.socket.emit(Commands.ContactsReq, '')
         // }
 
-        // if(createGroup.match(action) && socket){
-        //     socket.socket.emit(Commands.NewGroupReq, action.payload)
-        // }
 
         return next(action)
     }

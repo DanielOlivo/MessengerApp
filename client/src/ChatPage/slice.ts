@@ -4,6 +4,7 @@ import { ChatId, ChatPinStatus, MessageId, Typing, UserData, UserId } from "@sha
 import { Message, MessagePostReq } from "shared/src/Message";
 import { TextMessageProps } from "./components/ChatView/components/TextMessage/TextMessage";
 import { MessageStatusUpdate } from "@shared/Types";
+import { GroupCreateRes } from "shared/src/ChatControl";
 
 import { addInputHandler, addOutputHandler } from "../utils/socketActions";
 
@@ -102,6 +103,23 @@ const slice = createSlice({
             delete state.chatMessageIds[action.payload]
         },
 
+
+        handleGroupCreate: (state, action: PayloadAction<GroupCreateRes>) => {
+            const { name, admins, id, chatMessageIds, messages } = action.payload
+
+            state.chatInfo[id] =  {
+                name,
+                iconSrc: '',
+                status: 'group'
+            }
+
+            state.messages = {
+                ...state.messages,
+                ...messages
+            }
+
+            state.chatMessageIds[id] = chatMessageIds
+        },
 
         // ------------------ toggle pin ------------------------------
 
@@ -211,6 +229,7 @@ export const {
     initLoading, handleInitLoading,
     handleMessageStatusUpdate, 
     handleMessage, sendMessage,
+    handleGroupCreate,
     reqChatWithUser, handleChatWithUser,
     togglePin, handleToggle,
     sendTyping, handleTyping,
@@ -232,3 +251,5 @@ addInputHandler('msgRes', (msg: Message, store) => store.dispatch(handleMessage(
 
 addOutputHandler(reqChatWithUser,'reqChatWithUser')
 addInputHandler('handleChatWithUser', (res: ChatData, store) => store.dispatch(handleChatWithUser(res)))
+
+addInputHandler('handleGroupCreate', (res: GroupCreateRes, store) => store.dispatch(handleGroupCreate(res)))
