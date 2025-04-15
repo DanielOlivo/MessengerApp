@@ -36,6 +36,8 @@ export function getState(state?: DeepPartial<RootState>): RootState {
             chatInfo: state?.chat?.chatInfo as {[P in ChatId]: ChatInfo} ?? chat.chatInfo,
             messages: state?.chat?.messages as {[P in MessageId]: Message} ?? chat.messages,
             unseenCount: state?.chat?.unseenCount as {[P in ChatId]: number} ?? chat.unseenCount,
+            members: {},
+            admins: {},
             pinned: state?.chat?.pinned ?? chat.pinned,
             displayedChatId: state?.chat?.displayedChatId ?? chat.displayedChatId,
             typing: state?.chat?.typing as {[P in ChatId]: {[U in UserId]: number}} ?? chat.typing,
@@ -131,7 +133,13 @@ export function useRState(){
         state.chat.chatInfo[chatId] = {
             name: state.users.users[otherId].name,
             iconSrc: state.users.users[otherId].iconSrc,
-            status: 'online'
+            status: 'online',
+            isGroup: false
+        }
+
+        state.chat.members = {
+            ...state.chat.members,
+            [chatId]: [ otherId ]
         }
 
         if(pinned){
@@ -176,6 +184,8 @@ export function getEmpty(): RootState {
             chatMessageIds: {},
             chatInfo: {},
             messages: {},
+            members: {},
+            admins: {},
             unseenCount: {},
             pinned:[],
             displayedChatId: '',
@@ -262,7 +272,8 @@ export function makeChatWithUser(state: RootState): void {
     state.chat.chatInfo[chatId] = {
         name: state.users.users[otherId].name,
         iconSrc: state.users.users[otherId].iconSrc,
-        status: 'online'
+        status: 'online',
+        isGroup: false
     }
 
     state.chat.chatMessageIds[chatId] = messages.map(msg => msg.messageId)

@@ -1,6 +1,7 @@
 import { useAppSelector } from "../../../../app/hooks"
 import { Icon } from "../../../../common/Icon"
 import { selectCurrentChatId, selectHeaderIcon, selectHeaderStatus, selectHeaderTitle } from '../../../selectors'
+import { ChatInfoButton } from "./ChatInfoButton/ChatInfoButton"
 
 
 export const Header = () => {
@@ -24,6 +25,8 @@ export const Header = () => {
                     <p>{name}</p>
                     <p>{status}</p>
                 </div>
+
+                <ChatInfoButton />
             </div>
 
             <div>

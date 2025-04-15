@@ -25,6 +25,13 @@ export interface GroupSliceState {
     searchResult: UserId[]
 }
 
+export interface EditState {
+    chatId: ChatId
+    isGroup: boolean
+    isAdmin: boolean 
+    name: string
+}
+
 const initialState: GroupSliceState = {
     state: 'idle',
     isGroup: true,
@@ -55,6 +62,12 @@ const slice = createSlice({
             state.state = 'onCreate'
         },
 
+        setEdit: (state, action: PayloadAction<EditState>) => {
+            // const { chatId, isAdmin, name, isGroup } = action.payload
+            // return { ...state, name, isAdmin, isGroup, chatId}
+            return { ...state, ...action.payload }
+        },
+
         setState: (state, action: PayloadAction<State>) => {
             state.state = action.payload
         },
@@ -79,11 +92,6 @@ const slice = createSlice({
             state.searchResult = []
             state.name = ''
         },
-        // handleGroupCreate: (state, action: PayloadAction<GroupCreateRes>) => {
-        //     const { name, admins, members, id, actor, created, chatMessageIds, messages } = action.payload
-            
-        //     // todo
-        // },
 
         applyChanges: (state) => {
             // todo
@@ -126,12 +134,12 @@ const slice = createSlice({
 
 export default slice.reducer
 export const {  
-    setIdle, setCreate,
+    setIdle, setCreate, setEdit,
     setState,
     setName,
     addToGroup, removeFromGroup, 
     leaveGroup, handleGroupLeave,
-    createGroup, handleGroupCreate,
+    createGroup,
     deleteGroup,
     searchContacts: searchContact, setSearchStatus, handleSearchContact
 } = slice.actions

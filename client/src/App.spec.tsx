@@ -457,5 +457,16 @@ describe('App', () => {
     })
 
     // todo: test case when someone else creates the group
+    test('"My new group" is being renamed', async () => {
+        const item = screen.getAllByText(/My new group/)[0]
+        expect(item).toBeInTheDocument()
+
+        fireEvent.click(item)
+
+        const header = screen.getByLabelText('header')
+        expect(header).toBeInTheDocument()
+
+        expect(within(header).getByText(/My new group/)).toBeInTheDocument()
+    })
 
 })

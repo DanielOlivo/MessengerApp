@@ -3,6 +3,8 @@ import { RootState } from "../app/store";
 import { selectAllUsers, selectFiltered } from "../users/selectors";
 import { UserId, UserInfo } from "shared/src/Types";
 import { ContactProps } from "./components/Contact";
+import { selectUserId } from "../Auth/selectors";
+import { EditState } from "./slice";
 
 export const selectState = (state: RootState) => state.group.state
 export const selectChatId = (state: RootState) => state.group.chatId
@@ -79,4 +81,21 @@ export const selectContactsNotInGroup = createSelector(
             inGroup: false
         }))
     } 
+)
+
+
+const selectChat = (state: RootState) => state.chat
+export const selectEditButtonArg = createSelector(
+    selectChat,
+    selectUserId,
+    (chat, userId): EditState => {
+        const chatId = chat.displayedChatId
+        
+        return {
+            chatId,
+            isAdmin: chat.admins[chatId].includes(userId),
+            name: chat.chatInfo[chatId].name,
+            isGroup: chat.chatInfo[chatId].isGroup   
+        }
+    }
 )

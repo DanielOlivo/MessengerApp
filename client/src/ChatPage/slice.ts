@@ -14,6 +14,7 @@ export interface ChatInfo {
     name: string
     iconSrc: string
     status: string // (n) online | offline 
+    isGroup: boolean
 }
 
 export interface ChatData {
@@ -28,6 +29,8 @@ export interface ChatSliceState {
     chatInfo: { [P in ChatId]: ChatInfo}
     messages: { [P in MessageId] : Message}
     unseenCount: { [P in ChatId] : number}
+    members: { [P: ChatId]: UserId[]}
+    admins: { [P: ChatId]: UserId[] }
     pinned: ChatId[],
     displayedChatId: ChatId,
     typing: {[P in ChatId]: {[U in UserId]: number}}
@@ -38,6 +41,8 @@ const initialState: ChatSliceState = {
     chatMessageIds: {},
     chatInfo: {},
     messages: {},
+    members: {},
+    admins: {},
     unseenCount: {},
     pinned: [],
     displayedChatId: '',
