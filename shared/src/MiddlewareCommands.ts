@@ -1,9 +1,41 @@
 export const enum Commands {
-    ChatListReq = 'clrq',
-    ChatListRes = 'clrs',
+
+    UsersRequest = 'urq', 
+    UsersResponse = 'urs', 
+
+    InitLoadingRequest = 'ilrq',
+    InitLoadingResponse = 'ilrs', 
+
+    MessagePostReq = 'mprq',
+    MessagePostRes = 'mprs',
 
     SearchReq = 'schrq',
     SearchRes = 'schrs',
+
+    ChatWithUserReq = 'cwurq',
+    ChatWithUserRes = 'swurs',
+
+    GroupCreateReq = 'gcrq',
+    GroupCreateRes = 'gcrs',
+
+    GroupEditReq = 'gerq',
+    GroupEditRes = 'gers',
+
+    GroupDeleteReq = 'gdrq',
+    GroupDeleteRes = 'gdrs',
+
+    LeaveReq = 'lrq',
+    LeaveRes = 'lrs', 
+
+    TogglePinReq = 'tprq',
+    TogglePinRes = 'tprs',
+
+
+    // -------------- old -------------
+
+    ChatListReq = 'clrq',
+    ChatListRes = 'clrs',
+
 
     ChatSelectionWithUser = 'cswurq',
     ChatSelectionReq = 'csrq',
