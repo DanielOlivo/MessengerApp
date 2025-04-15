@@ -16,13 +16,12 @@ import { initSocket } from './features/socket/socketSlice';
 import { getSocketServer } from './utils/getSocketServer';
 import { Message, MessagePostReq } from 'shared/src/Message';
 import dayjs from 'dayjs';
-import { selectChat } from './ChatPage/selectors';
-import { ChatData, ChatInfo, handleChatSelection } from './ChatPage/slice';
+import { ChatData, handleChatSelection } from './ChatPage/slice';
 import { UserInfoCollection } from './users/slice';
 import { wait } from './utils/wait';
 import { ChatControlGetters, ChatListGetters, StoreGetters } from './utils/testUtils';
-import userEvent from '@testing-library/user-event';
 import { GroupCreateReq, GroupCreateRes } from 'shared/src/ChatControl';
+import { EditChanges } from './ChatControl/slice';
 
 
 describe('App', () => {
@@ -63,7 +62,7 @@ describe('App', () => {
     const getChatInputSend = () => screen.getByLabelText('chat-input-send')
 
     const getChatControl = () => screen.queryByLabelText('chat-control')
-    const getNameField = () => screen.queryByLabelText('chat-control-name-field') 
+    // const getNameField = () => screen.queryByLabelText('chat-control-name-field') 
 
     const getMessageCount = (chatId: ChatId) => clientStore.getState().chat.chatMessageIds[chatId].length
 
@@ -125,17 +124,20 @@ describe('App', () => {
             socket.emit('handleSearch', res)
         })
 
-        socket.on('reqChatWithUser', userId => {
+        socket.on('reqChatWithUser', (userId) => {
             const chatId = uuid()
             const chatInfo: ChatData = {
                 chatId,
                 info: {
                     name: serverState.users.users[userIdToSearch].name,
                     iconSrc: '',
-                    status: 'online'
+                    status: 'online',
+                    isGroup: false
                 },
                 messages: {},
-                chatMessageIds: { [chatId]: [] } 
+                chatMessageIds: { [chatId]: [] } ,
+                members: [userId],
+                admins: []
             }
             socket.emit('handleChatWithUser', chatInfo)
         })
@@ -164,6 +166,10 @@ describe('App', () => {
 
             //handleGroupCreate
             socket.emit('handleGroupCreate', res)
+        })
+
+        socket.on('applyChanges', (arg: EditChanges) => {
+            socket.emit('groupEdit', arg)
         })
     })
 
@@ -457,6 +463,7 @@ describe('App', () => {
     })
 
     // todo: test case when someone else creates the group
+
     test('"My new group" is being renamed', async () => {
         const item = screen.getAllByText(/My new group/)[0]
         expect(item).toBeInTheDocument()
@@ -467,6 +474,29 @@ describe('App', () => {
         expect(header).toBeInTheDocument()
 
         expect(within(header).getByText(/My new group/)).toBeInTheDocument()
+        const btn = within(header).getByLabelText('chat-info-button')
+        expect(btn).toBeInTheDocument()
+
+        fireEvent.click(btn)
+
+        const panel = screen.getByLabelText('chat-control')
+        expect(panel).toBeInTheDocument()
+
+        const nameField = screen.getByLabelText('chat-control-name-field') 
+        expect(nameField).toBeInTheDocument()
+
+        fireEvent.change(nameField, {target: { value: 'GROUP2' }})
+
+        const applyBtn = within(panel).getByText(/Apply/)   
+        expect(applyBtn).toBeInTheDocument()
+
+        fireEvent.click(applyBtn)
+
+        expect(screen.queryByLabelText('chat-control')).not.toBeInTheDocument()
+
+        await waitFor(() => expect(screen.getAllByText('GROUP2').length > 0).toBeTruthy())
     })
+
+
 
 })

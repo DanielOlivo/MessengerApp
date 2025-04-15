@@ -1,5 +1,4 @@
-import React, { useRef } from 'react'
-import { useApDispatch, useAppSelector } from '../app/hooks'
+import { useAppSelector } from '../app/hooks'
 import { ApplyInput } from './components/ApplyInput/ApplyInput'
 import { NameField } from './components/NameField/NameField'
 import { Membership } from './components/Membership/Membership'

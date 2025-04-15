@@ -7,6 +7,7 @@ import { MessageStatusUpdate } from "@shared/Types";
 import { GroupCreateRes } from "shared/src/ChatControl";
 
 import { addInputHandler, addOutputHandler } from "../utils/socketActions";
+import { EditChanges } from "../ChatControl/slice";
 
 export type ContainerItem = TextMessageProps
 
@@ -22,7 +23,16 @@ export interface ChatData {
     info: ChatInfo
     chatMessageIds: { [P: ChatId]: MessageId[]}
     messages: { [P in MessageId] : Message}
+    members: UserId[]
+    admins: UserId[]
 }
+
+// export interface ChatUpdate {
+//     chatId: ChatId
+//     name: string
+//     members: UserId[]
+//     admins: UserId[]
+// }
 
 export interface ChatSliceState {
     chatMessageIds: { [P: ChatId]: MessageId[]}
@@ -83,16 +93,12 @@ const slice = createSlice({
         // --------------- chats ---------------------
 
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        handleAllChats: (state, action) => {
-            // todo
-        },
+        handleAllChats: (state, action) => {},
+
 
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        // handleChatUpdate: (state, action: PayloadAction<ChatData>) => {
-        //     // todo
-        // },
-
         reqChatWithUser: (state, action: PayloadAction<UserId>) => {},
+
         handleChatWithUser: (state, action: PayloadAction<ChatData>) => {
             const { chatId, info, messages, chatMessageIds } = action.payload
             state.displayedChatId = chatId
@@ -110,12 +116,13 @@ const slice = createSlice({
 
 
         handleGroupCreate: (state, action: PayloadAction<GroupCreateRes>) => {
-            const { name, admins, id, chatMessageIds, messages } = action.payload
+            const { name, members, admins, id, chatMessageIds, messages } = action.payload
 
             state.chatInfo[id] =  {
                 name,
                 iconSrc: '',
-                status: 'group'
+                status: 'group',
+                isGroup: true
             }
 
             state.messages = {
@@ -123,7 +130,17 @@ const slice = createSlice({
                 ...messages
             }
 
+            state.members[id] = members
+            state.admins[id] = admins
+
             state.chatMessageIds[id] = chatMessageIds
+        },
+
+        handleChatEdit: (state, action: PayloadAction<EditChanges>) => {
+            const { chatId, name, members, admins } = action.payload
+            state.chatInfo[chatId].name = name
+            state.members[chatId] = members
+            state.admins[chatId] = admins
         },
 
         // ------------------ toggle pin ------------------------------
@@ -180,9 +197,6 @@ const slice = createSlice({
             // todo
         },
 
-
-
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         handleChatSelection: (state, action: PayloadAction<ChatId>) => {
             state.displayedChatId = action.payload
         },
@@ -235,6 +249,7 @@ export const {
     handleMessageStatusUpdate, 
     handleMessage, sendMessage,
     handleGroupCreate,
+    handleChatEdit,
     reqChatWithUser, handleChatWithUser,
     togglePin, handleToggle,
     sendTyping, handleTyping,
@@ -258,3 +273,5 @@ addOutputHandler(reqChatWithUser,'reqChatWithUser')
 addInputHandler('handleChatWithUser', (res: ChatData, store) => store.dispatch(handleChatWithUser(res)))
 
 addInputHandler('handleGroupCreate', (res: GroupCreateRes, store) => store.dispatch(handleGroupCreate(res)))
+
+addInputHandler('groupEdit', (res: EditChanges, store) => store.dispatch(handleChatEdit(res)))

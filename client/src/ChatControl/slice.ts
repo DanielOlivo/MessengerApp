@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { UserId, ChatId, } from "shared/src/Types";
 import { handleUsers, UserInfoCollection } from "../users/slice";
 import { addInputHandler, addOutputHandler } from "../utils/socketActions";
-import { GroupCreateReq, GroupCreateRes } from '@shared/ChatControl'
+import { GroupCreateReq } from '@shared/ChatControl'
 
 export type State = 'idle' | 'onCreate' | 'onUpdate'
 
@@ -17,6 +17,7 @@ export interface GroupSliceState {
     isGroup: boolean
     chatId: string
     isAdmin: boolean
+    admins: UserId[]
 
     name: string
     inGroup: UserId[]
@@ -30,6 +31,15 @@ export interface EditState {
     isGroup: boolean
     isAdmin: boolean 
     name: string
+    members: UserId[]
+    admins: UserId[] 
+}
+
+export interface EditChanges {
+    chatId: ChatId
+    name: string
+    members: UserId[]
+    admins: UserId[]
 }
 
 const initialState: GroupSliceState = {
@@ -37,7 +47,7 @@ const initialState: GroupSliceState = {
     isGroup: true,
     chatId: '',
     isAdmin: false,
-
+    admins: [],
     name: '',
     inGroup: [],
 
@@ -63,9 +73,7 @@ const slice = createSlice({
         },
 
         setEdit: (state, action: PayloadAction<EditState>) => {
-            // const { chatId, isAdmin, name, isGroup } = action.payload
-            // return { ...state, name, isAdmin, isGroup, chatId}
-            return { ...state, ...action.payload }
+            return { ...state, ...action.payload, state: 'onUpdate' }
         },
 
         setState: (state, action: PayloadAction<State>) => {
@@ -85,6 +93,7 @@ const slice = createSlice({
             state.inGroup = state.inGroup.filter(id => id !== action.payload)
         },
 
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         createGroup: (state, action: PayloadAction<GroupCreateReq>) => {
             state.state = 'idle'
             state.inGroup = [] 
@@ -93,15 +102,22 @@ const slice = createSlice({
             state.name = ''
         },
 
-        applyChanges: (state) => {
-            // todo
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        applyChanges: (state, action: PayloadAction<EditChanges>) => {
+            state.state = 'idle'
+            state.inGroup = [] 
+            state.onSearch = false
+            state.searchResult = []
+            state.name = ''
         },
 
 
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         deleteGroup: (state, action: PayloadAction<GroupDelete>) => {
             // todo
         },
 
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         handleGroupDelete: (state, action: PayloadAction<GroupDelete>) => {
             // todo
             if(state.state !== 'idle'){
@@ -109,9 +125,12 @@ const slice = createSlice({
             }
         },
 
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         leaveGroup: (state, action: PayloadAction<GroupLeaving>) => {
             // todo
         },
+
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         handleGroupLeave: (state, action: PayloadAction<GroupLeaving>) => {
             // todo
 
@@ -140,6 +159,7 @@ export const {
     addToGroup, removeFromGroup, 
     leaveGroup, handleGroupLeave,
     createGroup,
+    applyChanges,
     deleteGroup,
     searchContacts: searchContact, setSearchStatus, handleSearchContact
 } = slice.actions
@@ -170,3 +190,5 @@ addOutputHandler(leaveGroup, 'leave')
 
 addOutputHandler(createGroup, 'createGroup')
 // addInputHandler('handleGroupCreate', (res: GroupCreateRes, store) => store.dispatch(handleGroupCreate(res)))
+
+addOutputHandler(applyChanges, 'applyChanges')

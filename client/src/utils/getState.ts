@@ -2,7 +2,6 @@ import { RootState } from "../app/store";
 import { ChatId, MessageId, UserId, UserInfo } from "../../../shared/src/Types";
 import { getRandomSliceState } from "../ChatPage/utils";
 import { ChatInfo } from "../ChatPage/slice";
-// import { TextMessageProps } from "../ChatPage/components/ChatView/components/TextMessage/TextMessage";
 import { Message } from "shared/src/Message";
 import { getDefault } from "../ChatControl/utils";
 import { getRandomUsers } from "../users/utils";
@@ -49,6 +48,7 @@ export function getState(state?: DeepPartial<RootState>): RootState {
             state: state?.group?.state ?? defaultGroup.state,
             chatId: state?.group?.chatId ?? defaultGroup.chatId,
             isAdmin: state?.group?.isAdmin ?? defaultGroup.isAdmin,
+            admins: [],
             inGroup: state?.group?.inGroup ?? defaultGroup.inGroup,
             onSearch: state?.group?.onSearch ?? defaultGroup.onSearch,
             searchResult: state?.group?.searchResult ?? defaultGroup.searchResult
@@ -198,6 +198,7 @@ export function getEmpty(): RootState {
             chatId: '',
             name: '',
             isAdmin: false,
+            admins: [],
             inGroup: [],
             onSearch: false,
             searchResult: []

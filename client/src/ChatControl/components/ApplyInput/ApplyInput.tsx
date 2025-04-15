@@ -1,6 +1,6 @@
 import { useApDispatch, useAppSelector } from '../../../app/hooks'
-import { leaveGroup, deleteGroup, setIdle, createGroup } from '../../slice'
-import { selectChatId, selectGroupMemberIds, selectIsAdmin, selectIsGroup, selectName, selectState } from '../../selectors'
+import { leaveGroup, deleteGroup, setIdle, createGroup, applyChanges } from '../../slice'
+import { selectChatId, selectCurrentState, selectGroupMemberIds, selectIsAdmin, selectIsGroup, selectName, selectState } from '../../selectors'
 import { selectUserId } from '../../../Auth/selectors'
 
 export const ApplyInput = () => {
@@ -17,6 +17,8 @@ export const ApplyInput = () => {
     const name = useAppSelector(selectName)
     const inGroup = useAppSelector(selectGroupMemberIds)
 
+    const editChanges = useAppSelector(selectCurrentState)
+
     if(state === 'onCreate'){
         return (
             <div 
@@ -26,7 +28,7 @@ export const ApplyInput = () => {
                 <button
                     onClick={() => dispatch(createGroup({
                         name, 
-                        admin: [ userId],
+                        admins: [ userId],
                         members: inGroup
                     }))} 
                 >Create</button>
@@ -56,9 +58,14 @@ export const ApplyInput = () => {
                 onClick={() => dispatch(leaveGroup({chatId, userId, actor: userId}))} 
             >Leave</button>
             {isAdmin && (
-                <button
-                    onClick={() => dispatch(deleteGroup({ chatId, actor: userId }))} 
-                >Delete</button>
+                <>
+                    <button
+                        onClick={() => dispatch(deleteGroup({ chatId, actor: userId }))} 
+                    >Delete</button>
+                    <button 
+                        onClick={() => dispatch(applyChanges(editChanges))}
+                    >Apply</button>
+                </>
             )}
             <button
                 onClick={() => dispatch(setIdle())} 

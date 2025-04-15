@@ -1,10 +1,9 @@
 import { createSelector } from "@reduxjs/toolkit";
 import { RootState } from "../app/store";
-import { selectAllUsers, selectFiltered } from "../users/selectors";
-import { UserId, UserInfo } from "shared/src/Types";
-import { ContactProps } from "./components/Contact";
+import { selectAllUsers } from "../users/selectors";
+import { ContactProps } from "./components/Contact/Contact";
 import { selectUserId } from "../Auth/selectors";
-import { EditState } from "./slice";
+import { EditChanges, EditState } from "./slice";
 
 export const selectState = (state: RootState) => state.group.state
 export const selectChatId = (state: RootState) => state.group.chatId
@@ -90,12 +89,31 @@ export const selectEditButtonArg = createSelector(
     selectUserId,
     (chat, userId): EditState => {
         const chatId = chat.displayedChatId
-        
+        const isGroup = chat.chatInfo[chatId].isGroup   
+        const isAdmin = chatId in chat.admins ? chat.admins[chatId].includes(userId) : false        
+        const members = chat.members[chatId]
+        const admins = chat.admins[chatId]
+
         return {
             chatId,
-            isAdmin: chat.admins[chatId].includes(userId),
             name: chat.chatInfo[chatId].name,
-            isGroup: chat.chatInfo[chatId].isGroup   
+            isGroup,
+            isAdmin,
+            members, 
+            admins 
+        }
+    }
+)
+
+const selectSlice = (state: RootState) => state.group
+export const selectCurrentState = createSelector(
+    selectSlice,
+    (state): EditChanges => {
+        return {
+            chatId: state.chatId,
+            name: state.name,
+            members: state.inGroup,
+            admins: state.admins
         }
     }
 )
