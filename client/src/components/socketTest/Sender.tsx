@@ -1,7 +1,7 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect } from 'react'
 import { useApDispatch, useAppSelector } from '../../app/hooks'
 import { sendNumber } from '../../ChatPage/slice'
-import { connectionEstablished, initSocket } from '../../features/socket/socketSlice'
+import { initSocket } from '../../features/socket/socketSlice'
 import { selectConnectionStatus } from '../../features/socket/selectors'
 
 

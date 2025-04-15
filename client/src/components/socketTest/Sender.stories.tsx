@@ -1,11 +1,7 @@
 import type {Meta, StoryObj} from '@storybook/react'
 import { Sender } from './Sender'
 import { Provider } from '../../utils/Provider'
-import { http, WebSocketHandler, ws } from 'msw'
-import { toSocketIo } from '@mswjs/socket.io-binding'
-import { WebSocketInterceptor } from '@mswjs/interceptors/WebSocket'
-import { createServer } from 'node:http'
-import { Server } from 'socket.io'
+import { http, ws } from 'msw'
 
 const meta = {
   title: 'testing/sender',

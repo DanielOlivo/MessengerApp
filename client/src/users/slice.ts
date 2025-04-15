@@ -1,8 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { UserId, UserInfo } from "shared/src/Types";
-import { login, LoginResponse } from "./thunks";
 import { addInputHandler, addOutputHandler } from "../utils/socketActions";
-import { ChatSliceState, handleInitLoading, initLoading } from "../ChatPage/slice";
 import { Commands } from "shared/src/MiddlewareCommands";
 
 export type UserInfoCollection = { [P: UserId]: UserInfo }
@@ -57,18 +55,6 @@ const slice = createSlice({
             state.searchResult = []
         } 
     },
-    extraReducers: (builder) => {
-        builder
-            .addCase(login.pending, (state) => {
-
-            })
-            .addCase(login.rejected, (state) => {
-
-            })
-            .addCase(login.fulfilled, (state, action: PayloadAction<LoginResponse>) => {
-
-            })
-    }
 })
 
 export default slice.reducer
@@ -76,9 +62,6 @@ export const { requestUsers, handleUsers, search, handleSearch, disableSearch } 
 
 addOutputHandler(requestUsers, Commands.UsersRequest)
 addInputHandler(Commands.UsersResponse, (users: UserInfoCollection, store) => store.dispatch(handleUsers(users)))
-
-// addOutputHandler(initLoading, Commands.InitLoadingRequest)
-// addInputHandler(Commands.InitLoadingResponse, (state: ChatSliceState, store) => store.dispatch(handleInitLoading(state)))
 
 addOutputHandler(search, Commands.SearchReq)
 addInputHandler(Commands.SearchRes, (users: UserInfoCollection, store) => store.dispatch(handleSearch(users)))
