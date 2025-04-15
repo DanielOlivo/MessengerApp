@@ -5,6 +5,7 @@ import { v4 as uuid } from 'uuid'
 import { getState } from '../../utils/getState'
 import { createStore } from '../../app/store'
 import { Provider } from 'react-redux'
+import { BrowserRouter } from 'react-router-dom'
 
 const meta = {
   title: 'Auth/Auth',
@@ -26,7 +27,15 @@ const store = createStore(state)
 
 export const Primary: Story = {
   decorators: [
-    (Story) => <Provider store={store} ><div className='w-[500px] h-[500px]'><Story /></div></Provider>
+    (Story) => (
+      <BrowserRouter>
+        <Provider store={store} >
+          <div className='w-[500px] h-[500px]'>
+            <Story />
+          </div>
+        </Provider>
+      </BrowserRouter>
+    )
   ],
   parameters: {
     msw: {
