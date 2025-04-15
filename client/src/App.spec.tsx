@@ -5,7 +5,7 @@ import { faker } from '@faker-js/faker';
 import { describe, test, expect } from "vitest";
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { AppStore, createStore, RootState } from './app/store';
-import { useRState } from './utils/getState';
+import { getState } from './utils/getState';
 import App from './App';
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
@@ -39,7 +39,7 @@ describe('App', () => {
 
     // let actorId: UserId // this should be held in socket data
 
-    const { state: serverState, addChat, addContact } = useRState()
+    const { state: serverState, addChat, addContact } = getState()
     const otherChats = [
         addChat(false),
         addChat(false),
@@ -176,7 +176,7 @@ describe('App', () => {
     beforeAll(() => {
         server.listen()
 
-        const { state } = useRState()
+        const { state } = getState()
         clientState = state
 
         clientStore = createStore(clientState) 

@@ -1,13 +1,13 @@
 import { describe, test, expect } from "vitest";
 import { fireEvent, render, screen } from '@testing-library/react'
-import { useRState } from "../../../utils/getState";
+import { getState } from "../../../utils/getState";
 import { createStore } from "../../../app/store";
 import { Provider } from "react-redux";
 import { NameField } from "./NameField";
 
 describe('NameField', () => {
     test('field is disabled when dm', () => {
-        const { state } = useRState()
+        const { state } = getState()
         state.group.isGroup = false
         const store = createStore(state)
         render(<Provider store={store}><NameField /></Provider>)
@@ -17,7 +17,7 @@ describe('NameField', () => {
     })
 
     test('field is disabled when chat is group, but user is not admin', () => {
-        const { state } = useRState()
+        const { state } = getState()
         state.group.isGroup = true
         state.group.isAdmin = false
         const store = createStore(state)
@@ -28,7 +28,7 @@ describe('NameField', () => {
     })
 
     test('field is enabled when chat is group and user is admin', () => {
-        const { state } = useRState()
+        const { state } = getState()
         state.group.isGroup = true
         state.group.isAdmin = true
         const store = createStore(state)
@@ -39,7 +39,7 @@ describe('NameField', () => {
     })
 
     test('field value affects store state', () => {
-        const { state } = useRState()
+        const { state } = getState()
         state.group = {...state.group, isAdmin: true, isGroup: true}
         const store = createStore(state)
 

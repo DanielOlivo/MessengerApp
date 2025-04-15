@@ -1,7 +1,7 @@
 import { v4 as uuid } from "uuid";
 import { describe, test, expect } from "vitest";
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
-import { useRState } from "../../utils/getState";
+import { getState } from "../../utils/getState";
 import { createStore } from "../../app/store";
 import { Provider } from "react-redux";
 import { ChatList } from "../../ChatPage/components/ChatList/ChatList";
@@ -23,12 +23,12 @@ describe('Create group window', () => {
 
         const io = getSocketServer() 
         io.on('connection', socket => {
-            socket.on('searchContacts', term => {
+            socket.on('searchContacts', () => {
                 socket.emit('handleContactsSearch', collection)
             })
         })
 
-        const { state, addContact } = useRState()
+        const { state, addContact } = getState()
         const userId = addContact()
         const store = createStore(state, false)
 
@@ -73,7 +73,7 @@ describe('Create group window', () => {
         fireEvent.change(contactField, { target: { value: 'some contact '}}) 
 
         await waitFor(() => expect(screen.queryByText(new RegExp(info.name, 'i'))).toBeInTheDocument())  
-        const contact = screen.getByText(new RegExp(info.name))
+        // const contact = screen.getByText(new RegExp(info.name))
 
                 
 

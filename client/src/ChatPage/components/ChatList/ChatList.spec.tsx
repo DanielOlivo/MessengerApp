@@ -3,7 +3,7 @@ import { v4 as uuid } from "uuid";
 import { describe, test, expect } from "vitest";
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { createStore } from "../../../app/store";
-import { useRState } from "../../../utils/getState";
+import { getState } from "../../../utils/getState";
 import { Provider } from "react-redux";
 import { ChatList } from "./ChatList";
 import { getSocketServer } from "../../../utils/getSocketServer";
@@ -15,7 +15,7 @@ import { faker } from "@faker-js/faker";
 describe('ChatList', () => {
 
     test('render', () => {
-        const { state, makeUser, addChat } = useRState()
+        const { state, makeUser, addChat } = getState()
         makeUser()
         const { chatId: id1 } = addChat(true)
         const { chatId: id2 } = addChat(false)
@@ -41,7 +41,7 @@ describe('ChatList', () => {
             })
         })
 
-        const { state, addChat } = useRState()
+        const { state, addChat } = getState()
         const { chatId } = addChat()
         const chatInfo = state.chat.chatInfo[chatId]
 
@@ -87,7 +87,7 @@ describe('ChatList', () => {
             })
         })
 
-        const { state, addChat } = useRState()
+        const { state, addChat } = getState()
         const { chatId } = addChat()
         const chatInfo = state.chat.chatInfo[chatId]
 
@@ -121,7 +121,7 @@ describe('ChatList', () => {
             })
         })
 
-        const { state } = useRState()
+        const { state } = getState()
         const store = createStore(state, true)
         render(<Provider store={store}><ChatList /></Provider>)
         await waitFor(() => expect(store.getState().socket.isConnected))

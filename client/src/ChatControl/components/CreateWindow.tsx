@@ -1,6 +1,6 @@
 import React, { useRef } from 'react'
 import { useApDispatch, useAppSelector } from '../../app/hooks'
-import { selectContactsInGroup, selectContactsNotInGroup, selectMemberProps, selectNonMemberProps } from '../selectors'
+import { selectContactsInGroup, selectContactsNotInGroup, } from '../selectors'
 import { Contact, ContactProps } from './Contact/Contact'
 import { createGroup, searchContact, setIdle, setSearchStatus } from '../slice'
 
@@ -35,13 +35,13 @@ export const CreateWindow = () => {
     } 
 
     const submit = () => {
-        if(nameRef.current && nameRef.current.value.length > 0 && inGroup.length > 0){
-            dispatch(createGroup({
-                name: nameRef.current.value,
-                users: inGroup.map(user => user.userId)
-            }))            
-            dispatch(setIdle())        
-        }
+        // if(nameRef.current && nameRef.current.value.length > 0 && inGroup.length > 0){
+        //     dispatch(createGroup({
+        //         name: nameRef.current.value,
+        //         users: inGroup.map(user => user.userId)
+        //     }))            
+        //     dispatch(setIdle())        
+        // }
     }
 
     return (

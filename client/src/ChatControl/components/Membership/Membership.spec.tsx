@@ -4,7 +4,7 @@ import { describe, test, expect } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { Server } from "socket.io";
 import { getSocketServer } from "../../../utils/getSocketServer";
-import { useRState } from "../../../utils/getState";
+import { getState } from "../../../utils/getState";
 import { createStore } from "../../../app/store";
 import { Provider } from "react-redux";
 import { Membership } from "./Membership";
@@ -24,7 +24,7 @@ describe('Membership', () => {
     })
 
     test('onCreate: add/remove contacts', () => {
-        const { state, addContact } = useRState()
+        const { state, addContact } = getState()
         const userId = addContact()
         const userInfo = state.users.users[userId]
         state.group = { ...state.group, state: 'onCreate'}
@@ -70,7 +70,7 @@ describe('Membership', () => {
             })
         })
 
-        const { state } = useRState()
+        const { state } = getState()
         const store = createStore(state)
         render(<Provider store={store}><Membership /></Provider>)
 
@@ -91,7 +91,7 @@ describe('Membership', () => {
     })
 
     test('onUpdate: non admin', () => {
-        const { state, addContact } = useRState()
+        const { state, addContact } = getState()
         const userId1 = addContact()
         const userid2 = addContact()
         const user1 = state.users.users[userId1]

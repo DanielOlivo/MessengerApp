@@ -8,9 +8,9 @@ import { AppStore, createStore } from "../app/store";
 import { StateHook } from "../utils/getState";
 import { Provider } from "react-redux";
 import { ChatPage } from "./ChatPage";
-import { useRState } from "../utils/getState";
+import { getState } from "../utils/getState";
 import { Commands } from 'shared/src/MiddlewareCommands';
-import { ChatId, Typing } from 'shared/src/Types';
+import { ChatId } from 'shared/src/Types';
 import { MessagePostReq } from 'shared/src/Message';
 import { faker } from '@faker-js/faker';
 
@@ -24,7 +24,7 @@ describe('ChatPage', () => {
     let msgPostreq: MessagePostReq
 
     beforeAll(() => {
-        hooks = useRState()
+        hooks = getState()
         const { state: initState, addChat, getChatIds } = hooks
         addChat(true)
         addChat(false)
@@ -50,7 +50,7 @@ describe('ChatPage', () => {
             })
         })
 
-        const { state } = useRState()
+        const { state } = getState()
         store = createStore(state, true)
 
         render(<Provider store={store}><ChatPage /></Provider>)

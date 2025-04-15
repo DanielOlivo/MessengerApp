@@ -1,5 +1,4 @@
 import { Middleware } from "@reduxjs/toolkit";
-import { Commands } from '@shared/MiddlewareCommands'
 
 import {
     connectionEstablished,
@@ -10,11 +9,7 @@ import {
 import SocketFactory from "@features/socket/SocketFactory";
 import type { SocketInterface } from "@features/socket/SocketFactory";
 
-import { ChatListItem, ChatMessage, ChatSelectRes, 
-    ContactItem, SendRes, Typing
-} from "@shared/Types";
-
-import { handleTyping, sendNumber, sendTyping } from "../ChatPage/slice";
+import { sendNumber } from "../ChatPage/slice";
 
 import { inputHandlers, outputHandlers } from "../utils/socketActions";
 
@@ -37,45 +32,6 @@ const socketMiddleware: Middleware = (store) => {
                 for(const action of inputHandlers){
                     action(store, socket)
                 }
-
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                socket.socket.on(Commands.ChatListRes, (arg: ChatListItem[]) => {
-                    // store.dispatch(setList(arg))
-                })
-
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                socket.socket.on(Commands.SearchRes, (arg: ContactItem[]) => {
-                    // store.dispatch(handleSearch(arg))
-                })
-
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                socket.socket.on(Commands.ChatSelectionRes, (arg: ChatSelectRes) => {
-                    // store.dispatch(setData(arg))
-                    // store.dispatch(setHeaderInfo(arg))
-                })
-
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                socket.socket.on(Commands.ChatMsgRes, (msgs: ChatMessage[]) => {
-                    // store.dispatch(setMsgs(msgs))
-                })
-
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                socket.socket.on(Commands.SendRes, (msg: SendRes) => {
-                    // to chatview
-                    // store.dispatch(handleNewMessage(msg))
-                    // to chatlist
-                    // store.dispatch(insertNewMessage(msg as ChatMessage)) // todo fix
-                })
-
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                socket.socket.on(Commands.TypingRes, (res: Typing) => {
-                    store.dispatch(handleTyping(res))
-                })
-
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                socket.socket.on(Commands.ContactsRes, (res: ContactItem[]) => {
-                    // store.dispatch(setContacts(res))
-                })
 
                 socket.socket.on(SocketEvent.Connect, () => {
                     console.log('connected')
@@ -103,12 +59,6 @@ const socketMiddleware: Middleware = (store) => {
 
         for(const handler of outputHandlers){
             handler(action, socket)
-        }
-
-
-
-        if(sendTyping.match(action) && socket){
-            socket.socket.emit(Commands.TypingReq, action.payload)
         }
 
         return next(action)

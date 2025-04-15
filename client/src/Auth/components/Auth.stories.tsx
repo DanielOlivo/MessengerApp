@@ -2,7 +2,7 @@ import type {Meta, StoryObj} from '@storybook/react'
 import { Auth } from './Auth'
 import { http, HttpResponse } from 'msw'
 import { v4 as uuid } from 'uuid'
-import { useRState } from '../../utils/getState'
+import { getState } from '../../utils/getState'
 import { createStore } from '../../app/store'
 import { Provider } from 'react-redux'
 
@@ -22,7 +22,7 @@ type Story = StoryObj<typeof meta>
 const url = import.meta.env.VITE_BASE_URL || 'http://localhost:3000'
 
 // eslint-disable-next-line
-const { state } = useRState()
+const { state } = getState()
 const store = createStore(state)
 
 export const Primary: Story = {

@@ -1,6 +1,6 @@
 import { describe, test, expect } from "vitest";
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
-import { useRState } from "../../../utils/getState";
+import { getState } from "../../../utils/getState";
 import { createStore, RootState } from "../../../app/store";
 import { Provider } from "react-redux";
 import { ApplyInput } from "./ApplyInput";
@@ -12,21 +12,21 @@ describe('ApplyInput', () => {
     const renderInput = (state: RootState) => render(<Provider store={createStore(state)}><ApplyInput /></Provider>)
 
     test('when chat is dm', () => {
-        const { state } = useRState()
+        const { state } = getState()
         state.group.isGroup = false
         renderInput(state)
         expect(screen.getByText(/Ok/)).toBeInTheDocument()
     })
 
     test('user creates the group', async () => {
-        const { state } = useRState()
+        const { state } = getState()
         state.group = { ...state.group, state: 'onCreate'}
         renderInput(state)
         expect(screen.getByText(/Create/)).toBeInTheDocument()
     })
 
     test('when chat is an existing group, but user is not an admin', () => {
-        const { state } = useRState()
+        const { state } = getState()
         state.group = { ...state.group, isAdmin: false, isGroup: true, state: 'onUpdate'}
         renderInput(state)
         expect(screen.getByText(/Leave/)).toBeInTheDocument()
@@ -35,7 +35,7 @@ describe('ApplyInput', () => {
     })
 
     test('user manages the group', async () => {
-        const { state } = useRState()
+        const { state } = getState()
         state.group = { ...state.group, state: 'onUpdate', isGroup: true, isAdmin: true }
         renderInput(state)
         expect(screen.getByText(/Leave/)).toBeInTheDocument()
@@ -44,7 +44,7 @@ describe('ApplyInput', () => {
     })
 
     test('user leaves the group', async () => {
-        const { state, makeUser, addChat } = useRState()
+        const { state, makeUser, addChat } = getState()
         const userId = makeUser()
         const chatId = addChat()
         state.group = { ... state.group, isAdmin: false, isGroup: true, state: 'onUpdate'}
@@ -71,7 +71,7 @@ describe('ApplyInput', () => {
     })
 
     test('user deletes the group', async () => {
-        const { state, makeUser, addChat } = useRState()
+        const { state, makeUser, addChat } = getState()
         const userId = makeUser()
         const chatId = addChat()
         state.group = { ... state.group, isAdmin: true, isGroup: true, state: 'onUpdate'}
