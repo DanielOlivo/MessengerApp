@@ -3,7 +3,6 @@ import { Typing } from './Typing'
 import { Provider } from 'react-redux'
 import { createStore } from '../../../../../app/store'
 import { getState } from '../../../../../utils/getState'
-import { getActiveTyping } from './utils'
 
 const meta = {
   title: 'ChatView/Typing',
@@ -27,7 +26,7 @@ type Story = StoryObj<typeof Typing>
 //     }
 // }))
 
-const someoneTypingStore = createStore(getState())
+const someoneTypingStore = createStore(getState().state)
 export const SomeoneTyping: Story = {
     decorators: [
         (Story) => <Provider store={someoneTypingStore}><Story /></Provider>

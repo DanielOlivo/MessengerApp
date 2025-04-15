@@ -20,12 +20,14 @@ const Registration = () => {
         if(isAuthenticated){
             navigate('/')
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     useEffect(() => {
         if(registerSuccess){
             navigate('/login')
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [registerSuccess])
 
     const handleSubmit = () => {

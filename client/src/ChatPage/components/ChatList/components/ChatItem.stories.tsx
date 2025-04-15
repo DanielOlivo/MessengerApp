@@ -2,7 +2,7 @@ import type {Meta, StoryObj} from '@storybook/react'
 import { ChatItem } from './ChatItem'
 import { faker } from '@faker-js/faker'
 import { Provider } from '../../../../utils/Provider'
-import { humanIcons, getRandomHumanIcon } from '../../../../assets/assets'
+import { getRandomHumanIcon } from '../../../../assets/assets'
 
 const meta = {
   title: 'ChatList/ChatItem',

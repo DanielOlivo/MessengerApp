@@ -21,7 +21,6 @@ type Story = StoryObj<typeof meta>
 
 const url = import.meta.env.VITE_BASE_URL || 'http://localhost:3000'
 
-// eslint-disable-next-line
 const { state } = getState()
 const store = createStore(state)
 

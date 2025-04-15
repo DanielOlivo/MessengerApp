@@ -67,15 +67,13 @@ export const authSlice = createSlice({
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             .addCase(fetchToken.pending, (state, action) => {
                 state.onWaiting = true
-                // console.log('pending')
             })
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             .addCase(fetchToken.rejected, (state, action) => {
                 state.onWaiting = false
-                // console.log('error: ', msg)
             })
             .addCase(fetchToken.fulfilled, (state, action) => {
                 state.onWaiting = false
-                // console.log(action.payload)
                 state.data = action.payload as UserAuthData 
                 state.authenticated = true
 
@@ -88,8 +86,9 @@ export const authSlice = createSlice({
             .addCase(register.pending, (state, action) => {
                 // console.log('register: pending...')
             })
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             .addCase(register.fulfilled, (state, action) => {
-                const result = action.payload
+                // const result = action.payload
                 // console.log('register: ', result)
                 state.registerSuccess = true
             })

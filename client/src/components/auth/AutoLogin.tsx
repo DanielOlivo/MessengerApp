@@ -2,7 +2,6 @@ import { useEffect } from "react"
 import { Credentials } from "@shared/Types"
 import { useApDispatch } from "@app/hooks"
 import { fetchToken } from "@src/Auth/thunks"
-import { login } from "../../features/auth/authSlice"
 
 export interface AutoLoginProp {
     credentials?: Credentials
@@ -19,6 +18,7 @@ const AutoLogin = ({credentials}: AutoLoginProp) => {
         else {
             dispatch(login())
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     },[])
 
     return <></>

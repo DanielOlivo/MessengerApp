@@ -17,7 +17,6 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-// eslint-disable-next-line
 const { state: state1 } = getState()
 state1.group.isGroup = false
 
@@ -27,7 +26,6 @@ export const OnDM: Story = {
     ]
 }
 
-// eslint-disable-next-line
 const { state: state2 } = getState()
 state2.group.isGroup = true
 state2.group.isAdmin = false
@@ -38,7 +36,6 @@ export const OnGroupNonAdmin: Story = {
 }
 
 
-// eslint-disable-next-line
 const { state: state3 } = getState()
 state3.group.isGroup = true
 state3.group.isAdmin = true

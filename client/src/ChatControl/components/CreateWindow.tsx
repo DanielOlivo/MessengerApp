@@ -2,7 +2,7 @@ import React, { useRef } from 'react'
 import { useApDispatch, useAppSelector } from '../../app/hooks'
 import { selectContactsInGroup, selectContactsNotInGroup, } from '../selectors'
 import { Contact, ContactProps } from './Contact/Contact'
-import { createGroup, searchContact, setIdle, setSearchStatus } from '../slice'
+import { searchContact, setSearchStatus } from '../slice'
 
 export const CreateWindow = () => {
 

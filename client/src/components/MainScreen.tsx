@@ -17,12 +17,14 @@ const MainScreen = ({children}: ChildrenProp) => {
         if(!isAuthenticated){
             navigate('/login')
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isAuthenticated])
 
     useEffect(() => {
         if(_tokenExists && !!_tokenExists){
             dispatch(initSocket())
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [_tokenExists])
 
     return (

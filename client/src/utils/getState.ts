@@ -1,16 +1,12 @@
 import { RootState } from "../app/store";
-import { ChatId, MessageId, UserId, UserInfo } from "../../../shared/src/Types";
-import { getRandomSliceState } from "../ChatPage/utils";
-import { ChatInfo } from "../ChatPage/slice";
+import { ChatId, UserId, UserInfo } from "../../../shared/src/Types";
 import { Message } from "shared/src/Message";
-import { getDefault } from "../ChatControl/utils";
-import { getRandomUsers } from "../users/utils";
-import { Position } from "../Context/slice";
 import { v4 as uuid } from "uuid";
 import { faker } from "@faker-js/faker";
 import { Typing } from "../../../shared/src/Types";
 import dayjs from "dayjs";
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export type DeepPartial<T> = T extends Array<infer U>
     ? T 
     : T extends object 

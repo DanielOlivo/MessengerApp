@@ -116,7 +116,7 @@ describe('ChatList', () => {
         const collection = Object.fromEntries(infos.map(info => [info.id, info]))
 
         io.on('connection', (socket) => {
-            socket.on('search', (term) => {
+            socket.on('search', () => {
                 socket.emit('handleSearch', collection)
             })
         })

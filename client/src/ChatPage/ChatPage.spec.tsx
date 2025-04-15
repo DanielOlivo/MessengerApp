@@ -9,10 +9,8 @@ import { StateHook } from "../utils/getState";
 import { Provider } from "react-redux";
 import { ChatPage } from "./ChatPage";
 import { getState } from "../utils/getState";
-import { Commands } from 'shared/src/MiddlewareCommands';
 import { ChatId } from 'shared/src/Types';
 import { MessagePostReq } from 'shared/src/Message';
-import { faker } from '@faker-js/faker';
 
 describe('ChatPage', () => {
     let io: Server
@@ -25,7 +23,7 @@ describe('ChatPage', () => {
 
     beforeAll(() => {
         hooks = getState()
-        const { state: initState, addChat, getChatIds } = hooks
+        const { state: initState, addChat } = hooks
         addChat(true)
         addChat(false)
 
@@ -41,7 +39,7 @@ describe('ChatPage', () => {
                 socket.emit('initLoadingRes', initState.chat)
             })
 
-            socket.on(Commands.TypingReq, chatId => {
+            socket.on("typing", chatId => {
                 typedChatId = chatId
             })
 
@@ -119,7 +117,7 @@ describe('ChatPage', () => {
         const userIds = Object.keys(store.getState().users.users)
         expect(userIds.includes(typing.userId))
 
-        io.emit(Commands.TypingRes, typing)
+        io.emit('typing', typing)
         
         await waitFor(() => expect(screen.queryByText(/typing/i)).toBeInTheDocument())
     })   
@@ -155,7 +153,3 @@ describe('ChatPage', () => {
 
 
 })
-
-function throwNotImplemented(): void{
-    throw new Error('not implemented')
-}

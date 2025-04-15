@@ -37,7 +37,7 @@ export const Primary: Story = {
                 //     })
                 //     const { client } = toSocketIo(connection)
                 // })
-                chat.addEventListener('connection', (connection) => {
+                chat.addEventListener('connection', () => {
                     // console.log('connect!!!', connection)
                     // const io = toSocketIo(connection)
 

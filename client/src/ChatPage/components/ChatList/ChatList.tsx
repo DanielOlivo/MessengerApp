@@ -23,6 +23,7 @@ export const ChatList = () => {
             dispatch(requestUsers())
             dispatch(initLoading())
         }, 100)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     return (

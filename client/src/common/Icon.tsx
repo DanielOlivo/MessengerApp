@@ -3,6 +3,7 @@ export interface IconProps {
     isOnline: boolean
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const Icon = ({iconSrc, isOnline=false}: IconProps) => {
     return (
         <img

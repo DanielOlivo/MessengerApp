@@ -36,6 +36,7 @@ export const Auth = () => {
         if(isAuthenticated){
             navigate('/')
         }
+    //eslint-disable-next-line
     }, [isAuthenticated])
 
     return (

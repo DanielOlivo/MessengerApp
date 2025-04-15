@@ -1,4 +1,3 @@
-import dayjs from "dayjs"
 import { useAppSelector } from "../../../../../app/hooks"
 import { join } from "./utils"
 import { selectTypingForContainer } from "../../../../selectors"

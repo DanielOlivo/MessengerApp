@@ -1,13 +1,13 @@
 import React, { useRef } from 'react'
 import { useApDispatch, useAppSelector } from '../../../app/hooks'
-import { selectContactsInGroup, selectContactsNotInGroup, selectIsOnSearch } from '../../selectors'
+import { selectContactsInGroup, selectContactsNotInGroup } from '../../selectors'
 import { searchContact } from '../../slice'
 import { Contact, ContactProps } from '../Contact/Contact'
 
 export const Membership = () => {
 
     const dispatch = useApDispatch()
-    const onSearch = useAppSelector(selectIsOnSearch)
+    // const onSearch = useAppSelector(selectIsOnSearch)
     const inGroup = useAppSelector(selectContactsInGroup)
     const notInGroup = useAppSelector(selectContactsNotInGroup)
 

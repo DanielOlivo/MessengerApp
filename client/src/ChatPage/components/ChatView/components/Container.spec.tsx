@@ -2,7 +2,7 @@ import { describe, test, expect } from "vitest";
 import { render, screen } from '@testing-library/react'
 import { getEmpty, makeChatWithUser, makeUser } from "../../../../utils/getState";
 import { Provider } from "react-redux";
-import { createStore, RootState } from "../../../../app/store";
+import { createStore } from "../../../../app/store";
 import { Container } from "./Container";
 
 describe('Container', () => {

@@ -20,6 +20,7 @@ export const ChatPage = () => {
         if(!isAuthenticated){
             navigate('/login')
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     return (

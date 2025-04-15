@@ -3,6 +3,7 @@ export interface DateSeparatorProps {
     timestamp: string
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const DateSeparator = ({chatId, timestamp}: DateSeparatorProps) => {
 
     return (

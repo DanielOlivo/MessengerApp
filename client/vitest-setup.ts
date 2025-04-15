@@ -1,5 +1,4 @@
 import '@testing-library/jest-dom/vitest'
-import { server } from './tests/server'
 // import { vi } from 'vitest'
 
 // vi.mock('socket.io-client', () => {

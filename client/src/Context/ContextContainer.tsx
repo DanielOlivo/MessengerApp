@@ -34,6 +34,7 @@ export const ContextContainer: FC<PropsWithChildren<ContextContainerProps>> = ({
     useEffect(() => {
         document.addEventListener('mousedown', handleClickOutside)
         return () => document.removeEventListener('mousedown', handleClickOutside)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     return (
