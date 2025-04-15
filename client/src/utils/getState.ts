@@ -149,10 +149,6 @@ export function getEmpty(): RootState {
         socket: {
             isConnected: false,
         },
-        search: {
-            onSearch: false,
-            result: []
-        },
         context: {
             type: 'idle',
             id: '',
