@@ -80,15 +80,15 @@ export async function up(knex: Knex): Promise<void> {
         table.foreign('chatId').references('id').inTable('chats').onDelete('CASCADE')
     })
 
-    await knex.schema.createTable('unread', table => {
-        table.uuid('id').primary().defaultTo(knex.fn.uuid())
+    // await knex.schema.createTable('unread', table => {
+    //     table.uuid('id').primary().defaultTo(knex.fn.uuid())
 
-        table.uuid('userId').notNullable()
-        table.uuid('messageId').notNullable()
+    //     table.uuid('userId').notNullable()
+    //     table.uuid('messageId').notNullable()
 
-        table.foreign('userId').references('id').inTable('users').onDelete('CASCADE')
-        table.foreign('messageId').references('id').inTable('messages').onDelete('CASCADE')
-    })
+    //     table.foreign('userId').references('id').inTable('users').onDelete('CASCADE')
+    //     table.foreign('messageId').references('id').inTable('messages').onDelete('CASCADE')
+    // })
 
 }
 

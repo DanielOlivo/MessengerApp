@@ -1,6 +1,7 @@
 import knex from 'knex'
 import db from '@config/db'
-import { DM, Message, MessageId, ChatId, UserId } from "@shared/Types"
+import { DM, MessageId, ChatId, UserId } from "@shared/Types"
+import { Message } from 'shared/src/Message'
 
 export type UnreadId = string
 

@@ -1,5 +1,6 @@
 import db from '../config/db'
-import { ChatId, UserId, Message, MessageId } from "@shared/Types"
+import { ChatId, UserId, MessageId } from "@shared/Types"
+import { Message } from 'shared/src/Message'
 
 const model = {
 

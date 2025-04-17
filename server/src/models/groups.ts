@@ -1,5 +1,5 @@
 import db from '@config/db'
-import { ChatId, Group, Membership, MembershipId, UserId, Message, GroupId } from '@shared/Types'
+import { ChatId, Group, Membership, UserId, } from '@shared/Types'
 import chats from './chats'
 import memberships from './memberships'
 
