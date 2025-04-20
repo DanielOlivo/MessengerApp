@@ -1,40 +1,36 @@
 import db from '../config/db'
-import { ChatId, Membership, MembershipId, UserId } from "@shared/Types"
+import { ChatId, MembershipId, UserId } from "@shared/Types"
+import { Membership } from './models'
 
 const model = {
     
-    create: async(userId: UserId, groupId: ChatId, isAdmin: boolean, created?: Date) => {
-        const [membership] = await db('memberships')
-            .insert({userId, groupId, isAdmin, created}, ['*']) as Membership[]
-        return membership
+    create: async(m: Membership): Promise<void> => {
+        await db('memberships').insert(m)
     },
 
-
-    changeRole: async(membershipId: MembershipId, isAdmin: boolean) => {
-        const [membership] = await db('memberships')
-            .where('id', membershipId)
-            .update({isAdmin}, ['*']) as Membership[]
-        return membership;
+    udate: async(m: Membership): Promise<void> => {
+        await db('memberships').where({id: m.id}).update(m)
     },
 
-    remove: async(memId: MembershipId) => {
-        const [{id}]: Partial<Membership>[] = await db('memberships')
-            .where('id', memId)
-            .del(['*'])
-        return id as MembershipId
+    remove: async(id: MembershipId): Promise<void> => {
+        await db('memberships').where({id}).del()
     },
 
-    removeByUserIdChatId: async(userId: UserId, chatId: ChatId) => {
-        const [{id}]: Partial<Membership>[] = await db('memberships').where({userId, chatId}).del(['id'])
-        return id as MembershipId
+    getByChatId: (chatId: ChatId): Promise<Membership[]> => {
+        const ms = db('memberships').where({chatId}).select('*')
+        return ms
     },
 
-    get: async(userId: UserId, groupId: ChatId) => {
-        const membership = await db('memberships')
-            .where({userId, groupId})
-            .first() as Membership
-        return membership
+    getByUserId: (userId: UserId): Promise<Membership[]> => {
+        const ms = db('memberships').where({userId}).select('*')
+        return ms
+    },
+
+    getById: (id: MembershipId): Promise<Membership[]> => {
+        const ms = db('memberships').where({id}).select('*')
+        return ms
     }
+
 }
 
 export default model
