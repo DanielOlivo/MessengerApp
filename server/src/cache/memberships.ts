@@ -41,11 +41,14 @@ const remove = (membership: Membership) => cache.removeById(
     (id) => db('memberships').where({id}).del()
 )
 
-export default {
-    getUserMemberships,
-    getChatMemberships,
-    getMembershipsOfUserContacts,
-    getMembershipsForUsers,
-    insert,
-    remove
+export function getMembershipCache() {
+    return {
+        getUserMemberships,
+        getChatMemberships,
+        getMembershipsOfUserContacts,
+        getMembershipsForUsers,
+        insert,
+        remove,
+        cache
+    }
 }

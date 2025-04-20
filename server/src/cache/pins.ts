@@ -18,7 +18,10 @@ const updatePin = (pin: ChatPin) => cache.update(
     (p: ChatPin) => db('pins').where({id: p.id}).update(pin)
 )
 
-export default {
-    getUserPins,
-    updatePin
+export function getPinCache(){
+    return {
+        getUserPins,
+        updatePin,
+        cache
+    }
 }

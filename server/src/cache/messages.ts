@@ -24,8 +24,11 @@ const insertMessage = (message: Message) => cache.insert(
     (m: Message) => db('messages').insert(m)
 )
 
-export default {
-    getMessageForChat,
-    getMessagesForUser,
-    insertMessage
+export function getMessageCache(){
+    return {
+        getMessageForChat,
+        getMessagesForUser,
+        insertMessage,
+        cache
+    }
 }

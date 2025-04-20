@@ -25,8 +25,11 @@ const search = async (username: string) => await cache.get(
     (user: User) => new Set( [`id=${user.id}`, `username=${username}`] )
 )
 
-export default {
-    getUserById,
-    getUsersAsContacts,
-    search
+export function getUserCache(){
+    return {
+        getUserById,
+        getUsersAsContacts,
+        search,
+        cache
+    }
 }

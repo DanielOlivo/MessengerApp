@@ -9,112 +9,22 @@ import { GroupCreateRes } from 'shared/src/ChatControl';
 
 import { Chat, ChatInfo, Message, Membership } from '../models/models';
 
-import userCache from '../cache/users'
-import membershipCache from '../cache/memberships'
-import chatCache from '../cache/chats'
-import pinCache from '../cache/pins'
-import chatInfoCache from '../cache/chatInfo'
-import messageCache from '../cache/messages'
+// import userCache from '../cache/users'
+import { getUserCache } from '../cache/users';
+import { getMembershipCache } from '../cache/memberships'
+import { getChatCache } from '../cache/chats'
+import { getPinCache } from '../cache/pins'
+import { getChatInfoCache } from '../cache/chatInfo'
+import { getMessageCache } from '../cache/messages'
 import { intersection } from '../utils/intersection';
 
-interface ClientChatState {
-    chatMessageIds: { [P: ChatId]: MessageId[]}
-    chatInfo: { [P in ChatId]: ChatInfo}
-    messages: { [P in MessageId] : Message}
-    unseenCount: { [P in ChatId] : number}
-    members: { [P: ChatId]: UserId[]}
-    admins: { [P: ChatId]: UserId[] }
-    pinned: ChatId[],
-}
 
-
-interface ChatRecord {
-    chatId: ChatId
-    isGroup: boolean
-    created: number
-}
-
-interface ChatName {
-    id: string
-    chatId: ChatId
-    name: string
-}
-
-interface ChatPin {
-    id: string
-    userId: UserId
-    chatId: ChatId
-    pinned: boolean
-}
-
-interface MembershipRecord {
-    id: string 
-    chatId: ChatId
-    userId: UserId
-    isAdmin: boolean
-    created: number
-}
-
-interface Queries {
-    getUserContacts: (userId: UserId) => Set<string>
-    getContactsOf: (userId: UserId) => Set<string>
-    searchUser: (term: string) => Set<string>
-
-    getChatsOfUser: (userId: UserId) => Set<string> 
-    getNamesForUser: (userId: UserId) => Set<string>
-    getNames: (ids: ChatId[]) => Set<string>
-
-    getPin: (userId: UserId, chatId: ChatId) => Set<string>
-    getPins: (id: UserId) => Set<string>
-    getPinsOfUser: (userId: UserId) => Set<string>
-
-    getMemberships: (userId: UserId, ids: ChatId[]) => Set<string>
-    getMessagesForChats: (userId: string, ids: ChatId[]) => Set<string>
-    getMessagesForChat: (chatId: ChatId) => Set<string>
-
-    getChatBetween: (user1: UserId, user2: UserId) => Set<string>
-
-}
-
-export interface DbFns {
-    getUserById: (userId: UserId) => Promise<DbUser>,
-    getUserContacts: (userId: UserId) => Promise<DbUser[]>
-    searchUser: (term: string) => Promise<DbUser[]>    
-
-    getChatsOfUser: (userId: UserId) => Promise<ChatRecord[]>
-    getNamesForUser: (userId: UserId) => Promise<ChatName[]>
-    getNames: (ids: ChatId[]) => Promise<ChatName[]>
-    
-    getPin: (userId: UserId, chatId: ChatId) => Promise<ChatPin[]>
-    getPins: (ids: ChatId[]) => Promise<ChatPin[]>
-    getPinsOfUser: (userId: UserId) => Promise<ChatPin[]>
-    updatePin: (pin: ChatPin) => Promise<void>
-
-    getMemberships: (ids: ChatId[]) => Promise<MembershipRecord[]>
-    getMessagesForChats: (ids: ChatId[]) => Promise<Message[]>
-    getMessagesForChat: (chatId: ChatId) => Promise<Message[]>
-
-    insertMessage: (m: Message) => Promise<void>
-
-    getChatBetween: (user1: UserId, user2: UserId) => Promise<ChatRecord[]>
-
-
-}
-
-const getQueries = (): Queries => { throw new Error()}
-const getDbFns = (): DbFns => { throw new Error() }
-
-const queries = getQueries()
-const dbFns = getDbFns()
-
-const cache = {
-    user: getCache<DbUser>(user => user.id),
-    chat: getCache<ChatRecord>(chat => chat.chatId),
-    pin: getCache<ChatPin>(p => p.id),
-    name: getCache<ChatName>(i => i.id),
-    membership: getCache<MembershipRecord>(m => m.id),
-    message: getCache<Message>(m => m.messageId)
-}
+const userCache = getUserCache()
+const membershipCache = getMembershipCache()
+const chatCache = getChatCache()
+const pinCache = getPinCache()
+const chatInfoCache = getChatInfoCache()
+const messageCache = getMessageCache()
 
 export const controller = {
 

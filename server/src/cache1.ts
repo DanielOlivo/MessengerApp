@@ -19,7 +19,9 @@ export function getCache<T extends object>(getIdFn: (item: T) => ID){
         const accessTimestamps = Array.from( idTags.get(id)! ).map(tag => n - requests.get(tag)!)
         const min = accessTimestamps.reduce((m, i) => i < m ? i : m, accessTimestamps[0])
         return min
-     }
+    }
+
+    const count = () => map.size
 
     const get = async (
         tag: Tag | null,                        // tag associated with item id
@@ -52,7 +54,10 @@ export function getCache<T extends object>(getIdFn: (item: T) => ID){
                 tagIds.get(tag)!.add(id)
             }
 
-            result.push( map.has(id) ? map.get(id)! : item)
+            if(!map.has(id)){
+                map.set(id, item)
+            }
+            result.push(map.get(id)!)
         }
 
         return result
@@ -86,5 +91,5 @@ export function getCache<T extends object>(getIdFn: (item: T) => ID){
         removeFn(id)
     }
 
-    return { get, getAllTags, getReqTimestamp, getLifeTime, insert, update, removeById }
+    return { get, getAllTags, getReqTimestamp, getLifeTime, insert, update, removeById, count }
 }

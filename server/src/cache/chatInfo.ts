@@ -24,8 +24,11 @@ const insert = (info: ChatInfo) => cache.insert(
     (i) => db('chatinfo').insert(i)
 )
 
-export default {
-    getChatInfoOfUser,
-    getChatInfo,
-    insert
+export function getChatInfoCache(){
+    return {
+        getChatInfoOfUser,
+        getChatInfo,
+        insert,
+        cache
+    }
 }

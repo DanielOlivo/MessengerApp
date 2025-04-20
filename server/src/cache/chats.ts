@@ -29,9 +29,12 @@ const remove = (chatId: ChatId) => cache.removeById(
     (id) => db('chats').where({id}).del()
 )
 
-export default {
-    getUserChats,
-    getChats,
-    insert,
-    remove
+export function  getChatCache(){
+    return {
+        getUserChats,
+        getChats,
+        insert,
+        remove,
+        cache
+    }
 }
