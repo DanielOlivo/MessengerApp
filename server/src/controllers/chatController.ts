@@ -119,14 +119,16 @@ export const controller = {
     handleUsersRequest: async (userId: UserId): Promise<UserInfoCollection> => {
         const userMemberships = await membershipCache.getUserMemberships(userId)
         const chatIds = userMemberships.map(m => m.chatId)
+        const memberships = await membershipCache.getMembershipsOfUserContacts(userId, chatIds)
+        const contactIds = memberships.map(m => m.userId).filter(id => id !== userId)
+        const contacts = await userCache.getUsersAsContacts(userId, contactIds)
+
+        // caching 
         const info = await chatInfoCache.getChatInfoOfUser(userId, chatIds)
         const chats = await chatCache.getUserChats(userId, chatIds)
-        const memberships = await membershipCache.getMembershipsOfUserContacts(userId, chatIds)
         const pins = await pinCache.getUserPins(userId)
         const messages = await messageCache.getMessagesForUser(userId, chatIds)
 
-        const contactIds = memberships.map(m => m.userId).filter(id => id !== userId)
-        const contacts = await userCache.getUsersAsContacts(userId, contactIds)
 
         return Object.fromEntries( contacts.map(user => ([user.id, {
             id: user.id,
@@ -136,11 +138,8 @@ export const controller = {
     },
 
     handleSearch: async (userId: UserId, term: string): Promise<UserInfoCollection> => {
-        const users: DbUser[] = await cache.user.get(
-            'username-starts=' + term,
-            () => dbFns.searchUser(term),
-            () => queries.searchUser(term)
-        ) 
+        const users = await userCache.search(term)
+
         return Object.fromEntries( users.map(user => ([user.id, {
             id: user.id,
             iconSrc: user.iconSrc,

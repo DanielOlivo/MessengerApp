@@ -1,3 +1,4 @@
+import db from '../config/db'
 import { getCache } from "../cache1";
 import { UserId } from "shared/src/Types";
 import { User } from "../models/models";
@@ -18,8 +19,14 @@ const getUsersAsContacts = async (id: UserId, ids: UserId[]) => await cache.get(
     (user: User) => new Set( [`id=${user.id}`, `contacts-id=${id}`] )
 )
 
+const search = async (username: string) => await cache.get(
+    'username=' + username,
+    () => db('users').where({username}).select('*'),
+    (user: User) => new Set( [`id=${user.id}`, `username=${username}`] )
+)
 
 export default {
     getUserById,
-    getUsersAsContacts
+    getUsersAsContacts,
+    search
 }
