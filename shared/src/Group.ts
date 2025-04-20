@@ -17,6 +17,7 @@ export interface GroupCreateRes extends GroupCreateReq {
 export interface EditChanges {
     chatId: ChatId
     name: string
+    iconSrc: string
     members: UserId[]
     admins: UserId[]
 }

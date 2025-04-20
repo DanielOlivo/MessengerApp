@@ -262,6 +262,8 @@ export const controller = {
 
         const created = dayjs()
 
+        // todo: load all members data
+
         const chat: Chat = { id: uuid(), created: created.toDate(), isGroup: true}
         const chatInfo: ChatInfo = { id: uuid(), chatId: chat.id, name, iconSrc: ''}
         const memberships: Membership[] = members.map(id => ({
@@ -290,13 +292,38 @@ export const controller = {
     },
 
     handleGroupEdit: async (userId: UserId, req: EditChanges): Promise<EditChanges> => {
+        const { chatId, name, iconSrc, members, admins } = req
 
-        return {
-            chatId: '',
-            name: '',
-            members: [],
-            admins: []
+        const memberships = await membershipCache.getChatMemberships(chatId)
+        const currentUsers: UserId[] = memberships.map(m => m.userId)
+
+        const toExclude: UserId[] = currentUsers.filter(id => !members.includes(id))
+        const toInclude: UserId[] = members.filter(id => !currentUsers.includes(id))
+
+        for(const userId of toExclude){
+            const membership = memberships.find(m => m.userId === userId)!
+            membershipCache.remove(membership)
+        }    
+
+        const created = dayjs().toDate()
+
+        for(const userId of toInclude){
+            const membership: Membership = {
+                id: uuid(),
+                chatId,
+                userId,
+                isAdmin: admins.includes(userId),
+                created 
+            }
+            membershipCache.insert(membership)
         }
+
+        const [ chatInfo ] = await chatInfoCache.getChatInfo(chatId) 
+        chatInfo.name = name
+        chatInfo.iconSrc = iconSrc
+        chatInfoCache.insert(chatInfo) 
+
+        return req
     },
 
     handleGroupDelete: async (userId: UserId, chatId: ChatId): Promise<ChatId> => {
