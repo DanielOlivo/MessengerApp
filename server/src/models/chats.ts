@@ -1,26 +1,29 @@
 import db from '@config/db'
-import { Chat, ChatId } from '@shared/Types'
+import { ChatId } from '@shared/Types'
+import { Chat } from './models'
 
 const model = {
-    create: async (isDm: boolean = true, created?: Date) => {
-        const [chat] = await db('chats').insert({isDm, created}, ['*']) as Chat[]
-        return chat
+    create: async (chat: Chat): Promise<void> => {
+        await db('chats').insert(chat)
     },
 
-    remove: async (chatId: ChatId) => {
-        const [{id}]: Partial<Chat>[] = await db('chats').where('id', chatId).del(['*'])
-        return id as ChatId
+    update: async (updated: Chat): Promise<void> => {
+        await db('chats').where({id: updated.id}).update(updated)
     },
 
-    count: async () => {
+    remove: async (chatId: ChatId): Promise<void> => {
+        await db('chats').where('id', chatId).del()
+    },
+
+    count: async (): Promise<number> => {
         const [{count: _count}] = await db('chats')
             .count('id')
         return Number(_count);
     },
 
-    getById: async(id: ChatId) => {
-        const chat = await db('chats').where({id}).first() as Chat
-        return chat
+    getById: async(id: ChatId): Promise<Chat[]> => {
+        const chats = await db('chats').where({id})
+        return chats
     }
 }
 
