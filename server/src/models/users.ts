@@ -39,6 +39,11 @@ const model = {
         return users 
     },
 
+    getByIds: async (ids: UserId[]): Promise<User[]> => {
+        const users = await db('users').whereIn('id', ids).select('*')
+        return users
+    },
+
     searchByUsername: async(username: string): Promise<User[]> => {
         const users = await db('users')
             .whereRaw('LOWER(username) LIKE LOWER( ? )', ["%".concat(username, '%')])

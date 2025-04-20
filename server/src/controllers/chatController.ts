@@ -8,6 +8,13 @@ import dayjs from "dayjs";
 import { EditChanges, GroupCreateReq } from 'shared/src/Group';
 import { GroupCreateRes } from 'shared/src/ChatControl';
 
+import userCache from '../cache/users'
+import membershipCache from '../cache/memberships'
+import chatCache from '../cache/chats'
+import pinCache from '../cache/pins'
+import chatInfoCache from '../cache/chatInfo'
+import messageCache from '../cache/messages'
+
 interface ClientChatState {
     chatMessageIds: { [P: ChatId]: MessageId[]}
     chatInfo: { [P in ChatId]: ChatInfo}
@@ -110,12 +117,18 @@ const cache = {
 export const controller = {
 
     handleUsersRequest: async (userId: UserId): Promise<UserInfoCollection> => {
-        const users: DbUser[] = await cache.user.get(
-            'contacts-user=' + userId, 
-            () => dbFns.getUserContacts(userId), 
-            () => queries.getUserContacts(userId)
-        )
-        return Object.fromEntries( users.map(user => ([user.id, {
+        const userMemberships = await membershipCache.getUserMemberships(userId)
+        const chatIds = userMemberships.map(m => m.chatId)
+        const info = await chatInfoCache.getChatInfoOfUser(userId, chatIds)
+        const chats = await chatCache.getUserChats(userId, chatIds)
+        const memberships = await membershipCache.getMembershipsOfUserContacts(userId, chatIds)
+        const pins = await pinCache.getUserPins(userId)
+        const messages = await messageCache.getMessagesForUser(userId, chatIds)
+
+        const contactIds = memberships.map(m => m.userId).filter(id => id !== userId)
+        const contacts = await userCache.getUsersAsContacts(userId, contactIds)
+
+        return Object.fromEntries( contacts.map(user => ([user.id, {
             id: user.id,
             iconSrc: user.iconSrc,
             name: user.username

@@ -21,6 +21,11 @@ const model = {
         return ms
     },
 
+    getByChatIds: (ids: ChatId[]): Promise<Membership[]> => {
+        const ms = db('memberships').whereIn('chatId', ids).select('*')
+        return ms
+    },
+
     getByUserId: (userId: UserId): Promise<Membership[]> => {
         const ms = db('memberships').where({userId}).select('*')
         return ms

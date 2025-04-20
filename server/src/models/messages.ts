@@ -26,6 +26,11 @@ const model = {
         return messages
     },
 
+    getByChatIds: async (ids: ChatId[]): Promise<Message[]> => {
+        const messages = await db('messages').whereIn('chatId', ids).select('*')
+        return messages
+    },
+
 }
 
 export default model
