@@ -327,8 +327,8 @@ export const controller = {
     },
 
     handleGroupDelete: async (userId: UserId, chatId: ChatId): Promise<ChatId> => {
-
-        // todo
+        const [ chat ] = await chatCache.getChats([chatId])  
+        chatCache.remove(chatId)
         return chatId
     }
 }

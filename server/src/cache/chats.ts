@@ -24,9 +24,14 @@ const insert = (chat: Chat) => cache.insert(
     (c: Chat) => db('chats').insert(c)
 )
 
+const remove = (chatId: ChatId) => cache.removeById(
+    chatId,
+    (id) => db('chats').where({id}).del()
+)
 
 export default {
     getUserChats,
     getChats,
-    insert
+    insert,
+    remove
 }
