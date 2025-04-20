@@ -24,6 +24,11 @@ const model = {
     getById: async(id: ChatId): Promise<Chat[]> => {
         const chats = await db('chats').where({id})
         return chats
+    },
+
+    getByIds: async(ids: ChatId[]): Promise<Chat[]> => {
+        const chats = await db('chats').whereIn('id', ids).select('*')
+        return chats
     }
 }
 
