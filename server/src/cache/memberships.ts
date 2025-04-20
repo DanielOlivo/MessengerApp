@@ -24,8 +24,16 @@ const getMembershipsForUsers = async (id1: UserId, id2: UserId) => await cache.g
     (m: Membership) => new Set( [`id=${m.id}`] )
 )
 
+const insert = (membership: Membership) => cache.insert(
+    membership,
+    new Set( [`id=${membership.id}`, `chat=${membership.chatId}`] ),
+    (m) => db('memberships').insert(m)
+)
+
+
 export default {
     getUserMemberships,
     getMembershipsOfUserContacts,
-    getMembershipsForUsers
+    getMembershipsForUsers,
+    insert
 }

@@ -18,7 +18,14 @@ const getChatInfo = async (chatId: ChatId) => await cache.get(
     (info: ChatInfo) => new Set( [`id=${info.id}`, `chat=${info.chatId}`] )
 )
 
+const insert = (info: ChatInfo) => cache.insert(
+    info,
+    new Set( [`id=${info.id}`] ),
+    (i) => db('chatinfo').insert(i)
+)
+
 export default {
     getChatInfoOfUser,
-    getChatInfo
+    getChatInfo,
+    insert
 }

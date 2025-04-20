@@ -1,14 +1,13 @@
 import { v4 as uuid } from 'uuid'
 import { getCache } from "../cache1";
-import { ChatId, DbUser, UserId, MessageId, ChatPinStatus, Membership, User } from "shared/src/Types";
+import { ChatId, DbUser, UserId, MessageId, ChatPinStatus, User } from "shared/src/Types";
 import { UserInfo, UserInfoCollection } from "shared/src/UserInfo";
 import { MessagePostReq } from "shared/src/Message";
-import { ChatInfo } from "shared/src/ChatInfo";
 import dayjs from "dayjs";
 import { EditChanges, GroupCreateReq } from 'shared/src/Group';
 import { GroupCreateRes } from 'shared/src/ChatControl';
 
-import { Message } from '../models/models';
+import { Chat, ChatInfo, Message, Membership } from '../models/models';
 
 import userCache from '../cache/users'
 import membershipCache from '../cache/memberships'
@@ -259,14 +258,34 @@ export const controller = {
     },
 
     handleGroupCreate: async (userId: UserId, req: GroupCreateReq) => {
-        const { name, admins, membmers } = req
+        const { name, members, admins } = req
+
+        const created = dayjs()
+
+        const chat: Chat = { id: uuid(), created: created.toDate(), isGroup: true}
+        const chatInfo: ChatInfo = { id: uuid(), chatId: chat.id, name, iconSrc: ''}
+        const memberships: Membership[] = members.map(id => ({
+            id: uuid(), 
+            userId: id, 
+            chatId: chat.id, 
+            created: created.toDate(), 
+            isAdmin: admins.includes(id)
+        }))
+
+        chatCache.insert(chat)  
+        chatInfoCache.insert(chatInfo)
+        memberships.forEach(m => membershipCache.insert(m))
 
         const result: GroupCreateRes = {
-            id: '',
-            created: 0,
+            id: uuid(),
+            created: created.valueOf(),
             chatMessageIds: [],
-            messages: {}
+            messages: {},
+            name, 
+            admins, 
+            members
         }
+
         return result
     },
 
