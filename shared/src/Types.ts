@@ -20,6 +20,7 @@ export interface DbUser {
     hashed: string
     created: Date
     bio?: string
+    iconSrc: string
 }
 
 export type User = Pick<DbUser, 'id' | "username">

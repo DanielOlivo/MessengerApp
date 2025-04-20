@@ -1,8 +1,18 @@
 import dayjs from 'dayjs'
 
 type Label = string
+type Tag = string
 type ID = string
 type Status = 'c' | 'u' | 'd'
+
+/*
+    ideas outline
+    - better not to store events; apply changes immediately
+        - get rid of status Map
+    - 'get' function should get a label or a function which generates label corresponding to each extracted item
+
+*/
+
 
 interface Item<T extends object> {
     data: T
@@ -11,102 +21,86 @@ interface Item<T extends object> {
 
 export function getCache<T extends object>(getIdFn: (item: T) => ID){
 
-    // how to define lifetime
-
     const now = () => dayjs().valueOf()
     const map = new Map<ID, T>() 
-    const labels = new Map<ID, Set<Label>>()
-    const allLabels = new Set<Label>()
-    const requests = new Map<Label, number>()
-    const status = new Map<ID, Status>()
+    const tagIds = new Map<Tag, Set<ID>>()
+    const idTags = new Map<ID, Set<Tag>>()
 
-    const getAllLabels = () => new Set( allLabels )
-    const getReqTimestamp = (label: Label) => requests.get(label)
-    const getLifeTime = () => { throw new Error() }
+    const requests = new Map<Tag, number>()
 
-    const count = (st?: Status) => {
-        if(!st){
-            return map.size
-        }
-        let i = 0
-        for(const s of status.values()){
-            if(s === st){
-                i += 1
-            }
-        }
-        return i
-    }
+    const getAllTags = () => new Set( tagIds.keys() )
+    const getReqTimestamp = (tag: Tag) => requests.get(tag)
+    const getLifeTime = (id: ID) => { 
+        const n = now()
+        const accessTimestamps = Array.from( idTags.get(id)! ).map(tag => n - requests.get(tag)!)
+        const min = accessTimestamps.reduce((m, i) => i < m ? i : m, accessTimestamps[0])
+        return min
+     }
 
-    const get = async (label: Label, fn: () => Promise<T[]>): Promise<T[]> => {
-        if(allLabels.has(label)){
-            requests.set(label, now())            
-            return Array.from( map.keys() )
-                .filter(id => labels.get(id)!.has(label))
+    const get = async (
+        tag: Tag,                               // tag associated with item id
+        extractFn: () => Promise<T[]>,          // called in case of absense in cache
+        createTagFn: (item: T) => Set<Tag>      // called in case of absense in cache
+    ): Promise<T[]> => {
+
+        if(tagIds.has(tag)){
+            requests.set(tag, now())
+            return Array.from( tagIds.get(tag)! )
                 .map(id => map.get(id)!)
         }
 
-        const extracted = await fn()
+        const extracted = await extractFn()
         const result: T[] = []
         for(const item of extracted){
             const id = getIdFn(item)
-            if(!map.has(id)){
-                map.set(id, item)
-                result.push(item)
+            const tags = createTagFn(item)
+
+            if(!idTags.has(id)){
+                idTags.set(id, new Set())
             }
-            else {
-                result.push(map.get(id)!)
+            const existingTags = idTags.get(id) 
+            tags.forEach(t => existingTags?.add(t))
+            
+            for(const tag of tags){
+                if(!tagIds.has(tag)){
+                    tagIds.set(tag, new Set())
+                }
+                tagIds.get(tag)!.add(id)
             }
 
-            if(!labels.has(id)){
-                labels.set(id, new Set())
-            }
-            labels.get(id)!.add(label)
-
+            result.push( map.has(id) ? map.get(id)! : item)
         }
-        allLabels.add(label)
-        requests.set(label, now())
 
         return result
     }
 
-    // customLabels - dirty hack
-    const create = (item: T, customLabels?: string[]) => {
+    const insert = (item: T, tags: Set<Tag>, insertFn: (i: T) => Promise<void>) => {
         const id = getIdFn(item)
-        status.set(id, 'c')
         map.set(id, item)
-        const label = 'create=' + id
-        let _labels = [ label ]
-        if(customLabels){
-            _labels = _labels.concat(customLabels)
-        }
-        for(const l of _labels){
-            allLabels.add(l)
-            requests.set(l, now())
-        } 
-        labels.set(id, new Set(_labels))
-    }
+        idTags.set(id, tags)
 
-    const updateLocal = (item: T, lbls?: string[]): void => {
-        const id = getIdFn(item)
-        if(!map.has(id)){
-            throw new Error(`item with id ${id} not found`)
-        }
-        if(status.has(id) && status.get(id) === 'd'){
-            throw new Error(`item with id ${id} is scheduled for removal`)
-        }
-
-        map.set(id, item)
-
-        if(!status.has(id)){
-            status.set(id, 'u')
-        }
-
-        if(lbls){
-            for(const lbl of lbls){
-                requests.set(lbl, now())
+        for(const tag of tags){
+            if(!tagIds.has(tag)){
+                tagIds.set(tag, new Set())
             }
+            tagIds.get(tag)!.add(id)
         }
+        insertFn(item)
     }
 
-    return { get, create, getAllLabels, getReqTimestamp, count, getLifeTime, updateLocal }
+    const update = (item: T, tags: Set<Tag>, updateFn: (i: T) => Promise<void>) => {
+        throw new Error()
+    }
+
+    const removeById = (id: ID, removeFn: (id: ID) => Promise<void>) => {
+        map.delete(id)
+        const tags = idTags.get(id)!
+        idTags.delete(id) 
+        for(const tag of tags){
+            tagIds.get(tag)?.delete(id)
+        }
+        removeFn(id)
+    }
+
+    return { get, getAllTags, getReqTimestamp, getLifeTime, insert, update, removeById }
 }
