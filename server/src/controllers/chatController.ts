@@ -2,11 +2,13 @@ import { v4 as uuid } from 'uuid'
 import { getCache } from "../cache1";
 import { ChatId, DbUser, UserId, MessageId, ChatPinStatus, Membership, User } from "shared/src/Types";
 import { UserInfo, UserInfoCollection } from "shared/src/UserInfo";
-import { Message, MessagePostReq } from "shared/src/Message";
+import { MessagePostReq } from "shared/src/Message";
 import { ChatInfo } from "shared/src/ChatInfo";
 import dayjs from "dayjs";
 import { EditChanges, GroupCreateReq } from 'shared/src/Group';
 import { GroupCreateRes } from 'shared/src/ChatControl';
+
+import { Message } from '../models/models';
 
 import userCache from '../cache/users'
 import membershipCache from '../cache/memberships'
@@ -148,51 +150,31 @@ export const controller = {
     },
 
     handleInitLoading: async (userId: UserId): Promise<ClientChatState> => {
-        const chats = await cache.chat.get(
-            'chats-user=' + userId,
-            async () => await dbFns.getChatsOfUser(userId),
-            () => queries.getChatsOfUser(userId)
-        )
+        const userMemberships = await membershipCache.getUserMemberships(userId)
+        const chatIds = userMemberships.map(m => m.chatId)
+        const memberships = await membershipCache.getMembershipsOfUserContacts(userId, chatIds)
+        // const contactIds = memberships.map(m => m.userId).filter(id => id !== userId)
+        // const contacts = await userCache.getUsersAsContacts(userId, contactIds)
 
-        const chatIds = chats.map(item => item.chatId) 
+        const info = await chatInfoCache.getChatInfoOfUser(userId, chatIds)
+        // const chats = await chatCache.getUserChats(userId, chatIds)
+        const pins = await pinCache.getUserPins(userId)
+        const messages = await messageCache.getMessagesForUser(userId, chatIds)
 
-        const names = await cache.name.get(
-            'chat-user=' + userId,
-            async () => await dbFns.getNames(chatIds),
-            () => queries.getNames(chatIds)
-        )
-
-        const pins = await cache.pin.get(
-            'chat-user=' + userId,
-            async () => await dbFns.getPins(chatIds),
-            () => queries.getPins(userId)
-        )
-
-        const memberships = await cache.membership.get(
-            'userid=' + userId,
-            async () => await dbFns.getMemberships(chatIds),
-            () => queries.getMemberships(userId, chatIds)
-        )
-
-        const messages = await cache.message.get(
-            'userid=' + userId,
-            async () => dbFns.getMessagesForChats(chatIds),
-            () => queries.getMessagesForChats(userId, chatIds)
-        )
 
        return {
-            chatInfo: names.reduce((acc, m) => {acc[m.chatId] = {id: m.chatId, name: m.name }; return acc }, {} as {[P: ChatId]: ChatInfo}),
+            chatInfo: info.reduce((acc, m) => {acc[m.chatId] = {id: m.chatId, name: m.name }; return acc }, {} as {[P: ChatId]: ChatInfo}),
             chatMessageIds: messages.sort(m => -
                 m.timestamp).reduce((acc, m) => {
                     if(m.chatId in acc) { 
-                        acc[m.chatId].push(m.messageId) 
+                        acc[m.chatId].push(m.id) 
                         return acc 
                     } 
-                    acc[m.chatId] = [m.messageId]
+                    acc[m.chatId] = [m.id]
                      return acc 
-                }, {} as {[P: ChatId]: MessageId[]}),
-
-            messages: Object.fromEntries( messages.map(m => [m.messageId, m]) ),
+                }, {} as {[P: ChatId]: MessageId[]}
+            ),
+            messages: Object.fromEntries( messages.map(m => [m.id, m]) ),
             unseenCount: {},
             members: memberships.reduce((acc, m) => {
                 if(m.chatId in acc){
@@ -215,14 +197,13 @@ export const controller = {
     },
 
     togglePin: async (userId: UserId, chatId: ChatId): Promise<ChatPinStatus> => {
-        const [pin] = await cache.pin.get(
-            'user=' + userId + 'chat=' + chatId,
-            async () => await dbFns.getPin(userId, chatId),
-            () => queries.getPin(userId, chatId)
-        )
-
+        const pins = await pinCache.getUserPins(userId)
+        const pin = pins.find(p => p.chatId === chatId)
+        if(!pin){
+            throw new Error()
+        }
         pin.pinned = !pin.pinned
-        cache.pin.update(pin, new Set(['']), () => dbFns.updatePin(pin)) // todo tags
+        pinCache.updatePin(pin)        
         return {chatId, pinned: pin.pinned}
     },
 
