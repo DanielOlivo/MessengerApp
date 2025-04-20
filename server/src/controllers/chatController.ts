@@ -18,13 +18,13 @@ import { getChatInfoCache } from '../cache/chatInfo'
 import { getMessageCache } from '../cache/messages'
 import { intersection } from '../utils/intersection';
 
-
-const userCache = getUserCache()
-const membershipCache = getMembershipCache()
-const chatCache = getChatCache()
-const pinCache = getPinCache()
-const chatInfoCache = getChatInfoCache()
-const messageCache = getMessageCache()
+// export to enable testing
+export const userCache = getUserCache()
+export const membershipCache = getMembershipCache()
+export const chatCache = getChatCache()
+export const pinCache = getPinCache()
+export const chatInfoCache = getChatInfoCache()
+export const messageCache = getMessageCache()
 
 export const controller = {
 
