@@ -16,6 +16,7 @@ import chatCache from '../cache/chats'
 import pinCache from '../cache/pins'
 import chatInfoCache from '../cache/chatInfo'
 import messageCache from '../cache/messages'
+import { intersection } from '../utils/intersection';
 
 interface ClientChatState {
     chatMessageIds: { [P: ChatId]: MessageId[]}
@@ -211,43 +212,47 @@ export const controller = {
         const { chatId, content } = req
         
         // reload
-        await cache.message.get(
-            'chat=' + chatId,
-            async () => dbFns.getMessagesForChat(chatId),
-            () => queries.getMessagesForChat(chatId)
-        )        
+        const messages = await messageCache.getMessageForChat(chatId)
 
         const newMessage: Message = {
+            id: uuid(),
             chatId,
-            sender: userId,
+            userId,
             content,
-            timestamp: dayjs().valueOf(),
-            messageId: uuid()
+            timestamp: dayjs().toDate()
         }
-        cache.message.insert(newMessage, new Set(), dbFns.insertMessage)
-
+        messageCache.insertMessage(newMessage)
         return newMessage
     },
 
     handleChatWithUser: async(userId: UserId, req: UserId) => {
         // 
-        const [ chatId ] = await cache.chat.get(
-            'between=' + userId + ';' + req, 
-            () => dbFns.getChatBetween(userId, req), 
-            () => queries.getChatBetween(userId, req)
-        )
+        const memberships1 = await membershipCache.getUserMemberships(userId)
+        const memberships2 = await membershipCache.getUserMemberships(req)
 
-        // later
+        const chats1 = new Set(memberships1.map(m => m.chatId))
+        const chats2 = new Set(memberships2.map(m => m.chatId))
+        const mutualIds = Array.from( intersection(chats1, chats2) ) 
+        const chats = await chatCache.getChats(mutualIds)
+        const chat = chats.find(c => !c.isGroup)
+
+        if(!chat){
+            throw new Error()
+        }
+
+        const [ chatInfo ] = await chatInfoCache.getChatInfo(chat.id)
+        const messages = await messageCache.getMessageForChat(chat.id)
+
         return {
-            chatId: '',
+            chatId: chat.id,
             info: {
-                name: '',
-                iconSrc: '',
+                name: chatInfo.name,
+                iconSrc: chatInfo.iconSrc,
                 status: 'status',
                 isGroups: false
             },
-            chatMessageIds: {},
-            messages: {},
+            chatMessageIds: { [chat.id]: messages.map(m => m.id) },
+            messages: Object.fromEntries( messages.map(m => [m.id, m]) ),
             members: [userId, req],
             admins: []
         }

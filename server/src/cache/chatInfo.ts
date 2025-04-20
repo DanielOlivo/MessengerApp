@@ -1,3 +1,4 @@
+import db from "../config/db";
 import { UserId, ChatId } from "shared/src/Types";
 import { getCache } from "../cache1";
 import infoModel from '../models/chatInfo'
@@ -11,6 +12,13 @@ const getChatInfoOfUser = async (userId: UserId, ids: ChatId[]) => await cache.g
     (i: ChatInfo) => new Set( [`id=${i.id}`, `user=${userId}`] )
 )
 
+const getChatInfo = async (chatId: ChatId) => await cache.get(
+    `chat=${chatId}`,
+    () => db('chatinfo').where({chatId}).select('*'),
+    (info: ChatInfo) => new Set( [`id=${info.id}`, `chat=${info.chatId}`] )
+)
+
 export default {
-    getChatInfoOfUser
+    getChatInfoOfUser,
+    getChatInfo
 }

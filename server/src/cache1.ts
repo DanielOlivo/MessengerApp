@@ -1,23 +1,7 @@
 import dayjs from 'dayjs'
 
-type Label = string
 type Tag = string
 type ID = string
-type Status = 'c' | 'u' | 'd'
-
-/*
-    ideas outline
-    - better not to store events; apply changes immediately
-        - get rid of status Map
-    - 'get' function should get a label or a function which generates label corresponding to each extracted item
-
-*/
-
-
-interface Item<T extends object> {
-    data: T
-    labels: Set<string>
-}
 
 export function getCache<T extends object>(getIdFn: (item: T) => ID){
 
@@ -38,12 +22,12 @@ export function getCache<T extends object>(getIdFn: (item: T) => ID){
      }
 
     const get = async (
-        tag: Tag,                               // tag associated with item id
+        tag: Tag | null,                        // tag associated with item id
         extractFn: () => Promise<T[]>,          // called in case of absense in cache
         createTagFn: (item: T) => Set<Tag>      // called in case of absense in cache
     ): Promise<T[]> => {
 
-        if(tagIds.has(tag)){
+        if(tag !== null && tagIds.has(tag)){
             requests.set(tag, now())
             return Array.from( tagIds.get(tag)! )
                 .map(id => map.get(id)!)
