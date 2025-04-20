@@ -14,6 +14,16 @@ const model = {
         return id as UserId
     },
 
+    updatePassword: async(id: UserId, newHash: string): Promise<void> => {
+        await db('users').where({id}).update({hash: newHash})
+        return
+    },
+
+    updateIcon: async(id: UserId, newIconSrc: string): Promise<void> => {
+        await db('users').where({id}).update({iconSrc: newIconSrc})
+        return
+    },
+
     getAll: async(): Promise<User[]> => {
         const all: User[] = await db('users').select('*')
         return all
