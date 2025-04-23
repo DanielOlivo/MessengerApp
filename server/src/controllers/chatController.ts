@@ -59,7 +59,7 @@ export const controller = {
         }])) )
     },
 
-    handleInitLoading: async (userId: UserId): Promise<ClientChatState> => {
+    handleInitLoading: async (userId: UserId) => {
         const userMemberships = await membershipCache.getUserMemberships(userId)
         const chatIds = userMemberships.map(m => m.chatId)
         const memberships = await membershipCache.getMembershipsOfUserContacts(userId, chatIds)

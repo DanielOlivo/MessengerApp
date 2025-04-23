@@ -4,18 +4,25 @@ import { UserId, ChatId, MembershipId } from '@shared/Types'
 import membershipModel from '../models/memberships'
 import { Membership } from "../models/models";
 
+export const queries = {
+    id: (id: string) => `id=${id}`,
+    ofUser: (userId: UserId) => `ofuser=${userId}`,
+    ofChat: (chatId: ChatId) => `ofchat=${chatId}`,
+    contactOf: (userId: UserId) => `contact-of=${userId}`
+}
+
 const cache = getCache<Membership>(m => m.id)
 
 const getUserMemberships = async (userId: UserId) => await cache.get(
-    'user=' + userId,
+    queries.ofUser(userId),
     () => membershipModel.getByUserId(userId),
-    (m: Membership) => new Set([ `id=${m.id}`, `user=${userId}` ])
+    (m: Membership) => new Set([ queries.id(m.id), queries.ofUser(m.userId) ])
 )
 
 const getMembershipsOfUserContacts = async (userId: UserId, ids: ChatId[]) => await cache.get(
-    'contacts-of=' + userId,
+    queries.contactOf(userId),
     () => membershipModel.getByChatIds(ids),
-    (m: Membership) => new Set( [`id=${m.id}`, `user=${m.userId}`, 'contacts-of=${userId'] )
+    (m: Membership) => new Set( [queries.id(m.id), queries.ofUser(m.userId), queries.contactOf(userId)] )
 )
 
 const getMembershipsForUsers = async (id1: UserId, id2: UserId) => await cache.get(
@@ -25,9 +32,9 @@ const getMembershipsForUsers = async (id1: UserId, id2: UserId) => await cache.g
 )
 
 const getChatMemberships = async (chatId: ChatId) => await cache.get(
-    `chat=${chatId}`,
+    queries.ofChat(chatId),
     () => membershipModel.getByChatId(chatId),
-    (m) => new Set( [`id=${m.id}`, `chat=${m.chatId}`] )
+    (m) => new Set( [queries.id(m.id), queries.ofChat(m.chatId)] )
 )
 
 const insert = (membership: Membership) => cache.insert(

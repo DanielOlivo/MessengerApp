@@ -4,18 +4,23 @@ import { getCache } from "../cache1";
 import { ChatId, UserId } from "shared/src/Types";
 import chatModel from '../models/chats'
 
+export const queries = {
+    id: (id: ChatId) => `id=${id}`,
+    ofUser: (userId: UserId) => `ofuser=${userId}`
+}
+
 const cache = getCache<Chat>(c => c.id)
 
 const getUserChats = async (userId: UserId, ids: ChatId[]) => await cache.get(
-    'user=' + userId,
+    queries.ofUser(userId),
     () => chatModel.getByIds(ids),
-    (chat: Chat) => new Set( [`user=${userId}`, `id=${chat.id}`] )
+    (chat: Chat) => new Set( [queries.ofUser(userId), queries.id(chat.id)] )
 )
 
 const getChats = async (ids: ChatId[]) => await cache.get(
     null,
     () => db('chats').whereIn('id', ids).select('*'),
-    (chat: Chat) => new Set( [`id=${chat.id}`] )
+    (chat: Chat) => new Set( [ queries.id(chat.id) ] )
 )
 
 const insert = (chat: Chat) => cache.insert(

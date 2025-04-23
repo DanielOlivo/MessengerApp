@@ -7,22 +7,28 @@ import userModel from '../models/users'
 
 const cache = getCache<User>(u => u.id)
 
+export const queries = {
+    id: (userId: UserId) => `id=${userId}`,
+    asContact: (userId: UserId) => `contacts-id=${userId}`,
+    username: (username: string) => `username=${username}`
+}
+
 const getUserById = async (id: UserId) => await cache.get(
-    'id=' + id,
+    queries.id(id),
     () => userModel.getById(id),
-    () => new Set( `id=${id}` )
+    () => new Set( queries.id(id) )
 )
 
 const getUsersAsContacts = async (id: UserId, ids: UserId[]) => await cache.get(
-    'contacts-id=' + id,
+    queries.asContact(id),
     () => userModel.getByIds(ids),
-    (user: User) => new Set( [`id=${user.id}`, `contacts-id=${id}`] )
+    (user: User) => new Set( [queries.id(user.id), queries.asContact(id)] )
 )
 
 const search = async (username: string) => await cache.get(
-    'username=' + username,
+    queries.username(username),
     () => db('users').where({username}).select('*'),
-    (user: User) => new Set( [`id=${user.id}`, `username=${username}`] )
+    (user: User) => new Set( [queries.id(user.id), queries.username(user.username)] )
 )
 
 export function getUserCache(){
