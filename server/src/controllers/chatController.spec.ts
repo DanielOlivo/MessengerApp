@@ -140,6 +140,12 @@ describe('chat controller', () => {
 
     }) 
 
+    it('user1 requests chat with user3', async () => {
+        const result = await controller.handleChatWithUser(user1.id, user3.id)
+        expect(result).toBeDefined()
+        console.log(result)
+    })
+
     it('sanity', () => expect(true).toBeTruthy()) 
 
 
