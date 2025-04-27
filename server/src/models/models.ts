@@ -25,7 +25,7 @@ export interface ChatPin {
     id: string
     userId: UserId
     chatId: ChatId
-    pinned: boolean
+    // pinned: boolean
 }
 
 export interface Membership {

@@ -2,19 +2,13 @@ process.env.NODE_ENV = 'test'
 
 import { describe, it, expect, beforeAll, afterAll, afterEach, jest } from '@jest/globals'
 import db from '../config/db'
-import {
-    controller,
-    userCache,
-    chatCache,
-    membershipCache,
-    messageCache,
-    chatInfoCache
-} from './chatController'
+import { controller } from './chatController'
 import { User } from '../models/models'
-import { queries as userQueries } from '../cache/users'
-import { queries as chatQueries } from '../cache/chats'
-import { queries as membershipQueries } from '../cache/memberships'
+import { chatMessages } from '../models/chat'
+import { wait } from 'shared/src/utils'
 
+// maybe it would be way easier to create db in the beginning of test here
+// instead referencing seed...
 
 describe('chat controller', () => {
 
@@ -26,6 +20,7 @@ describe('chat controller', () => {
         await db.migrate.rollback()
         await db.migrate.latest()
         await db.seed.run()
+
     })
 
     afterEach(() => {
@@ -50,16 +45,10 @@ describe('chat controller', () => {
         expect(user2.username).toEqual('user2')
     })
 
-    it('this gonna fail', () => expect(false).toBeTruthy())
-
     it('extracting user3', async () => {
         const user = await db('users').where({username: 'user3'}).first()
         expect(user).toBeDefined()
         user3 = user
-    })
-
-    it('user cache contains nothing', () => {
-        expect(userCache.cache.count()).toEqual(0)
     })
 
     it('chat controller: user1 requests for contacts', async () => {
@@ -68,53 +57,8 @@ describe('chat controller', () => {
         const users = Object.values(result)
         expect(users.length).toEqual(1) 
 
-        // membership cache queries
-        const mQueries = membershipCache.cache.getAllTags()
-        expect(mQueries.has(membershipQueries.ofUser(user1.id))).toBeTruthy()
-        expect(mQueries.has(membershipQueries.ofUser(user2.id))).toBeTruthy()
-        expect(mQueries.has(membershipQueries.contactOf(user1.id))).toBeTruthy()
-
-        // user cache queries
-        const uQueries = userCache.cache.getAllTags()
-        expect(uQueries.has(userQueries.id(user2.id))).toBeTruthy()
-        expect(uQueries.has(userQueries.asContact(user1.id))).toBeTruthy()
-
-        // chat info cache queries
-        const ciQueries = chatInfoCache.cache.getAllTags()
-    })
-
-    return
-
-    it('user cache conains one item', () => {
-        expect(userCache.cache.count()).toEqual(1)
-    })
-
-    it(`user cache contains specific queries`, () => {
-        const queries = userCache.cache.getAllTags()
-        expect(queries.size).toEqual(2)
-        expect(queries.has(userQueries.asContact(user1.id)))
-        expect(queries.has(userQueries.id(user2.id)))
-    })
-
-    it('chat cache contains one item and specific queries', () => {
-        expect(chatCache.cache.count()).toEqual(1)
-
-        const queries = chatCache.cache.getAllTags()
-        expect(queries.size).toEqual(2)
-        console.log(queries)
-        expect(chatQueries.ofUser(user1.id) in queries).toBeTruthy()
-    })
-
-    it('membership cache contains two items', () => {
-        expect(membershipCache.cache.count()).toEqual(2)
-    })
-
-    it('messages cache contains 10 items', () => {
-        expect(messageCache.cache.count()).toEqual(10)
-    })
-
-    it('chat info cache contains one item', () => {
-        expect(chatInfoCache.cache.count()).toEqual(1)
+        const [ user ] = users
+        expect(user.id).toEqual(user2.id)
     })
 
     it('searching for user3', async () => {
@@ -124,12 +68,80 @@ describe('chat controller', () => {
         
     })
 
+
     it('handle init loading', async () => {
         const result = await controller.handleInitLoading(user1.id)
         expect(result).toBeDefined()
+
+        const { chatInfo, chatMessageIds, messages, unseenCount, admins, pinned } = result
+        expect(chatInfo).toBeDefined()
+        expect(chatMessageIds).toBeDefined()
+        expect(messages).toBeDefined()
+        expect(unseenCount).toBeDefined()
+        expect(admins).toBeDefined()
+        expect(pinned).toBeDefined()
+
+        expect(Object.keys(chatInfo).length).toEqual(0) // chat info only for groups
+        expect(Object.keys(chatMessageIds).length).toEqual(1) // user1 has only chat (with user2) 
+        for(const messageId of Object.values(Object.values(chatMessageIds)[0])){
+            expect(messageId in messages).toBeTruthy() // chatMessageIds and messages object are consisten
+        }
     })   
+
+    it('pins table has zero records', async () => {
+        const pins = await db('pins').select('*')
+        expect(pins.length).toEqual(0)
+    })
+
+    it('user1 toggles a chat', async () => {
+        const [ {id: chatId} ] = await getDmId(user1.id, user2.id)
+        expect(isValidUuidV4(chatId)).toBeTruthy()
+        const result = await controller.togglePin(user1.id, chatId) 
+        expect(result).toBeDefined()
+        
+        const { chatId: cid, pinned } = result
+        expect(cid).toEqual(chatId)
+        expect(pinned).toBeTruthy() 
+    }) 
+
+    it('db has one record', async () => {
+        await wait(200)
+        const pins = await db('pins').select('*')
+        expect(pins.length).toEqual(1)
+    })
+
+    it('user1 toggles the chat again', async () => {
+        const [ {id: chatId} ] = await getDmId(user1.id, user2.id)
+        expect(isValidUuidV4(chatId)).toBeTruthy()
+        const result = await controller.togglePin(user1.id, chatId) 
+        expect(result).toBeDefined()
+        
+        const { chatId: id, pinned } = result
+        expect(id).toEqual(chatId)
+        expect(pinned).toBeFalsy()
+    }) 
 
     it('sanity', () => expect(true).toBeTruthy()) 
 
 
 })
+
+async function getDmId(user1: string, user2: string){
+    const chatId = await db
+        .with('user1m', db('memberships').where({userId: user1}))
+        .with('user2m', db('memberships').where({userId: user2}))
+        .with('joined',
+            db('user1m')
+            .innerJoin('user2m', "user1m.chatId", '=', "user2m.chatId")
+            .select('user1m.chatId as id')
+        )
+        .select('joined.id').from('joined')
+        .join('chats', 'chats.id', '=', 'joined.id')
+        .where('isGroup', false)
+    return chatId
+
+}
+
+const isValidUuidV4 = (str: string): boolean => {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(str);
+};

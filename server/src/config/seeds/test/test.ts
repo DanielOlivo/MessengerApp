@@ -60,8 +60,9 @@ export async function seed(knex: Knex): Promise<void> {
         const memberships: Membership[] = [u1, u2].map(user => 
             ({id: uuid(), chatId: dm.id, userId: user.id, isAdmin: false, created: initTimestamp.toDate()}))
 
-        const pins: ChatPin[] = [u1, u2].map(user => 
-            ({id: uuid(), userId: user.id, chatId: dm.id, pinned: false}))
+        // const pins: ChatPin[] = [u1, u2].map(user => 
+        //     ({id: uuid(), userId: user.id, chatId: dm.id}))
+            // ({id: uuid(), userId: user.id, chatId: dm.id, pinned: false}))
         
         const messages: Message[] = Array.from({length: 10}, (_,i) => ({
             id: uuid(),
@@ -73,7 +74,7 @@ export async function seed(knex: Knex): Promise<void> {
 
         await knex('chats').insert(dm)
         await knex('memberships').insert(memberships)
-        await knex('pins').insert(pins)
+        // await knex('pins').insert(pins)
         await knex('messages').insert(messages)
     }
 

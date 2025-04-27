@@ -29,7 +29,7 @@ export async function up(knex: Knex): Promise<void> {
         table.uuid('id').primary() 
         table.uuid('chatId').notNullable()
         table.uuid('userId').notNullable()
-        table.boolean('pinned').notNullable()
+        // table.boolean('pinned').notNullable()
 
         table.foreign('chatId').references('id').inTable('chats').onDelete('CASCADE')
         table.foreign('userId').references('id').inTable('users').onDelete('CASCADE')

@@ -77,6 +77,24 @@ export function getCache<T extends object>(getIdFn: (item: T) => ID){
         insertFn(item)
     }
 
+    const remove = (item: T, fn: (i: T) => Promise<void>) => {
+        const id = getIdFn(item)
+        const tags = idTags.get(id)!
+        idTags.delete(id)
+        for(const tag of tags){
+            const ids = tagIds.get(tag)!
+            if(ids.size === 1){
+                tagIds.delete(tag)
+                requests.delete(tag)
+            }
+            else {
+                ids.delete(id)
+            }
+        }
+        map.delete(id)
+        fn(item)
+    }
+
     const update = (item: T, tags: Set<Tag>, updateFn: (i: T) => Promise<void>) => {
         throw new Error()
     }
@@ -91,5 +109,5 @@ export function getCache<T extends object>(getIdFn: (item: T) => ID){
         removeFn(id)
     }
 
-    return { get, getAllTags, getReqTimestamp, getLifeTime, insert, update, removeById, count }
+    return { get, getAllTags, getReqTimestamp, getLifeTime, insert, update, remove, removeById, count }
 }

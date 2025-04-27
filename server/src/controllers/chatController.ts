@@ -73,7 +73,10 @@ export const controller = {
 
 
        return {
-            chatInfo: info.reduce((acc, m) => {acc[m.chatId] = {id: m.chatId, name: m.name }; return acc }, {} as {[P: ChatId]: ChatInfo}),
+            chatInfo: info.reduce((acc, m) => {
+                    acc[m.chatId] = m; 
+                    return acc 
+                }, {} as {[P: ChatId]: ChatInfo}),
             chatMessageIds: messages.sort(m => -
                 m.timestamp).reduce((acc, m) => {
                     if(m.chatId in acc) { 
@@ -87,7 +90,7 @@ export const controller = {
             messages: Object.fromEntries( messages.map(m => [m.id, m]) ),
             unseenCount: {},
             members: memberships.reduce((acc, m) => {
-                if(m.chatId in acc){
+                if(!(m.chatId in acc)){
                     acc[m.chatId] = [m.userId]
                     return acc
                 }
@@ -109,12 +112,15 @@ export const controller = {
     togglePin: async (userId: UserId, chatId: ChatId): Promise<ChatPinStatus> => {
         const pins = await pinCache.getUserPins(userId)
         const pin = pins.find(p => p.chatId === chatId)
+        let pinned = false
         if(!pin){
-            throw new Error()
+            pinCache.createPin(userId, chatId)
+            pinned = true
         }
-        pin.pinned = !pin.pinned
-        pinCache.updatePin(pin)        
-        return {chatId, pinned: pin.pinned}
+        else {
+            pinCache.removePin(pin)
+        }
+        return {chatId, pinned}
     },
 
     postMessage: async (userId: UserId, req: MessagePostReq): Promise<Message> => {
