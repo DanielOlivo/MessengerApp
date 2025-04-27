@@ -3,9 +3,11 @@ process.env.NODE_ENV = 'test'
 import { describe, it, expect, beforeAll, afterAll, afterEach, jest } from '@jest/globals'
 import db from '../config/db'
 import { controller } from './chatController'
-import { User } from '../models/models'
+import { isMessage, User } from '../models/models'
 import { chatMessages } from '../models/chat'
 import { wait } from 'shared/src/utils'
+import { MessagePostReq } from 'shared/src/Message'
+import { faker } from '@faker-js/faker/.'
 
 // maybe it would be way easier to create db in the beginning of test here
 // instead referencing seed...
@@ -119,6 +121,23 @@ describe('chat controller', () => {
         const { chatId: id, pinned } = result
         expect(id).toEqual(chatId)
         expect(pinned).toBeFalsy()
+    }) 
+
+    it('user 1 sends  a message to chat with user2', async () => {
+        const [ {id: chatId} ] = await getDmId(user1.id, user2.id)
+        expect(isValidUuidV4(chatId)).toBeTruthy()
+
+        const req: MessagePostReq = { chatId, content: faker.lorem.sentence() }  
+
+        const message = await controller.postMessage(user1.id, req)
+        expect(message).toBeDefined()
+        expect(isMessage(message)).toBeTruthy()
+
+        expect(isValidUuidV4(message.id)).toBeTruthy()
+        expect(message.chatId).toEqual(chatId)
+        expect(message.userId).toEqual(user1.id)
+        expect(message.content).toEqual(req.content)
+
     }) 
 
     it('sanity', () => expect(true).toBeTruthy()) 

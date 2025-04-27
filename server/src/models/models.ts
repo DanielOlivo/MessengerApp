@@ -43,3 +43,11 @@ export interface Message {
     content: string
     timestamp: Date
 }
+
+// eslint-disable-next-line
+export function isMessage(o: any): o is Message {
+    if(typeof o !== 'object'){
+        return false
+    }
+    return ['content', 'timestamp', 'userId', 'chatId', 'id'].every(p => p in o)
+}
