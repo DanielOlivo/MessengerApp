@@ -7,15 +7,17 @@ import { Knex } from "knex";
 // import userModel from '../../../models/users'
 import { Chat, ChatPin, Membership, Message, User } from "../../../models/models";
 import dayjs from 'dayjs';
+import { hash } from 'bcryptjs';
 
 export async function seed(knex: Knex): Promise<void> {
 
     let initTimestamp = dayjs().subtract(10, 'days')
 
+    const hash1 = await hash('password', 10)
     const user1: User = {
         id: uuid(),
         username: 'user1',
-        hash:'hash',
+        hash: hash1,
         iconSrc: '',
         created: initTimestamp.toDate()
     }

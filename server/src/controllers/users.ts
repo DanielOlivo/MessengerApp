@@ -1,9 +1,9 @@
-import {hash, compare} from 'bcrypt'
 import {Request, Response} from 'express'
 import { validationResult } from 'express-validator'
 import jwt from 'jsonwebtoken'
+import { hash, compare } from 'bcryptjs'
 
-import { UserId, Credentials, RegCredentials, TokenPayload } from '@shared/Types'
+import { Credentials, RegCredentials, TokenPayload } from '@shared/Types'
 import userModel from '../models/users'
 
 const controller = {
@@ -28,13 +28,13 @@ const controller = {
 
         const saltRounds = 10
         const hashed = await hash(password, saltRounds)  
-        const {hashed: h, ...rest} = await userModel.create(username, hashed, bio)
+        const {hash: h, ...rest} = await userModel.create(username, hashed, bio)
         res.status(200).json(rest)
     },
 
     login: async(req: Request, res: Response) => {
 
-        // console.log('someone logins...')
+        console.log('------------someone logins...')
 
         const errors = validationResult(req)
         if(!errors.isEmpty()){
@@ -45,13 +45,13 @@ const controller = {
 
         const {username, password}: Credentials = req.body
 
-        const dbUser = await userModel.getByUsername(username)
+        const [ dbUser ] = await userModel.getByUsername(username)
         if(!dbUser){
             res.status(404).json({message: 'username or password not match'})
             return
         }
 
-        const passwordMatch = await compare(password, dbUser.hashed)
+        const passwordMatch = await compare(password, dbUser.hash)
         if(!passwordMatch){
             res.status(404).json({message: 'username or password not match'})
             return

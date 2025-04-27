@@ -1,7 +1,7 @@
 import { Server } from 'socket.io'
 import { createServer } from 'http'
 
-import logger from "@logger/logger"
+// import logger from "@logger/logger"
 import app from './app'
 import { verifyToken } from './middlewares/socketAuth'
 import { ChatId, MessagePostReq, TokenPayload, UserId } from '@shared/Types'
@@ -13,7 +13,7 @@ import { ChatListItem, ChatListReq, ChatSelect,
     HeaderInfo, NewGroupReq, SearchReq, SendReq, 
     SendRes, Typing, UserInfoReq } from '@shared/Types'
 import { Commands } from '@shared/MiddlewareCommands'
-import chatController from './controllers/chatController'
+import { controller as chatController} from './controllers/chatController'
 import { Message } from './models/models'
 
 
@@ -25,7 +25,7 @@ export const io = new Server(httpServer, {
         credentials: true
     }
 })
-logger.info("socket cors set")
+// logger.info("socket cors set")
 
 
 
@@ -41,20 +41,19 @@ io.use(verifyToken)
 
 io.on('connection', async (socket) => {
 
+    console.log('connection', socket.id)
 
-    const childLogger = logger.child({user: socket.data})
-    childLogger.info("new connection")
+    // const childLogger = logger.child({user: socket.data})
+    // childLogger.info("new connection")
 
-
-
-    const payload = socket.data
+    // const payload = socket.data
 
     // handle subscirptions 
-    const chatids = await socketController.getAllChatIds(socket.data)
-    chatids.forEach(({id}) => {
-        childLogger.trace({user: socket.data, roomId: id}, 'joining')
-        socket.join(id)
-    })
+    // const chatids = await socketController.getAllChatIds(socket.data)
+    // chatids.forEach(({id}) => {
+    //     childLogger.trace({user: socket.data, roomId: id}, 'joining')
+    //     socket.join(id)
+    // })
 
 
     socket.on(Commands.UsersRequest, async () => {
