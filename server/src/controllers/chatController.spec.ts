@@ -164,7 +164,6 @@ async function getDmId(user1: string, user2: string){
         .join('chats', 'chats.id', '=', 'joined.id')
         .where('isGroup', false)
     return chatId
-
 }
 
 const isValidUuidV4 = (str: string): boolean => {

@@ -189,8 +189,6 @@ export const controller = {
             messages = await messageCache.getMessageForChat(targetChat.id)
         }
 
-
-
         return {
             chatId: targetChat.id,
             info: {
