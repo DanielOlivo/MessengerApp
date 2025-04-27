@@ -1,3 +1,4 @@
+import db from './config/db'
 import { Server } from 'socket.io'
 import { createServer } from 'http'
 
@@ -43,6 +44,15 @@ io.on('connection', async (socket) => {
 
     console.log('connection', socket.id)
 
+    const chatIds: {id: string}[] = await db('memberships').leftJoin('chats', 'chats.id', '=', 'memberships.chatId')
+        .where({userId: socket.data.id})
+        .select('chats.id')
+
+    chatIds.forEach(id => {
+        console.log('adding to room', id.id)
+        socket.join(id.id)
+    })
+
     // const childLogger = logger.child({user: socket.data})
     // childLogger.info("new connection")
 
@@ -83,6 +93,7 @@ io.on('connection', async (socket) => {
     socket.on(Commands.MessagePostReq, async (req: MessagePostReq) => {
         const { id } = socket.data as TokenPayload
         const message: Message = await chatController.postMessage(id, req)
+        // console.log('===================sending to ', message.chatId, message)
         io.to(message.chatId).emit(Commands.MessagePostRes, message)
     })
 
