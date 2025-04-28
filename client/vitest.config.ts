@@ -13,7 +13,10 @@ export default defineConfig({
             "@src": path.resolve(__dirname, "./src"),
             "@shared": path.resolve(__dirname, "../shared/src"),
             "@features": path.resolve(__dirname, "./src/features"),
-            "@app": path.resolve(__dirname, "./src/app")
+            "@app": path.resolve(__dirname, "./src/app"),
+
+            "@socketServer": path.resolve(__dirname, '../server/src'),
+            "@config": path.resolve(__dirname, '../server/src/config'),
         }
     },
 })

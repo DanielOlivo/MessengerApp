@@ -6,6 +6,7 @@ import { useApDispatch, useAppSelector } from '../../app/hooks'
 import { selectAuthStatus, selectIsOnWaiting } from '../selectors'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { autologin } from '../slice'
 
 export const Auth = () => {
 
@@ -31,6 +32,10 @@ export const Auth = () => {
             dispatch(regUser(data))
         }
     }
+
+    useEffect(() => {
+        dispatch(autologin())
+    }, [])
 
     useEffect(() => {
         if(isAuthenticated){

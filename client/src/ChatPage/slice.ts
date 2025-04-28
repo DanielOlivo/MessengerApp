@@ -172,7 +172,9 @@ const slice = createSlice({
         // ----------------- messages -------------------------
 
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        sendMessage: (state, action: PayloadAction<MessagePostReq>) => {},
+        sendMessage: (state, action: PayloadAction<MessagePostReq>) => {
+            console.log('send')
+        },
 
         handleMessage: (state, action: PayloadAction<Message>) => {
             console.log('------------- handling message ---------------')

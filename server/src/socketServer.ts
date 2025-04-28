@@ -15,7 +15,9 @@ import { ChatListItem, ChatListReq, ChatSelect,
     SendRes, Typing, UserInfoReq } from '@shared/Types'
 import { Commands } from '@shared/MiddlewareCommands'
 import { controller as chatController} from './controllers/chatController'
-import { Message } from './models/models'
+import { Message as DbMessage } from './models/models'
+
+import { Message } from 'shared/src/Message'
 
 
 export const httpServer = createServer(app)
@@ -75,6 +77,7 @@ io.on('connection', async (socket) => {
     socket.on(Commands.InitLoadingRequest, async () => {
         const { id } = socket.data as TokenPayload
         const res = await chatController.handleInitLoading(id)
+        console.log('init loading', res)
         socket.emit(Commands.InitLoadingResponse, res)
     })  
 
@@ -101,5 +104,7 @@ io.on('connection', async (socket) => {
         const res = await chatController.handleChatWithUser(id, userId)
         socket.emit(Commands.ChatWithUserRes, res) 
     })  
+
+
 
 })

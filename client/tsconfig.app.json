@@ -13,7 +13,8 @@
       "@src/*": ["./src/*"],
       "@shared/*": ["../shared/src/*"],
       "@features/*": ["./src/features/*"],
-      "@app/*": ["./src/app/*"]
+      "@app/*": ["./src/app/*"],
+      "@socketServer/*": ["../server/src/*"]
     },
 
     "types": ["vitest/globals", "@testing-library/jest-dom"],

@@ -8,6 +8,7 @@ import { initLoading } from "../../slice"
 import { requestUsers } from "../../../users/slice"
 import { selectIsOnSearch, selectSearchResultItems } from "../../../users/selectors"
 import { SearchCard } from "./components/SearchCard"
+import { initSocket } from "../../../features/socket/socketSlice"
 
 export const ChatList = () => {
 
@@ -19,10 +20,11 @@ export const ChatList = () => {
     const dispatch = useApDispatch()
 
     useEffect(() => {
+        setTimeout(() => dispatch(initSocket()), 100)
         setTimeout(() => {
             dispatch(requestUsers())
             dispatch(initLoading())
-        }, 100)
+        }, 400)
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 

@@ -1,13 +1,18 @@
 import { v4 as uuid } from 'uuid'
 import { getCache } from "../cache1";
 import { ChatId, DbUser, UserId, MessageId, ChatPinStatus, User } from "shared/src/Types";
-import { UserInfo, UserInfoCollection } from "shared/src/UserInfo";
+import { UserInfo as DbUserInfo, UserInfoCollection } from "shared/src/UserInfo";
 import { MessagePostReq } from "shared/src/Message";
 import dayjs from "dayjs";
 import { EditChanges, GroupCreateReq } from 'shared/src/Group';
 import { GroupCreateRes } from 'shared/src/ChatControl';
 
-import { Chat, ChatInfo, Message, Membership } from '../models/models';
+import { Chat, ChatInfo as DbChatInfo, Message as DbMessage, Membership } from '../models/models';
+
+import { ChatInfo } from 'shared/src/ChatInfo';
+import { Message } from 'shared/src/Message';
+import { UserInfo } from 'shared/src/UserInfo';
+
 
 // import userCache from '../cache/users'
 import { getUserCache } from '../cache/users';
@@ -41,7 +46,6 @@ export const controller = {
         const pins = await pinCache.getUserPins(userId)
         const messages = await messageCache.getMessagesForUser(userId, chatIds)
 
-
         return Object.fromEntries( contacts.map(user => ([user.id, {
             id: user.id,
             iconSrc: user.iconSrc,
@@ -63,20 +67,56 @@ export const controller = {
         const userMemberships = await membershipCache.getUserMemberships(userId)
         const chatIds = userMemberships.map(m => m.chatId)
         const memberships = await membershipCache.getMembershipsOfUserContacts(userId, chatIds)
-        // const contactIds = memberships.map(m => m.userId).filter(id => id !== userId)
-        // const contacts = await userCache.getUsersAsContacts(userId, contactIds)
 
-        const info = await chatInfoCache.getChatInfoOfUser(userId, chatIds)
+        const contactIds = memberships.map(m => m.userId).filter(id => id !== userId)
+        const contacts = await userCache.getUsersAsContacts(userId, contactIds)
+        const contactMap = new Map( contacts.map(c => [c.id, c]) )
+        
+
+        // const chats = await chatCache.getChatsOfUser(userId, chatIds)
+        // const groupedChats = new Map( chats.map(c => [c.id, c]) )        
+
+        // it is only groups
+        const groupInfos = await chatInfoCache.getChatInfoOfUser(userId, chatIds)
+        const groupInfoMap = new Map( groupInfos.map(i => [i.chatId, i]) )
+
+
+        const groupedMembers = memberships.reduce((acc, m) => {
+            if(!acc.has(m.chatId)){
+                acc.set(m.chatId, [])
+            }
+            if(m.userId !== userId){
+                acc.get(m.chatId)!.push(m.userId)
+            }
+            return acc
+        }, new Map<string, string[]>())
+
+        const infos = new Map<string, ChatInfo>()
+        for(const [chatId, mems] of groupedMembers.entries()){
+            if(groupInfoMap.has(chatId)){
+                const i = groupInfoMap.get(chatId)!
+                infos.set(chatId, {
+                    id: i.chatId,
+                    name: i.name
+                })
+            }
+            else { // dm
+                const name = contactMap.get(mems[0])!.username // it is not name, it is id!
+                infos.set(chatId, { 
+                    id: chatId,
+                    name
+                })
+            }
+        }
+
         // const chats = await chatCache.getUserChats(userId, chatIds)
         const pins = await pinCache.getUserPins(userId)
         const messages = await messageCache.getMessagesForUser(userId, chatIds)
 
+        // every chat must have chat info in response!
 
        return {
-            chatInfo: info.reduce((acc, m) => {
-                    acc[m.chatId] = m; 
-                    return acc 
-                }, {} as {[P: ChatId]: ChatInfo}),
+            chatInfo: Object.fromEntries( infos.entries() ),
             chatMessageIds: messages.sort(m => -
                 m.timestamp).reduce((acc, m) => {
                     if(m.chatId in acc) { 
@@ -130,13 +170,21 @@ export const controller = {
         await messageCache.getMessageForChat(chatId)
 
         const newMessage: Message = {
-            id: uuid(),
+            messageId: uuid(),
             chatId,
+            sender: userId,
+            content,
+            timestamp: dayjs().valueOf()
+        }
+        const dbMessage: DbMessage = {
+            id: newMessage.messageId,
             userId,
+            chatId,
             content,
             timestamp: dayjs().toDate()
         }
-        messageCache.insertMessage(newMessage)
+        
+        messageCache.insertMessage(dbMessage)
         return newMessage
     },
 
@@ -159,9 +207,11 @@ export const controller = {
         const ids1Set = new Set( chatIds1 )
         const ids2Set = new Set( chatIds2 )
 
+        const [ other ] = await userCache.getUserById(req)
+
         let targetChat: Chat | undefined = undefined
-        let chatInfo: ChatInfo
-        let messages: Message[]
+        let chatInfo: DbChatInfo
+        let messages: DbMessage[]
 
         for(const id of ids1Set){
             if(ids2Set.has(id) && chats1.has(id)){
@@ -189,16 +239,26 @@ export const controller = {
             messages = await messageCache.getMessageForChat(targetChat.id)
         }
 
+        const msgs: Message[] = messages.map(m => ({
+            messageId: m.id,
+            sender: m.userId,
+            chatId: m.chatId,
+            content: m.content,
+            timestamp: dayjs(m.timestamp).valueOf()
+        }))
+
         return {
             chatId: targetChat.id,
             info: {
-                name: chatInfo.name,
-                iconSrc: chatInfo.iconSrc,
-                status: 'status',
-                isGroups: false
-            },
+                id: targetChat.id,
+                name: other.username
+                // name: chatInfo.name,
+                // iconSrc: chatInfo.iconSrc,
+                // status: 'status',
+                // isGroups: false
+            } as ChatInfo,
             chatMessageIds: { [targetChat.id]: messages.map(m => m.id) },
-            messages: Object.fromEntries( messages.map(m => [m.id, m]) ),
+            messages: Object.fromEntries( msgs.map(m => [m.messageId, m]) ),
             members: [userId, req],
             admins: []
         }
@@ -212,7 +272,7 @@ export const controller = {
         // todo: load all members data
 
         const chat: Chat = { id: uuid(), created: created.toDate(), isGroup: true}
-        const chatInfo: ChatInfo = { id: uuid(), chatId: chat.id, name, iconSrc: ''}
+        const chatInfo: DbChatInfo = { id: uuid(), chatId: chat.id, name, iconSrc: ''}
         const memberships: Membership[] = members.map(id => ({
             id: uuid(), 
             userId: id, 

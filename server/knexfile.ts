@@ -1,6 +1,7 @@
 import 'tsconfig-paths/register'
 import type { Knex } from "knex";
 import dotenv from 'dotenv'
+import path from 'path'
 dotenv.config()
 
 // Update with your config settings.

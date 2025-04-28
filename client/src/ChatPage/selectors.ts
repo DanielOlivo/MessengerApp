@@ -4,7 +4,7 @@ import { RootState } from '../app/store'
 import { ChatItemProps } from './components/ChatList/components/ChatItem'
 import { TextMessageProps } from './components/ChatView/components/TextMessage/TextMessage'
 import { selectUserId } from '../Auth/selectors'
-import { selectFiltered } from '../users/selectors'
+import { selectAllUsers, selectFiltered, selectUserInfo } from '../users/selectors'
 
 export const selectChat = (state: RootState) => state.chat
 
@@ -105,18 +105,25 @@ export const selectChatMessages = createSelector(
     selectChatMessageIds,
     selectAllMessages,
     selectUserId,
-    (ids, msgs, userId): TextMessageProps[] => ids.map(id => {
-        const {messageId, content, chatId, timestamp, sender} = msgs[id]
-        return {
-            chatId,
-            text: content,
-            id: messageId,
-            timestamp: dayjs(timestamp).format('hh:mm'),
-            status: 'seen',
-            isOwn: sender === userId
+    (ids, msgs, userId): TextMessageProps[] => {
+        const ids2 = Array.from( ids )
+        console.log('ids2', ids2)
+        ids2.reverse()
+        console.log('reversed', ids2)
+        // ids2.reverse()
+        return ids2.map(id => {
+            const {messageId, content, chatId, timestamp, sender} = msgs[id]
+            return {
+                chatId,
+                text: content,
+                id: messageId,
+                timestamp: dayjs(timestamp).format('hh:mm'),
+                status: 'seen',
+                isOwn: sender === userId
+            }
         }
-    })
-)
+    )
+})
 
 
 // ------------------ typing ----------------------

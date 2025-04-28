@@ -30,11 +30,8 @@ const slice = createSlice({
         requestUsers: (state) => {},
 
         handleUsers: (state, action: PayloadAction<UserInfoCollection>) => {
-            console.log('handling users')
-            state.users = {
-                ...state.users,
-                ...action.payload
-            }
+            console.log('handling users', action.payload)
+            state.users = action.payload
         },
 
         search: (state, action: PayloadAction<string>) => {

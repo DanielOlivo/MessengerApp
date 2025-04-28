@@ -1,3 +1,4 @@
+import db from '../config/db'
 import {Request, Response} from 'express'
 import { validationResult } from 'express-validator'
 import jwt from 'jsonwebtoken'
@@ -34,7 +35,7 @@ const controller = {
 
     login: async(req: Request, res: Response) => {
 
-        console.log('------------someone logins...')
+        console.log('------------someone logins...', req.body)
 
         const errors = validationResult(req)
         if(!errors.isEmpty()){
