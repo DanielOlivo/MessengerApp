@@ -10,7 +10,7 @@ export const Container: FC<PropsWithChildren> = ({children}) => {
 
     return (
         <div 
-            className='absolute w-full h-full opacity-20 flex justify-center items-center bg-slate-500' 
+            className='absolute top-0 left-0 w-full h-full flex justify-center items-center bg-[rgba(0,0,0,0.4)]' 
             // onClick={close}
         >
             <div className='bg-white w-1/2 h-2/3 flex flex-col justify-start items-stretch'>

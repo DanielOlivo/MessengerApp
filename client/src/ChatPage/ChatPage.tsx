@@ -28,6 +28,7 @@ export const ChatPage = () => {
             <ChatList />
             <ChatView />
             <Typing />
+
             {chatControlState !== 'idle' && createPortal(
                 <Container>
                     <Controls />
