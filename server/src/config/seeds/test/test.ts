@@ -25,7 +25,7 @@ export async function seed(knex: Knex): Promise<void> {
     const user2: User = {
         id: uuid(),
         username: 'user2',
-        hash:'hash',
+        hash: hash1,
         iconSrc: '',
         created: initTimestamp.toDate()
     }

@@ -49,7 +49,7 @@ io.on('connection', async (socket) => {
         .select('chats.id')
 
     chatIds.forEach(id => {
-        console.log('adding to room', id.id)
+        console.log(socket.data.username, 'adding to room', id.id)
         socket.join(id.id)
     })
 
@@ -93,7 +93,6 @@ io.on('connection', async (socket) => {
     socket.on(Commands.MessagePostReq, async (req: MessagePostReq) => {
         const { id } = socket.data as TokenPayload
         const message: Message = await chatController.postMessage(id, req)
-        // console.log('===================sending to ', message.chatId, message)
         io.to(message.chatId).emit(Commands.MessagePostRes, message)
     })
 

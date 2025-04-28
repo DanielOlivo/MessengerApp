@@ -14,6 +14,7 @@ import { Message } from "./models/models";
 describe('socketServer', () => {
 
     let user1: ReturnType<typeof getClient>
+    let user2: ReturnType<typeof getClient>
 
     beforeAll(async() => {
         await db.migrate.rollback()
@@ -21,7 +22,7 @@ describe('socketServer', () => {
         await db.seed.run()
 
 
-        user1 = getClient()
+        user1 = getClient('user1')
         httpServer.listen(5000)
 
 
@@ -104,17 +105,48 @@ describe('socketServer', () => {
 
     })
 
+    it('user2 enters', async () => {
+        user2 = getClient('user2')
+
+        await user2.login('user2', 'password')
+        user2.startSocket()
+        await waitFor(() => user2.getSocket().connected)
+
+        user2.requestUsers()
+        user2.initLoading()
+
+        await waitFor(() => user2.userCount() > 0)
+        await waitFor(() => user2.messageCount() > 0)
+    })
+
+    it('user2 sends message to user1 and both receive the response', async () => {
+        const chatId = Object.keys(user1.getResponses().chatMessageIds)[0]
+        const content = faker.lorem.sentence()
+        const count1 = user1.messageCount()
+        const count2 = user2.messageCount()
+
+        // console.log('user2 sends message to ', chatId)
+        user2.postMessage(chatId, content)
+
+        // await waitFor(() => user1.messageCount() > count1)
+        await Promise.all([
+            waitFor(() => user2.messageCount() > count2),
+            waitFor(() => user1.messageCount() > count1)
+        ])
+    })
+
     it('sanity', () => expect(true).toBeTruthy())
 })
 
-function getClient(){
+function getClient(name: string){
+    const _name = name
     let token: string
     const getToken = () => token
     let responses = {
         users: {} as UserInfoCollection,
         search: {} as UserInfoCollection,
         chatMessageIds: {} as { [P: string]: string[]},
-        messages: {},
+        messages: {} as { [P: string]: Message},
         chatInfo: {},
         admins: {},
         members: {},
@@ -145,7 +177,13 @@ function getClient(){
         clientSocket.on(Commands.InitLoadingResponse, data => { responses = {...responses, ...data}} )
         clientSocket.on(Commands.SearchRes, data => { responses.search = data })
         clientSocket.on(Commands.MessagePostRes, (msg: Message) => {
-            responses.messages = {...responses.messages, msg}
+            // console.log(`${_name} receives msg: ${msg} with id ${msg.id}`)
+            // console.log(`${_name}: count before: ${messageCount()}`)
+            responses.messages[msg.id] = msg
+            // console.log(`${_name}: count after: ${messageCount()}`)
+            if(!(msg.chatId in responses.chatMessageIds)){
+                responses.chatMessageIds[msg.chatId] = []
+            }
             responses.chatMessageIds[msg.chatId].unshift(msg.id)
         })
     }
@@ -153,6 +191,7 @@ function getClient(){
     const close = () => clientSocket.close()
 
     const messageCount = () => Object.keys(responses.messages).length
+    const userCount = () => Object.keys(responses.users).length
 
     const requestUsers = () => {
         clientSocket.emit(Commands.UsersRequest, '')
@@ -173,7 +212,7 @@ function getClient(){
     return { 
         login, getToken, startSocket, close, getSocket,
         requestUsers, initLoading, search, postMessage,
-        getResponses, messageCount
+        getResponses, messageCount, userCount
     }
 }
 
