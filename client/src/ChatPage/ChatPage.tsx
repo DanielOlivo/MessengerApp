@@ -21,7 +21,7 @@ export const ChatPage = () => {
             navigate('/login')
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+    }, [isAuthenticated])
 
     return (
         <div className="flex flex-row justify-between items-stretch">

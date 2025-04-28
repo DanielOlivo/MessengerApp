@@ -9,6 +9,7 @@ import { requestUsers } from "../../../users/slice"
 import { selectIsOnSearch, selectSearchResultItems } from "../../../users/selectors"
 import { SearchCard } from "./components/SearchCard"
 import { initSocket } from "../../../features/socket/socketSlice"
+import { UserBar } from "./components/UserBar"
 
 export const ChatList = () => {
 
@@ -33,6 +34,7 @@ export const ChatList = () => {
             className="flex flex-col justify-start items-stretch min-w-[200px] max-w-[400px] max-h-screen"
             aria-label="chat-list"
         >
+            <UserBar />
 
             <SearchBar />
 
