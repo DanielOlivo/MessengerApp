@@ -135,11 +135,27 @@ describe('socketServer', () => {
         ])
     })
 
+    it('user1 requests chat with user3', async () => {
+        const [ user3 ] = Object.values(user1.getResponses().search)
+        expect(user3).toBeDefined()
+        expect(user3.name).toEqual('user3')
+
+        const count = user1.getCount()
+        const chatCount = user1.getChatCount()
+
+        user1.reqChatWith(user3.id)
+
+        await waitFor(() => user1.getCount() > count)
+        expect(user1.getChatCount() > chatCount).toBeTruthy()
+
+    })
+
     it('sanity', () => expect(true).toBeTruthy())
 })
 
 function getClient(name: string){
     const _name = name
+    let count = 0
     let token: string
     const getToken = () => token
     let responses = {
@@ -147,17 +163,18 @@ function getClient(name: string){
         search: {} as UserInfoCollection,
         chatMessageIds: {} as { [P: string]: string[]},
         messages: {} as { [P: string]: Message},
-        chatInfo: {},
-        admins: {},
-        members: {},
+        chatInfo: {} as { [P: string]: {name: string, iconSrc: string, status: string, isGroup: boolean}},
+        admins: {} as { [P: string]: string[]},
+        members: {} as { [P: string]: string[]},
         unseenCount: {},
-        pinned: [] 
+        pinned: [] as string[]
     }
 
     let clientSocket: ClientSocket
 
     const getSocket = () => clientSocket
     const getResponses = () => responses
+    const getCount = () => count
 
     const login = async (username: string, password: string) => {
         const url = '/api/user/login'
@@ -173,18 +190,34 @@ function getClient(name: string){
     const startSocket = () => {
         clientSocket = ioc('http://localhost:5000', {auth: {token}})
 
-        clientSocket.on(Commands.UsersResponse, data => { responses.users = data })
-        clientSocket.on(Commands.InitLoadingResponse, data => { responses = {...responses, ...data}} )
-        clientSocket.on(Commands.SearchRes, data => { responses.search = data })
+        clientSocket.on(Commands.UsersResponse, data => { 
+            count += 1
+            responses.users = data 
+        })
+        clientSocket.on(Commands.InitLoadingResponse, data => { 
+            count += 1
+            responses = {...responses, ...data}
+        })
+        clientSocket.on(Commands.SearchRes, data => { 
+            count += 1
+            responses.search = data 
+        })
         clientSocket.on(Commands.MessagePostRes, (msg: Message) => {
-            // console.log(`${_name} receives msg: ${msg} with id ${msg.id}`)
-            // console.log(`${_name}: count before: ${messageCount()}`)
+            count += 1
             responses.messages[msg.id] = msg
-            // console.log(`${_name}: count after: ${messageCount()}`)
             if(!(msg.chatId in responses.chatMessageIds)){
                 responses.chatMessageIds[msg.chatId] = []
             }
             responses.chatMessageIds[msg.chatId].unshift(msg.id)
+        })
+        clientSocket.on(Commands.ChatWithUserRes, (data) => {
+            count += 1
+            const { chatId, info, members, admins, messages, chatMessageIds } = data
+            responses.chatInfo[chatId] = info as {name: string, iconSrc: string, status: string, isGroup: boolean}
+            responses.chatMessageIds[chatId] = chatMessageIds[chatId]
+            responses.members[chatId] = members[chatId]
+            responses.admins[chatId] = admins[chatId]
+            responses.messages = {...responses.messages, ...messages}
         })
     }
 
@@ -192,6 +225,7 @@ function getClient(name: string){
 
     const messageCount = () => Object.keys(responses.messages).length
     const userCount = () => Object.keys(responses.users).length
+    const getChatCount = () => Object.keys(responses.chatMessageIds).length
 
     const requestUsers = () => {
         clientSocket.emit(Commands.UsersRequest, '')
@@ -209,9 +243,13 @@ function getClient(name: string){
         clientSocket.emit(Commands.MessagePostReq, {chatId, content})
     }
 
+    const reqChatWith = (userId: string) => {
+        clientSocket.emit(Commands.ChatWithUserReq, userId)
+    }
+
     return { 
-        login, getToken, startSocket, close, getSocket,
-        requestUsers, initLoading, search, postMessage,
+        login, getToken, startSocket, close, getSocket, getCount, getChatCount,
+        requestUsers, initLoading, search, postMessage, reqChatWith,
         getResponses, messageCount, userCount
     }
 }
