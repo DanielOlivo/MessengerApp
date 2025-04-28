@@ -21,7 +21,7 @@ const getMessagesForUser = async (userId: UserId, ids: ChatId[]) => await cache.
 const insertMessage = (message: Message) => cache.insert(
     message,
     new Set( [`id=${message.id}`, `chat=${message.chatId}`] ),
-    (m: Message) => db('messages').insert(m)
+    async (m: Message) => await db('messages').insert(m)
 )
 
 export function getMessageCache(){

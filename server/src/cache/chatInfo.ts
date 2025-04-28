@@ -27,7 +27,7 @@ const getChatInfo = async (chatId: ChatId) => await cache.get(
 const insert = (info: ChatInfo) => cache.insert(
     info,
     new Set( [ queries.id(info.id) ] ),
-    (i) => db('chatinfo').insert(i)
+    async (i) => await db('chatinfo').insert(i)
 )
 
 export function getChatInfoCache(){

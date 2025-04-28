@@ -40,12 +40,12 @@ const getChatMemberships = async (chatId: ChatId) => await cache.get(
 const insert = (membership: Membership) => cache.insert(
     membership,
     new Set( [`id=${membership.id}`, `chat=${membership.chatId}`] ),
-    (m) => db('memberships').insert(m)
+    async (m) => await db('memberships').insert(m)
 )
 
 const remove = (membership: Membership) => cache.removeById(
     membership.id,
-    (id) => db('memberships').where({id}).del()
+    async (id) => await db('memberships').where({id}).del()
 )
 
 export function getMembershipCache() {

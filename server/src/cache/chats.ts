@@ -49,12 +49,12 @@ const getDmBetween = async(id1: UserId, id2: UserId) => await cache.get(
 const insert = (chat: Chat) => cache.insert(
     chat,
     new Set( [`id=${chat.id}`] ),
-    (c: Chat) => db('chats').insert(c)
+    async (c: Chat) => await db('chats').insert(c)
 )
 
 const remove = (chatId: ChatId) => cache.removeById(
     chatId,
-    (id) => db('chats').where({id}).del()
+    async (id) => await db('chats').where({id}).del()
 )
 
 export function  getChatCache(){
