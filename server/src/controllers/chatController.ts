@@ -163,6 +163,7 @@ export const controller = {
         return {chatId, pinned}
     },
 
+    // this should return multiple objects: message itself, chat info for all members
     postMessage: async (userId: UserId, req: MessagePostReq): Promise<Message> => {
         const { chatId, content } = req
         
@@ -252,12 +253,10 @@ export const controller = {
             info: {
                 id: targetChat.id,
                 name: other.username
-                // name: chatInfo.name,
-                // iconSrc: chatInfo.iconSrc,
-                // status: 'status',
-                // isGroups: false
             } as ChatInfo,
-            chatMessageIds: { [targetChat.id]: messages.map(m => m.id) },
+            chatMessageIds: { [targetChat.id]: messages.sort((m1, m2) => 
+                m1.timestamp.getMilliseconds() > m2.timestamp.getMilliseconds() ? 1 : -1).map(m => 
+                    m.id) },
             messages: Object.fromEntries( msgs.map(m => [m.messageId, m]) ),
             members: [userId, req],
             admins: []

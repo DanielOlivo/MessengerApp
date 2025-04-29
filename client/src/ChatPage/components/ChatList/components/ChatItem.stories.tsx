@@ -11,7 +11,13 @@ const meta = {
     layout: 'centered',
   },
   decorators: [
-    (Story) => <Provider><Story /></Provider>
+    (Story) => (
+      <Provider>
+        <div className='bg-sky-600 p-3'>
+          <Story />
+        </div>
+      </Provider>
+    )
   ],
   tags: ['autodocs'],
 } satisfies Meta<typeof ChatItem>
@@ -36,6 +42,17 @@ export const Selected: Story = {
         title: faker.person.fullName(),
         content: faker.lorem.sentence(),
         iconSrc: getRandomHumanIcon(),
+        unseenCount: 0,
+        selected: true
+    }
+}
+
+export const NoIcon: Story = {
+    args: {
+        chatId: '',
+        title: faker.person.fullName(),
+        content: faker.lorem.sentence(),
+        iconSrc: '',
         unseenCount: 0,
         selected: true
     }

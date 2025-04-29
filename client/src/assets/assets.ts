@@ -20,6 +20,10 @@ import unseen           from './icons/chatview/unseen.svg'
 
 import pin              from './icons/chatlist/pin.svg'
 
+import userIcon         from './icons/userIcon.svg'
+import groupIcon        from './icons/groupIcon.svg'
+
+
 export const humanIcons = {
     human1, human2, human3, human4, human5, 
     human6, human7, human8, human9, human10
@@ -30,7 +34,7 @@ export const chatViewIcons = {
 }
 
 export const chatListIcons = {
-    pin
+    pin, userIcon, groupIcon
 }
 
 export function getRandomHumanIcon(): string {
@@ -39,3 +43,4 @@ export function getRandomHumanIcon(): string {
 
     return values[idx]
 }
+

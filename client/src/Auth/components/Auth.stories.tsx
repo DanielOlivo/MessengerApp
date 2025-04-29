@@ -30,7 +30,7 @@ export const Primary: Story = {
     (Story) => (
       <BrowserRouter>
         <Provider store={store} >
-          <div className='w-[500px] h-[500px]'>
+          <div className='w-[1000px] h-[700px]'>
             <Story />
           </div>
         </Provider>
