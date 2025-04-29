@@ -27,12 +27,12 @@ export const ChatInput = () => {
     }
 
     return (
-        <div aria-label='chat-input' className="w-full flex flex-row justify-between border-t-2 border-slate-300 p-2">
+        <div aria-label='chat-input' className="w-full h-9 flex flex-row justify-between border-t-2 border-slate-300 p-2 bg-sky-900 font-Montserrat">
             <input 
                 aria-label="chat-input-field" 
                 type='text' 
                 placeholder="type here..." 
-                className="flex-grow" 
+                className="flex-grow border-b-2 border-sky-200 border-opacity-20 bg-[rgba(0,0,0,0)] text-sky-200 placeholder:text-sky-400 focus:outline-none" 
                 ref={inputRef} 
                 onChange={() => dispatch(sendTyping(chatId))}  
                 onKeyUp={(e) => {
@@ -40,7 +40,11 @@ export const ChatInput = () => {
                         handleSend()
                     }
                 }}/>
-            <button aria-label='chat-input-send' className="ml-2" onClick={handleSend}>Send</button>
+            <button 
+                aria-label='chat-input-send' 
+                className="ml-2 font-bold text-sky-200" 
+                onClick={handleSend}
+            >Send</button>
         </div>
     )
 }

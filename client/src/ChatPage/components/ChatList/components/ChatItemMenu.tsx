@@ -9,14 +9,17 @@ export interface ChatItemMenuProps {
     pinned: boolean
 }
 
+const buttonStyle = 'hover:bg-sky-700'
+
 export const ChatItemMenu: FC<ChatItemMenuProps> = ({chatId, pinned}) => {
 
     const dispatch = useApDispatch()
 
     return (
-        <div className='flex flex-col justify-start items-stretch w-24 border border-slate-400 rounded-md p-1 bg-white'>
+        <div className='flex flex-col justify-start items-stretch w-24 border border-sky-200 rounded-md p-1 bg-sky-950 text-sky-200 font-Montserrat font-bold'>
             <button 
                 aria-label='chat-item-menu-toggle' 
+                className={buttonStyle}
                 onClick={() => {
                     dispatch(togglePin(chatId))
                     dispatch(disable())
@@ -24,6 +27,7 @@ export const ChatItemMenu: FC<ChatItemMenuProps> = ({chatId, pinned}) => {
             >{pinned ? 'Unpin' : 'Pin'}</button>
             <button 
                 aria-label='chat-item-menu-delete' 
+                className={buttonStyle}
                 onClick={() => {
                     dispatch(deleteChat(chatId))
                     dispatch(disable())

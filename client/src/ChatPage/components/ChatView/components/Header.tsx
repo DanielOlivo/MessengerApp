@@ -18,7 +18,7 @@ export const Header = () => {
     }
 
     return (
-        <div aria-label='header' className="flex flex-row justify-between items-center h-16 px-4 py-2 bg-sky-900 font-Montserrat text-sky-200">
+        <div aria-label='header' className="flex flex-row justify-between items-center h-16 px-4 py-2 bg-sky-900 font-Montserrat text-sky-200 font-bold">
 
             <div className="flex flex-row justify-start items-center">
                 <Icon iconSrc={iconSrc === '' ? chatListIcons.userIcon : iconSrc} isOnline={false}/>                

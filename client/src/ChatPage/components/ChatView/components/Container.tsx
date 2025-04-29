@@ -8,7 +8,7 @@ export const Container = () => {
     const items = useAppSelector(selectChatMessages)
 
     return (
-        <div className="flex-grow flex flex-col justify-start items-stretch bg-slate-200 px-3 pt-14 overflow-y-auto">
+        <div className="flex-grow flex flex-col justify-start items-stretch bg-slate-200 px-3 pt-14 overflow-y-auto bg-sky-800">
             <div className="w-full">
                 {chatId !== '' && items.map(item => <TextMessage key={item.id} {...item} />)}
             </div>

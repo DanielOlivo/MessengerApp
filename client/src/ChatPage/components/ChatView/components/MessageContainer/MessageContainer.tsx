@@ -11,12 +11,15 @@ export interface MessageContainerProps {
     status: MessageStatus
 }
 
+const notOwnStyle = 'bg-slate-600 text-slate-200'
+const ownStyle = 'bg-pink-300 text-slate-800'
+
 export const MessageContainer = ({isOwn, timestamp, status, children}: PropsWithChildren<MessageContainerProps>) => {
 
     return (
         <div aria-label='message-container' className={`w-full px-2 mt-2 flex flex-row items-center ${isOwn ? 'justify-end' : 'justify-start'}`}>
             <div className="max-w-4/5 flex flex-col items-start">
-                <div className="max-w-full p-1 bg-white flex flex-row justify-between items-end">
+                <div className={`max-w-full rounded-md p-1 bg-white flex flex-row justify-between items-end ${isOwn ? ownStyle : notOwnStyle}`}>
                     <div className="flex-grow">
                         {children}
                     </div>
@@ -24,7 +27,7 @@ export const MessageContainer = ({isOwn, timestamp, status, children}: PropsWith
                         <img className="ml-2 w-4 h-4 object-contain" src={getIcon(status)}/>
                     )}
                 </div>
-                <p>{timestamp}</p>
+                <p className="text-sky-200 text-xs">{timestamp}</p>
             </div>
         </div>
     )

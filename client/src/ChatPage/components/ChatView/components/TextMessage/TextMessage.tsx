@@ -6,9 +6,10 @@ export interface TextMessageProps extends MessageContainerProps {
 }
 
 export const TextMessage = ({id, status, isOwn, timestamp, text}: TextMessageProps) => {
+
     return (
         <MessageContainer id={id} isOwn={isOwn} timestamp={timestamp} status={status}>
-            <p>{text}</p>
+            <p className="font-Montserrat text-lg">{text}</p>
         </MessageContainer>    
     )
 }

@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "starttest": "$env:NODE_ENV=\"test\"; nodemon -r tsconfig-paths/register ./src/run.ts",
+    "starttest": "env NODE_ENV=test nodemon -r tsconfig-paths/register ./src/run.ts",
     "start": "nodemon -r tsconfig-paths/register ./src/run.ts",
     "test": "jest --detectOpenHandles --forceExit",
     "testdb": "pnpm dlx knex migrate:down --env test && pnpm dlx knex migrate:up --env test && pnpm dlx knex seed:run --env test",
