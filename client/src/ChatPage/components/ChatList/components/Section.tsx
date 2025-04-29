@@ -20,7 +20,7 @@ export const Section = ({title, iconSrc, items}: SectionProps) => {
                     <img src={iconSrc} className="object-contain" />
                 </div>
 
-                <p>{title}</p>
+                <p className="font-Montserrat font-medium text-sky-200">{title}</p>
             </div>
 
             {items.map(item => <ChatItem key={item.chatId} {...item} />)}

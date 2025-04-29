@@ -20,7 +20,7 @@ export const SearchBar = () => {
             aria-label="search-field"    
             type='text'
             placeholder="search..."
-            className="border-b-2 border-[rgb(186,230,253)] px-1 py-1 mx-4 focus:outline-none bg-[rgba(0,0,0,0)] h-9 text-sky-200 font-Montserrat font-semibold"
+            className="border-b-2 border-[rgb(186,230,253)] px-1 py-1 mx-4 focus:outline-none bg-[rgba(0,0,0,0)] h-9 text-sky-200 font-Montserrat font-semibold placeholder:text-sky-400"
             onChange={handleChange}
         />
     )

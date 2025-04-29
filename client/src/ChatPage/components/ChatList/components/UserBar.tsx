@@ -12,7 +12,7 @@ export const UserBar = () => {
     } 
 
     return (
-        <div className="flex flex-row items-center justify-between">
+        <div className="flex flex-row items-center justify-between h-9 px-4 py-3 font-Montserrat text-sky-200 font-bold">
             <p>{username}</p>
             <button
                 onClick={handleLogout} 

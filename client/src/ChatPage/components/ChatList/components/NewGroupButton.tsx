@@ -8,7 +8,7 @@ export const NewGroupButton = () => {
     return (
         <div className="flex flex-row justify-center items-center h-9 my-2">
             <button 
-                className="border-2 border-dashed p-3  border-slate-500 rounded-3xl text-sm"
+                className="p-3  text-sm font-Montserrat text-sky-300 font-bold"
                 onClick={() => dispatch(setCreate())}
                 aria-label="new-group-btn"
             >New Group</button>
