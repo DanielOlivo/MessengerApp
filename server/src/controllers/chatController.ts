@@ -2,7 +2,7 @@ import { v4 as uuid } from 'uuid'
 import { getCache } from "../cache1";
 import { ChatId, DbUser, UserId, MessageId, ChatPinStatus, User } from "shared/src/Types";
 import { UserInfo as DbUserInfo, UserInfoCollection } from "shared/src/UserInfo";
-import { MessagePostReq } from "shared/src/Message";
+import { MessagePostReq, MessagePostRes } from "shared/src/Message";
 import dayjs from "dayjs";
 import { EditChanges, GroupCreateReq } from 'shared/src/Group';
 import { GroupCreateRes } from 'shared/src/ChatControl';
@@ -167,13 +167,19 @@ export const controller = {
         return {chatId, pinned}
     },
 
-    // this should return multiple objects: message itself, chat info for all members
-    postMessage: async (userId: UserId, req: MessagePostReq): Promise<Message> => {
+    // this should return multiple objects: message itself, chat info for all members, and users
+    // chat info should be one for all in case of group
+    // or personal in case of dm
+    postMessage: async (userId: UserId, req: MessagePostReq): Promise<MessagePostRes[]> => {
         const { chatId, content } = req
         
         // reload
         // await messageCache.getMessageForChat(chatId)
         await messageCache.getMessagesForUser(userId)
+
+        const memberships = await membershipCache.getChatMemberships(chatId)
+        const users = await userCache.getAsChatMembers(chatId)
+        const userCollection: UserInfoCollection = Object.fromEntries( users.map(u => [u.id, {id: u.id, name: u.username, iconSrc: u.iconSrc}]))
 
         const newMessage: Message = {
             messageId: uuid(),
@@ -189,69 +195,74 @@ export const controller = {
             content,
             timestamp: dayjs().toDate()
         };
-        
-        // it is very buggy
+
+
+        const infos = await chatInfoCache.getChatInfo(chatId);
+
         (async () => await messageCache.insertMessage(dbMessage))()
-        return newMessage
+
+        if(infos.length === 1){
+            const ci = infos[0]
+            return [{
+                message: newMessage,
+                chatInfo: { id: ci.chatId, name: ci.name},
+                users: userCollection,
+
+                target: 'group',
+                targetId: ci.chatId
+            }]
+        }
+
+        const otherId = memberships.filter(m => m.userId != userId)[0].userId
+        
+        return [
+            {
+                message: newMessage,
+                users: userCollection,
+                chatInfo: { id: chatId, name: userCollection[otherId].name},
+                target: 'user',
+                targetId: userId
+            },
+            {
+                message: newMessage,
+                users: userCollection,
+                chatInfo: { id: chatId, name: userCollection[userId].name},
+                target: 'user',
+                targetId: otherId
+            }
+        ]
     },
 
     handleChatWithUser: async(userId: UserId, req: UserId) => {
-        const memberships1 = await membershipCache.getUserMemberships(userId)
-        const memberships2 = await membershipCache.getUserMemberships(req)
 
-        const chatIds1 = memberships1.map(m => m.chatId)
-        const chatIds2 = memberships2.map(m => m.chatId)
+        const chats = await chatCache.getDmBetween(userId, req)
+        
+        let chat: Chat
 
-        const user1Chats = await chatCache.getChatsOfUser(userId, chatIds1)
-        const user2Chats = await chatCache.getChatsOfUser(req, chatIds2)
+        let dbMessages: DbMessage[]
+        let chatId: string
 
-        const chats1 = new Map(user1Chats.map(c => [c.id, c]))
-        const chats2 = new Map(user2Chats.map(c => [c.id, c]))
+        if(chats.length === 0){
+            chat = {id: uuid(), created: dayjs().toDate(), isGroup: false}
+            const member1: Membership = {id: uuid(), userId, chatId: chat.id, isAdmin: false, created: chat.created}
+            const member2: Membership = {id: uuid(), userId: req, chatId: chat.id, isAdmin: false, created: chat.created}
 
-        // const info1 = await chatInfoCache.getChatInfoOfUser(userId, chatIds1)
-        // const info2 = await chatInfoCache.getChatInfoOfUser(req, chatIds2)
-        const info1 = await chatInfoCache.getChatInfoOfUser(userId)
-        const info2 = await chatInfoCache.getChatInfoOfUser(req)
-
-        const [ other ] = await userCache.getUserById(req)
-
-        const ids1Set = new Set( chatIds1 )
-        const ids2Set = new Set( chatIds2 )
-
-        let targetChat: Chat | undefined = undefined
-        let chatInfo: DbChatInfo
-        let messages: DbMessage[]
-
-        for(const id of ids1Set){
-            if(ids2Set.has(id) && chats1.has(id)){
-                targetChat = chats1.get(id)!
-                break
-            }
-        }
-
-        if(targetChat === undefined){
-            console.log('creating chat...')
-            const newChat: Chat = { id: uuid(), isGroup: false, created: dayjs().toDate()}
-            chatInfo = {id: uuid(), chatId: newChat.id, name: other.username, iconSrc: ''}
-            const member1: Membership = {id: uuid(), userId, chatId: newChat.id, isAdmin: false, created: newChat.created}
-            const member2: Membership = {id: uuid(), userId: req, chatId: newChat.id, isAdmin: false, created: newChat.created}
-            messages = [];
-
-            (async () => {
-                await chatCache.insert(newChat)
-                await chatInfoCache.insert(chatInfo)
-                await membershipCache.insert(member1)
-                await membershipCache.insert(member2)
+            await (async () => {
+                await chatCache.insert(chat)
+                await Promise.all([membershipCache.insert(member1), membershipCache.insert(member2)])
             })()
-            targetChat = newChat
+
+            dbMessages = []
         }
         else {
-            const infos = await chatInfoCache.getChatInfo(targetChat.id)
-            chatInfo = infos[0]
-            messages = await messageCache.getMessageForChat(targetChat.id)
+            chat = chats[0]
+            chatId = chats[0].id
+            dbMessages = await messageCache.getMessageForChat(chatId)
         }
 
-        const msgs: Message[] = messages.map(m => ({
+        const [ other ] = await userCache.getUserById(req)
+        const chatInfo: ChatInfo = {id: chat.id, name: other.username} 
+        const messages: Message[] = dbMessages.map(m => ({
             messageId: m.id,
             sender: m.userId,
             chatId: m.chatId,
@@ -260,15 +271,12 @@ export const controller = {
         }))
 
         return {
-            chatId: targetChat.id,
-            info: {
-                id: targetChat.id,
-                name: other.username
-            } as ChatInfo,
-            chatMessageIds: { [targetChat.id]: messages.sort((m1, m2) => 
-                m1.timestamp.getMilliseconds() > m2.timestamp.getMilliseconds() ? 1 : -1).map(m => 
-                    m.id) },
-            messages: Object.fromEntries( msgs.map(m => [m.messageId, m]) ),
+            chatId: chat.id,
+            info: chatInfo,
+            chatMessageIds: { [chat.id]: messages.sort((m1, m2) => 
+                m1.timestamp > m2.timestamp ? 1 : -1).map(m => 
+                    m.messageId) },
+            messages: Object.fromEntries( messages.map(m => [m.messageId, m]) ),
             members: [userId, req],
             admins: []
         }

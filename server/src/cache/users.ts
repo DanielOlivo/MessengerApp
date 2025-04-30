@@ -10,7 +10,8 @@ const cache = getCache<User>(u => u.id)
 export const queries = {
     id: (userId: UserId) => `id=${userId}`,
     asContact: (userId: UserId) => `contacts-id=${userId}`,
-    username: (username: string) => `username=${username}`
+    username: (username: string) => `username=${username}`,
+    asMember: (chatId: string) => `memberof=${chatId}`
 }
 
 const getUserById = async (id: UserId) => await cache.get(
@@ -25,6 +26,15 @@ const getUsersAsContacts = async (id: UserId, ids: UserId[]) => await cache.get(
     (user: User) => new Set( [queries.id(user.id), queries.asContact(id)] )
 )
 
+const getAsChatMembers = async (chatId: string) => await cache.get(
+    queries.asMember(chatId),
+    async () => await db('memberships')
+        .join('users', 'users.id', '=', 'memberships.userId')
+        .where('memberships.chatId', '=', chatId)
+        .select('users.*'),
+    (u: User) => new Set( [queries.id(u.id), queries.username(u.username), queries.asMember(chatId)] ) 
+)
+
 const search = async (username: string) => await cache.get(
     queries.username(username),
     () => db('users').where({username}).select('*'),
@@ -35,6 +45,7 @@ export function getUserCache(){
     return {
         getUserById,
         getUsersAsContacts,
+        getAsChatMembers,
         search,
         cache
     }

@@ -151,15 +151,34 @@ describe('chat controller', () => {
 
         const req: MessagePostReq = { chatId, content: faker.lorem.sentence() }  
 
-        const message = await controller.postMessage(user1.id, req)
-        expect(message).toBeDefined()
-        console.log(isMessage(message))
-        expect(isMessage(message)).toBeTruthy()
+        const responses = await controller.postMessage(user1.id, req)
 
-        expect(isValidUuidV4(message.messageId)).toBeTruthy()
-        expect(message.chatId).toEqual(chatId)
-        expect(message.sender).toEqual(user1.id)
-        expect(message.content).toEqual(req.content)
+        expect(responses.every(r => r.target === 'user')).toBeTruthy()
+
+        const res1 = responses[0].targetId === user1.id ? responses[0] : responses[1]
+        const res2 = responses[0].targetId === user2.id ? responses[0] : responses[1]
+
+        {
+            const { message, chatInfo, users } = res1
+            expect(message).toBeDefined()
+            expect(isMessage(message)).toBeTruthy()
+
+            expect(isValidUuidV4(message.messageId)).toBeTruthy()
+            expect(message.chatId).toEqual(chatId)
+            expect(message.sender).toEqual(user1.id)
+            expect(message.content).toEqual(req.content)
+
+            expect(user1.id in users).toBeTruthy()
+            expect(user2.id in users).toBeTruthy()
+
+            expect(chatInfo.name).toEqual('user2')
+        }
+
+        {
+            const { chatInfo } = res2
+            expect(chatInfo.name).toEqual('user1')
+        }
+        
     }) 
 
     it('user1: initLoading again, chatMessageIds', async () => {
@@ -201,10 +220,60 @@ describe('chat controller', () => {
     })
 
     it('user1 requests chat with user3', async () => {
-        const result = await controller.handleChatWithUser(user1.id, user3.id)
-        expect(result).toBeDefined()
-        console.log(result)
+        const result1 = await controller.handleChatWithUser(user1.id, user3.id)
+        expect(result1).toBeDefined()
+
+        // again
+        const result2 = await controller.handleChatWithUser(user1.id, user3.id)
+        expect(result2).toBeDefined()
+
+        expect(result1.chatId).toEqual(result2.chatId)
+        const { info: { name }} = result1
+        expect(name).toEqual('user3')
+        expect(name).toEqual(result2.info.name)
+        expect(Object.keys(result1.messages).length).toEqual(0)
+        expect(Object.keys(result1.chatMessageIds).length).toEqual(1)
     })
+
+    it('user1 sends a message to user3', async () => {
+        const { chatId } = await controller.handleChatWithUser(user1.id, user3.id) 
+        expect(chatId).toBeDefined()
+        expect(isValidUuidV4(chatId)).toBeTruthy()
+
+        const req: MessagePostReq = { content: faker.lorem.sentence(), chatId }
+        const responses = await controller.postMessage(user1.id, req)
+
+        const res1 = responses.find(r => r.targetId === user1.id)!
+        const res2 = responses.find(r => r.targetId === user3.id)!
+
+        {
+            const { message, chatInfo, users, targetId } = res1
+            expect(isMessage(message)).toBeTruthy()
+            expect(message.chatId).toEqual(chatId)
+            expect(message.content).toEqual(req.content)
+            expect(chatInfo.name).toEqual('user3')
+            expect([user1.id, user3.id].every(n => n in users)).toBeTruthy()
+            expect(targetId).toEqual(user1.id)
+        }
+
+        {
+            const { chatInfo, targetId } = res2
+            expect(chatInfo.name).toEqual('user1')
+            expect(targetId).toEqual(user3.id)
+        }
+    })
+
+    it('user3 initLoading', async () => {
+        const [{ id: chatId }] = await getDmId(user1.id, user3.id)
+        const { chatInfo, chatMessageIds, messages } = await controller.handleInitLoading(user3.id)
+        expect(chatInfo).toBeDefined()
+        expect(Object.keys(chatInfo).length).toEqual(3)
+        expect(chatId in chatInfo).toBeTruthy()
+        expect(chatMessageIds[chatId].length).toEqual(1)
+        expect(Object.keys(messages).length).toEqual(21)
+    })
+
+     
 
     it('sanity', () => expect(true).toBeTruthy()) 
 

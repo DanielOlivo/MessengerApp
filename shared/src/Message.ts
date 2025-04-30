@@ -1,6 +1,8 @@
 import { UserId, ChatId, MessageId } from "./Types";
 import { v4 as uuid } from "uuid";
 import { faker } from "@faker-js/faker";
+import { UserInfoCollection } from "./UserInfo";
+import { ChatInfo } from "./ChatInfo";
 
 export interface MessagePostReq {
     chatId: ChatId
@@ -11,6 +13,15 @@ export interface Message extends MessagePostReq {
     timestamp: number
     messageId: MessageId
     sender: UserId
+}
+
+export interface MessagePostRes {
+    users: UserInfoCollection
+    message: Message
+    chatInfo: ChatInfo
+
+    targetId: string 
+    target: 'user' | 'group'
 }
 
 export type MessageCollection = { [P: MessageId]: Message }

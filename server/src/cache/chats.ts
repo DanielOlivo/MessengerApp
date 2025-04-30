@@ -43,7 +43,7 @@ const getDmBetween = async(id1: UserId, id2: UserId) => await cache.get(
         .select('chats.*').from('joined')
         .join('chats', 'chats.id', '=', 'joined.id')
         .where('isGroup', false),
-    (chat: Chat) => new Set( [ queries.between(id1, id2), queries.id(chat.id) ] )
+    (chat: Chat) => new Set( [ queries.between(id1, id2), queries.between(id2, id1), queries.id(chat.id) ] )
 )
 
 const insert = async (chat: Chat) => await cache.insert(
