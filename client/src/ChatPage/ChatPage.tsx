@@ -24,10 +24,10 @@ export const ChatPage = () => {
     }, [isAuthenticated])
 
     return (
-        <div className="flex flex-row justify-between items-stretch">
+        <div className="min-w-full h-screen flex flex-row justify-between items-stretch">
             <ChatList />
             <ChatView />
-            <Typing />
+            {/* <Typing /> */}
 
             {chatControlState !== 'idle' && createPortal(
                 <Container>

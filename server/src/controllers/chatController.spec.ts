@@ -3,10 +3,10 @@ process.env.NODE_ENV = 'test'
 import { describe, it, expect, beforeAll, afterAll, afterEach, jest } from '@jest/globals'
 import db from '../config/db'
 import { controller } from './chatController'
-import { isMessage, User } from '../models/models'
+import { User } from '../models/models'
 import { chatMessages } from '../models/chat'
 import { wait } from 'shared/src/utils'
-import { MessagePostReq } from 'shared/src/Message'
+import { Message, MessagePostReq, isMessage } from 'shared/src/Message'
 import { faker } from '@faker-js/faker/.'
 
 // maybe it would be way easier to create db in the beginning of test here
@@ -63,36 +63,58 @@ describe('chat controller', () => {
         expect(user.id).toEqual(user2.id)
     })
 
+
     it('searching for user3', async () => {
         const result = await controller.handleSearch(user1.id, 'user3')
         expect(result).toBeDefined()
         expect(user3.id in result).toBeTruthy()
-        
+        const { name } = result[user3.id]
+        expect(name).toEqual('user3')
     })
 
+    it('handleInitLoading: chatInfo', async () => {
+        const { chatInfo } = await controller.handleInitLoading(user1.id)
 
-    it('handle init loading', async () => {
-        const result = await controller.handleInitLoading(user1.id)
-        expect(result).toBeDefined()
+        const keys = Object.keys(chatInfo)
+        expect(keys.length).toEqual(1)
+        const info = chatInfo[keys[0]]
+        expect(info.name).toEqual('user2')
+        expect(info.id).toEqual(keys[0])
+    })
 
-        const { chatInfo, chatMessageIds, messages, unseenCount, admins, pinned } = result
-        expect(chatInfo).toBeDefined()
-        expect(chatMessageIds).toBeDefined()
-        expect(messages).toBeDefined()
-        expect(unseenCount).toBeDefined()
-        expect(admins).toBeDefined()
-        expect(pinned).toBeDefined()
+    it('handleInitLoading: chatMessageIds (should be 10)', async () => {
+        const { chatMessageIds } = await controller.handleInitLoading(user1.id)
+        const keys = Object.keys(chatMessageIds)
+        expect(keys.length).toEqual(1)
+        expect(chatMessageIds[keys[0]].length).toEqual(10)
+    })
 
-        expect(Object.keys(chatInfo).length).toEqual(0) // chat info only for groups
-        expect(Object.keys(chatMessageIds).length).toEqual(1) // user1 has only chat (with user2) 
-        for(const messageId of Object.values(Object.values(chatMessageIds)[0])){
-            expect(messageId in messages).toBeTruthy() // chatMessageIds and messages object are consisten
-        }
-    })   
+    it('handleInitLoading: messages (should be 10)', async () => {
+        const { messages } = await controller.handleInitLoading(user1.id)
+        const keys = Object.keys(messages)
+        expect(keys.length).toEqual(10)
+
+        const msgs = Object.values(messages).sort((a, b) => a.timestamp > b.timestamp ? 1 : -1)
+        const half1 = msgs.filter((m, i) => i % 2 === 0)
+        const half2 = msgs.filter((m, i) => i % 2 !== 0)
+
+        const userIds1 = Array.from( new Set( half1.map(m => m.userId) ) )
+        const userIds2 = Array.from( new Set( half2.map(m => m.userId) ) )
+
+        expect(userIds1.length).toEqual(1)
+        expect(userIds2.length).toEqual(1)
+        expect(userIds1[0]).not.toEqual(userIds2[0])
+    })
 
     it('pins table has zero records', async () => {
         const pins = await db('pins').select('*')
         expect(pins.length).toEqual(0)
+    })
+
+    it('handleInitLoading: pinned', async () => {
+        const { pinned } = await controller.handleInitLoading(user1.id) 
+        expect(pinned).toBeDefined()
+        expect(pinned.length).toEqual(0)
     })
 
     it('user1 toggles a chat', async () => {
@@ -107,7 +129,7 @@ describe('chat controller', () => {
     }) 
 
     it('db has one record', async () => {
-        await wait(200)
+        await wait(100)
         const pins = await db('pins').select('*')
         expect(pins.length).toEqual(1)
     })
@@ -131,14 +153,52 @@ describe('chat controller', () => {
 
         const message = await controller.postMessage(user1.id, req)
         expect(message).toBeDefined()
+        console.log(isMessage(message))
         expect(isMessage(message)).toBeTruthy()
 
-        expect(isValidUuidV4(message.id)).toBeTruthy()
+        expect(isValidUuidV4(message.messageId)).toBeTruthy()
         expect(message.chatId).toEqual(chatId)
-        expect(message.userId).toEqual(user1.id)
+        expect(message.sender).toEqual(user1.id)
         expect(message.content).toEqual(req.content)
-
     }) 
+
+    it('user1: initLoading again, chatMessageIds', async () => {
+        const { chatMessageIds } = await controller.handleInitLoading(user1.id)
+        const [ chatId ] = Object.keys(chatMessageIds)
+        expect(chatId).toBeDefined()
+        const [ msgIds ] = Object.values(chatMessageIds) 
+        expect(msgIds.length).toEqual(11)
+    }) 
+
+    it('user1: initLoading again, messages', async () => {
+        const { messages } = await controller.handleInitLoading(user1.id)
+        const msgs = Object.values(messages)
+        expect(msgs.length).toEqual(11)
+    })
+
+    it('user2 has two memberships', async () => {
+        const mems = await db('memberships').where({userId: user2.id})
+        expect(mems.length).toEqual(2)
+    })
+
+    it('user2: initLoading', async () => {
+        const [ { id: chat12 } ] = await getDmId(user1.id, user2.id)         
+        const [ { id: chat23 } ] = await getDmId(user2.id, user3.id)
+        expect(chat12).toBeDefined()
+        expect(chat23).toBeDefined()
+
+        const { messages, chatMessageIds, chatInfo } = await controller.handleInitLoading(user2.id)
+        expect(chat12 in chatMessageIds).toBeTruthy()
+        expect(chat23 in chatMessageIds).toBeTruthy()
+        expect(chatMessageIds[chat12].length).toEqual(11)
+        expect(chatMessageIds[chat23].length).toEqual(10)
+        expect(Object.keys(messages).length).toEqual(21)
+
+        expect(chat12 in chatInfo).toBeTruthy()
+        expect(chat23 in chatInfo).toBeTruthy()
+        expect(chatInfo[chat12].name).toEqual('user1')
+        expect(chatInfo[chat23].name).toEqual('user3')
+    })
 
     it('user1 requests chat with user3', async () => {
         const result = await controller.handleChatWithUser(user1.id, user3.id)

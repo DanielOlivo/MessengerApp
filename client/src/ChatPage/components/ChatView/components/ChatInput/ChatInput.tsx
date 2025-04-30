@@ -27,7 +27,7 @@ export const ChatInput = () => {
     }
 
     return (
-        <div aria-label='chat-input' className="w-full h-9 flex flex-row justify-between border-t-2 border-slate-300 p-2 bg-sky-900 font-Montserrat">
+        <div aria-label='chat-input' className="w-full min-h-9 flex flex-row justify-between border-t-2 border-slate-300 p-2 bg-sky-900 font-Montserrat">
             <input 
                 aria-label="chat-input-field" 
                 type='text' 

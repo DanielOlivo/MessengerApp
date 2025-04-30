@@ -4,23 +4,33 @@ import { getCache } from "../cache1";
 import messageModel from '../models/messages'
 import { Message } from "../models/models";
 
+const queries = {
+    id: (id: string) => `id=${id}`,
+    ofChat: (chatId: string) => `chat=${chatId}`,
+    ofUser: (userId: string) => `for-user=${userId}` 
+}
+
 const cache = getCache<Message>(m => m.id)
 
 const getMessageForChat = async (chatId: ChatId) => await cache.get(
-    'chat=' + chatId,
+    queries.ofChat(chatId),
     () => db('messages').where({chatId}).orderBy('timestamp', 'desc').select('*'),
-    (m: Message) => new Set( [`id=${m.id}`, `chat=${m.chatId}`] )
+    (m: Message) => new Set( [ queries.id(m.id) , queries.ofChat(m.chatId)] )
 )
 
-const getMessagesForUser = async (userId: UserId, ids: ChatId[]) => await cache.get(
-    'for-user=' + userId,
-    () => messageModel.getByChatIds(ids),
-    (m: Message) => new Set( [`for-user=${userId}`, `id=${m.id}`, `chat=${m.chatId}`])
+const getMessagesForUser = async (userId: UserId) => await cache.get(
+    queries.ofUser(userId),
+    // async () => await db('messages').whereIn('chatId', ids),
+    async () => await db
+        .with('chatIds', db('memberships').where({userId}).select('chatId as id'))
+        .with('msgs', db('messages').whereIn('chatId', db('chatIds')))
+        .select(['msgs.id', 'msgs.chatId', 'msgs.userId', 'msgs.timestamp', 'msgs.content']).from('msgs'),
+    (m: Message) => new Set( [queries.ofUser(userId), queries.id(m.id), queries.ofChat(m.chatId)])
 )
 
-const insertMessage = (message: Message) => cache.insert(
+const insertMessage = async (message: Message) => await cache.insert(
     message,
-    new Set( [`id=${message.id}`, `chat=${message.chatId}`] ),
+    new Set( [ queries.id(message.id) , queries.ofChat(message.chatId), queries.ofUser(message.userId)] ),
     async (m: Message) => await db('messages').insert(m)
 )
 

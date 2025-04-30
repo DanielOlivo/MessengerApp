@@ -46,7 +46,7 @@ const getDmBetween = async(id1: UserId, id2: UserId) => await cache.get(
     (chat: Chat) => new Set( [ queries.between(id1, id2), queries.id(chat.id) ] )
 )
 
-const insert = (chat: Chat) => cache.insert(
+const insert = async (chat: Chat) => await cache.insert(
     chat,
     new Set( [`id=${chat.id}`] ),
     async (c: Chat) => await db('chats').insert(c)

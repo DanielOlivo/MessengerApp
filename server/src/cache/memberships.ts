@@ -15,14 +15,14 @@ const cache = getCache<Membership>(m => m.id)
 
 const getUserMemberships = async (userId: UserId) => await cache.get(
     queries.ofUser(userId),
-    () => membershipModel.getByUserId(userId),
+    async () => await db('memberships').where({userId}),
     (m: Membership) => new Set([ queries.id(m.id), queries.ofUser(m.userId) ])
 )
 
 const getMembershipsOfUserContacts = async (userId: UserId, ids: ChatId[]) => await cache.get(
     queries.contactOf(userId),
     () => membershipModel.getByChatIds(ids),
-    (m: Membership) => new Set( [queries.id(m.id), queries.ofUser(m.userId), queries.contactOf(userId)] )
+    (m: Membership) => new Set( [queries.id(m.id), queries.contactOf(userId)] )
 )
 
 const getMembershipsForUsers = async (id1: UserId, id2: UserId) => await cache.get(
@@ -37,7 +37,7 @@ const getChatMemberships = async (chatId: ChatId) => await cache.get(
     (m) => new Set( [queries.id(m.id), queries.ofChat(m.chatId)] )
 )
 
-const insert = (membership: Membership) => cache.insert(
+const insert = async (membership: Membership) => await cache.insert(
     membership,
     new Set( [`id=${membership.id}`, `chat=${membership.chatId}`] ),
     async (m) => await db('memberships').insert(m)

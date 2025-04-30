@@ -31,7 +31,7 @@ export const ChatList = () => {
 
     return (
         <div 
-            className="flex flex-col justify-start items-stretch min-w-[200px] max-w-[400px] max-h-screen bg-sky-900"
+            className="h-full flex flex-col justify-start items-stretch min-w-[200px] max-w-[400px] max-h-screen bg-sky-900"
             aria-label="chat-list"
         >
             <UserBar />

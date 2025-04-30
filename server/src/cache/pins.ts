@@ -17,16 +17,16 @@ const getUserPins = async (userId: UserId) => await cache.get(
     (pin: ChatPin) => new Set( [ queries.id(pin.id), queries.ofUser(pin.userId)] )
 )
 
-const createPin = (userId: UserId, chatId: ChatId) => {
+const createPin = async (userId: UserId, chatId: ChatId) => {
     const item: ChatPin = {id: uuid(), userId, chatId}
-    cache.insert(
+    await cache.insert(
         item,
         new Set( [ queries.id(item.id), queries.ofUser(userId) ] ),
         async (i: ChatPin) => await db('pins').insert(i)
     )
 }
 
-const removePin = (pin: ChatPin) => cache.remove(
+const removePin = async (pin: ChatPin) => await cache.remove(
     pin,
     (i: ChatPin) => db('pins').where({id: i.id}).del()
 )

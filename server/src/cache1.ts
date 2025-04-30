@@ -63,7 +63,7 @@ export function getCache<T extends object>(getIdFn: (item: T) => ID){
         return result
     }
 
-    const insert = (item: T, tags: Set<Tag>, insertFn: (i: T) => Promise<void>) => {
+    const insert = async (item: T, tags: Set<Tag>, insertFn: (i: T) => Promise<void>) => {
         const id = getIdFn(item)
         map.set(id, item)
         idTags.set(id, tags)
@@ -74,10 +74,10 @@ export function getCache<T extends object>(getIdFn: (item: T) => ID){
             }
             tagIds.get(tag)!.add(id)
         }
-        insertFn(item)
+        await insertFn(item)
     }
 
-    const remove = (item: T, fn: (i: T) => Promise<void>) => {
+    const remove = async (item: T, fn: (i: T) => Promise<void>) => {
         const id = getIdFn(item)
         const tags = idTags.get(id)!
         idTags.delete(id)
@@ -92,7 +92,7 @@ export function getCache<T extends object>(getIdFn: (item: T) => ID){
             }
         }
         map.delete(id)
-        fn(item)
+        await fn(item)
     }
 
     const update = (item: T, tags: Set<Tag>, updateFn: (i: T) => Promise<void>) => {

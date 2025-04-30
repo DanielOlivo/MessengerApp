@@ -16,23 +16,23 @@ const model = {
         await db('memberships').where({id}).del()
     },
 
-    getByChatId: (chatId: ChatId): Promise<Membership[]> => {
-        const ms = db('memberships').where({chatId}).select('*')
+    getByChatId: async (chatId: ChatId): Promise<Membership[]> => {
+        const ms = await db('memberships').where({chatId}).select('*')
         return ms
     },
 
-    getByChatIds: (ids: ChatId[]): Promise<Membership[]> => {
-        const ms = db('memberships').whereIn('chatId', ids).select('*')
+    getByChatIds: async (ids: ChatId[]): Promise<Membership[]> => {
+        const ms = await db('memberships').whereIn('chatId', ids).select('*')
         return ms
     },
 
-    getByUserId: (userId: UserId): Promise<Membership[]> => {
-        const ms = db('memberships').where({userId}).select('*')
+    getByUserId: async (userId: UserId): Promise<Membership[]> => {
+        const ms = await db('memberships').where({userId}).select('*')
         return ms
     },
 
-    getById: (id: MembershipId): Promise<Membership[]> => {
-        const ms = db('memberships').where({id}).select('*')
+    getById: async (id: MembershipId): Promise<Membership[]> => {
+        const ms = await db('memberships').where({id}).select('*')
         return ms
     }
 

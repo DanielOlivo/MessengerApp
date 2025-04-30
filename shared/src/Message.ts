@@ -21,6 +21,13 @@ export interface Messages {
     chatMessages: ChatMessages
 }
 
+export function isMessage(o: any): o is Message {
+    if(typeof o !== 'object'){
+        return false
+    }
+    return 'messageId' in o
+}
+
 function getRandomArrayItem<T>(items: T[]): T {
     const idx = Math.floor(Math.random() & items.length)
     return items[idx]

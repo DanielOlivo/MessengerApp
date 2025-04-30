@@ -41,10 +41,12 @@ export const controller = {
         const contacts = await userCache.getUsersAsContacts(userId, contactIds)
 
         // caching 
-        const info = await chatInfoCache.getChatInfoOfUser(userId, chatIds)
+        // const info = await chatInfoCache.getChatInfoOfUser(userId, chatIds)
+        const info = await chatInfoCache.getChatInfoOfUser(userId)
         const chats = await chatCache.getUserChats(userId, chatIds)
         const pins = await pinCache.getUserPins(userId)
-        const messages = await messageCache.getMessagesForUser(userId, chatIds)
+        // const messages = await messageCache.getMessagesForUser(userId, chatIds)
+        const messages = await messageCache.getMessagesForUser(userId)
 
         return Object.fromEntries( contacts.map(user => ([user.id, {
             id: user.id,
@@ -71,13 +73,14 @@ export const controller = {
         const contactIds = memberships.map(m => m.userId).filter(id => id !== userId)
         const contacts = await userCache.getUsersAsContacts(userId, contactIds)
         const contactMap = new Map( contacts.map(c => [c.id, c]) )
-        
+    
 
         // const chats = await chatCache.getChatsOfUser(userId, chatIds)
         // const groupedChats = new Map( chats.map(c => [c.id, c]) )        
 
         // it is only groups
-        const groupInfos = await chatInfoCache.getChatInfoOfUser(userId, chatIds)
+        // const groupInfos = await chatInfoCache.getChatInfoOfUser(userId, chatIds)
+        const groupInfos = await chatInfoCache.getChatInfoOfUser(userId)
         const groupInfoMap = new Map( groupInfos.map(i => [i.chatId, i]) )
 
 
@@ -111,7 +114,8 @@ export const controller = {
 
         // const chats = await chatCache.getUserChats(userId, chatIds)
         const pins = await pinCache.getUserPins(userId)
-        const messages = await messageCache.getMessagesForUser(userId, chatIds)
+        // const messages = await messageCache.getMessagesForUser(userId, chatIds)
+        const messages = await messageCache.getMessagesForUser(userId)
 
         // every chat must have chat info in response!
 
@@ -154,7 +158,7 @@ export const controller = {
         const pin = pins.find(p => p.chatId === chatId)
         let pinned = false
         if(!pin){
-            pinCache.createPin(userId, chatId)
+            (async () => await pinCache.createPin(userId, chatId))()
             pinned = true
         }
         else {
@@ -168,7 +172,8 @@ export const controller = {
         const { chatId, content } = req
         
         // reload
-        await messageCache.getMessageForChat(chatId)
+        // await messageCache.getMessageForChat(chatId)
+        await messageCache.getMessagesForUser(userId)
 
         const newMessage: Message = {
             messageId: uuid(),
@@ -183,9 +188,10 @@ export const controller = {
             chatId,
             content,
             timestamp: dayjs().toDate()
-        }
+        };
         
-        messageCache.insertMessage(dbMessage)
+        // it is very buggy
+        (async () => await messageCache.insertMessage(dbMessage))()
         return newMessage
     },
 
@@ -202,13 +208,15 @@ export const controller = {
         const chats1 = new Map(user1Chats.map(c => [c.id, c]))
         const chats2 = new Map(user2Chats.map(c => [c.id, c]))
 
-        const info1 = await chatInfoCache.getChatInfoOfUser(userId, chatIds1)
-        const info2 = await chatInfoCache.getChatInfoOfUser(req, chatIds2)
+        // const info1 = await chatInfoCache.getChatInfoOfUser(userId, chatIds1)
+        // const info2 = await chatInfoCache.getChatInfoOfUser(req, chatIds2)
+        const info1 = await chatInfoCache.getChatInfoOfUser(userId)
+        const info2 = await chatInfoCache.getChatInfoOfUser(req)
+
+        const [ other ] = await userCache.getUserById(req)
 
         const ids1Set = new Set( chatIds1 )
         const ids2Set = new Set( chatIds2 )
-
-        const [ other ] = await userCache.getUserById(req)
 
         let targetChat: Chat | undefined = undefined
         let chatInfo: DbChatInfo
@@ -222,16 +230,19 @@ export const controller = {
         }
 
         if(targetChat === undefined){
+            console.log('creating chat...')
             const newChat: Chat = { id: uuid(), isGroup: false, created: dayjs().toDate()}
-            chatInfo = {id: uuid(), chatId: newChat.id, name: '', iconSrc: ''}
+            chatInfo = {id: uuid(), chatId: newChat.id, name: other.username, iconSrc: ''}
             const member1: Membership = {id: uuid(), userId, chatId: newChat.id, isAdmin: false, created: newChat.created}
             const member2: Membership = {id: uuid(), userId: req, chatId: newChat.id, isAdmin: false, created: newChat.created}
-            messages = []
+            messages = [];
 
-            chatCache.insert(newChat)
-            chatInfoCache.insert(chatInfo)
-            membershipCache.insert(member1)
-            membershipCache.insert(member2)
+            (async () => {
+                await chatCache.insert(newChat)
+                await chatInfoCache.insert(chatInfo)
+                await membershipCache.insert(member1)
+                await membershipCache.insert(member2)
+            })()
             targetChat = newChat
         }
         else {

@@ -2,7 +2,17 @@ import type { Preview } from "@storybook/react";
 import { initialize, mswLoader } from 'msw-storybook-addon'
 import "../src/index.css"
 
-initialize()
+let options = {}
+if(location.hostname === 'http://localhost:6006'){
+  options = {
+    serviceWorker: {
+      url: './mockServiceWorker.js'
+    }
+  }
+}
+
+// initialize()
+initialize(options)
 
 const preview: Preview = {
   parameters: {
