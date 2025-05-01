@@ -89,6 +89,11 @@ describe('chat controller', () => {
         expect(chatMessageIds[keys[0]].length).toEqual(10)
     })
 
+    it('handleInitLoading: chatInfo and chatmessageIds have same keys', async () => {
+        const { chatMessageIds, chatInfo } = await controller.handleInitLoading(user1.id)
+        expect(Object.keys(chatMessageIds).length).toEqual(Object.keys(chatInfo).length)
+    })
+
     it('handleInitLoading: messages (should be 10)', async () => {
         const { messages } = await controller.handleInitLoading(user1.id)
         const keys = Object.keys(messages)
@@ -217,6 +222,8 @@ describe('chat controller', () => {
         expect(chat23 in chatInfo).toBeTruthy()
         expect(chatInfo[chat12].name).toEqual('user1')
         expect(chatInfo[chat23].name).toEqual('user3')
+
+        expect(Object.keys(chatMessageIds).length).toEqual(Object.keys(chatInfo).length)
     })
 
     it('user1 requests chat with user3', async () => {
@@ -271,6 +278,8 @@ describe('chat controller', () => {
         expect(chatId in chatInfo).toBeTruthy()
         expect(chatMessageIds[chatId].length).toEqual(1)
         expect(Object.keys(messages).length).toEqual(21)
+
+        expect(Object.keys(chatInfo).length).toEqual(Object.keys(chatMessageIds).length)
     })
 
      
