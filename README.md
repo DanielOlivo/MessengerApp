@@ -3,6 +3,7 @@
 ![Front Page](images//image1.png)
 
 ![]('images/gif.gif)
+![](https://github.com/DanielOlivo/MessengerApp/blob/main/images/gif.gif)
 
 Messenger web app for real-time communication.
 
