@@ -57,6 +57,7 @@ describe('Membership', () => {
         expect(removeBtn).not.toBeInTheDocument()
     })
 
+
     test('onCreate: search', async () => {
         const userId = uuid()
         const username = faker.internet.username()

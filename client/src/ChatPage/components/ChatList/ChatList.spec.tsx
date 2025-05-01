@@ -1,7 +1,7 @@
 import { act } from 'react'
 import { v4 as uuid } from "uuid";
 import { describe, test, expect } from "vitest";
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { createStore } from "../../../app/store";
 import { getState } from "../../../utils/getState";
 import { Provider } from "react-redux";
@@ -12,6 +12,8 @@ import { ChatPinStatus, UserInfo } from '@shared/Types'
 import { faker } from "@faker-js/faker";
 import { Commands } from 'shared/src/MiddlewareCommands';
 import userEvent from '@testing-library/user-event';
+import { UnseenCount } from './components/UnseenCount';
+import { UserInfoCollection } from 'shared/src/UserInfo';
 // import { Commands } from "shared/src/MiddlewareCommands";
 
 describe('ChatList', () => {
@@ -20,6 +22,7 @@ describe('ChatList', () => {
 
     afterEach(() => {
         if(io){
+            cleanup()
             io.close()
         }
     })
@@ -91,15 +94,23 @@ describe('ChatList', () => {
         expect(screen.queryByText(/Unpin/)).not.toBeInTheDocument()
     })
 
+    // return
 
     test('delete chat', async() => {
         io = getSocketServer()
 
+        const fns = {
+            callMe: () => {}
+        }
+        const spy = vi.spyOn(fns, 'callMe')
         io.on('connection', socket => {
             socket.on(Commands.GroupDeleteReq, chatId => {
+                fns.callMe()
+                console.log('HEEEEEEEY')
                 socket.emit(Commands.GroupDeleteRes, chatId)  
             })
         })
+
 
         const { state, addChat } = getState()
         const { chatId } = addChat()
@@ -117,33 +128,77 @@ describe('ChatList', () => {
         const deleteBtn = screen.getByText(/Delete/)
         expect(deleteBtn).toBeInTheDocument()
         await user.click(deleteBtn)
+        await wait(500) // it is necessary
 
+        await waitFor(() => expect(spy).toHaveBeenCalled())
         await waitFor(() => expect(screen.queryByText(new RegExp(chatInfo.name, 'i'))).not.toBeInTheDocument())
-
-        io.close()
     })  
+
 
 
     test('search', async() => {
         io = getSocketServer()
         const infos = Array.from({length: 4}, () => getRandomUserInfo())
-        const collection = Object.fromEntries(infos.map(info => [info.id, info]))
+        const collection: UserInfoCollection = Object.fromEntries(infos.map(info => [info.id, info]))
+
+        const fns = {
+            fn1: () => {},
+            fn2: () => {},
+            fn3: () => {}
+        }
+
+        // const spy1 = vi.spyOn(fns, 'fn1')
+        // const spy2 = vi.spyOn(fns, 'fn2')
+        const spy3 = vi.spyOn(fns, 'fn3')
 
         io.on('connection', (socket) => {
+
+            socket.on(Commands.UsersRequest, () => {
+                fns.fn1()
+                socket.emit(Commands.UsersResponse, {})
+            })
+
+            socket.on(Commands.InitLoadingRequest, () => {
+                fns.fn2()
+                socket.emit(Commands.InitLoadingResponse, {
+                    messages: {},
+                    chatMessageIds: {},
+                    chatInfo: {},
+                    pinned: [],
+                    admins: {},
+                    members: {},
+                    UnseenCount: {}
+                })
+            })
+
             socket.on(Commands.SearchReq, () => {
+                fns.fn3()
+                // console.log('.................SEARCH REQ..............')
                 socket.emit(Commands.SearchRes, collection)
             })
         })
 
-        const { state } = getState()
+        const { state, addChat } = getState()
+        addChat()
         const store = createStore(state, true)
+        const user = userEvent.setup()
         render(<Provider store={store}><ChatList /></Provider>)
         await waitFor(() => expect(store.getState().socket.isConnected))
+
+        // await wait(500)
+        // await waitFor(() => expect(spy1).toHaveBeenCalled())
+        // await wait(200)
+        // await waitFor(() => expect(spy2).toHaveBeenCalled())
 
         const field = screen.getByLabelText('search-field')   
         expect(field).toBeInTheDocument()
 
-        fireEvent.change(field, {target: { value: 'sometherm'}})
+        // console.log('========================SEARCH!!!!')
+        await user.type(field, 'so')
+        expect(store.getState().users.onSearch).toBeTruthy()
+        await wait(500)
+
+        await waitFor(() => expect(spy3).toHaveBeenCalled())
 
         await waitFor(() => expect(screen.getByText(/Search result/)).toBeInTheDocument()) 
 
@@ -157,6 +212,8 @@ describe('ChatList', () => {
         expect(screen.queryByText(/Search result/)).not.toBeInTheDocument()
 
     })
+
+
 
     function getRandomUserInfo(): UserInfo {
         return {

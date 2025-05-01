@@ -64,9 +64,9 @@ export function getState(){
         }
 
         state.chat.chatInfo[chatId] = {
+            id: chatId,
             name: state.users.users[otherId].name,
             iconSrc: state.users.users[otherId].iconSrc,
-            status: 'online',
             isGroup: false
         }
 
@@ -200,9 +200,9 @@ export function makeChatWithUser(state: RootState): void {
     }
 
     state.chat.chatInfo[chatId] = {
+        id: chatId,
         name: state.users.users[otherId].name,
         iconSrc: state.users.users[otherId].iconSrc,
-        status: 'online',
         isGroup: false
     }
 

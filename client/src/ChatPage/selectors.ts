@@ -47,9 +47,9 @@ export const selectChatItems = createSelector(
 
             const result = {
                 chatId,
-                title: info.name,
+                title: info !== undefined && info.name ? info.name : 'INFO ERROR',
                 content: msg.content,
-                iconSrc: info.iconSrc,
+                iconSrc: info && info.iconSrc ? info.iconSrc : '',
                 unseenCount: 0,
                 selected: chatId === displayedChatId,
                 pinned: isPinned,

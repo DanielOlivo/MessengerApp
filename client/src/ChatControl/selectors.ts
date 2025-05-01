@@ -88,15 +88,16 @@ export const selectEditButtonArg = createSelector(
     selectChat,
     selectUserId,
     (chat, userId): EditState => {
+        const {chatInfo } = chat
         const chatId = chat.displayedChatId
-        const isGroup = chat.chatInfo[chatId].isGroup   
+        const isGroup = chatId in chatInfo ? chatInfo[chatId].isGroup : false   
         const isAdmin = chatId in chat.admins ? chat.admins[chatId].includes(userId) : false        
         const members = chat.members[chatId]
         const admins = chat.admins[chatId]
 
         return {
             chatId,
-            name: chat.chatInfo[chatId].name,
+            name: chatId in chatInfo ? chat.chatInfo[chatId].name : 'ERROR WITH CHAT INFO',
             isGroup,
             isAdmin,
             members, 

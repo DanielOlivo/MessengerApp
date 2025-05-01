@@ -51,9 +51,9 @@ export const Auth = () => {
     const fieldStyle = 'text-slate-200 bg-[rgba(0,0,0,0)] placeholder-slate-300 mx-4 w-full focus:outline-none'
 
     return (
-        <div className='flex flex-row justify-center items-stretch w-full h-full px-7 text-slate-200'>
+        <div className='flex flex-row justify-center items-stretch w-full h-screen px-7 text-slate-200'>
 
-                <div className='text-[Montserrat] flex flex-col justify-center items-start mt-5'>
+                <div className='min-h-full text-[Montserrat] flex flex-col justify-center items-start mt-5'>
                     <h1
                         className='font-bold text-3xl' 
                     >Messenger App</h1>

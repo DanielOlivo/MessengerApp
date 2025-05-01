@@ -1,15 +1,16 @@
 import { useEffect } from "react"
 import { useApDispatch, useAppSelector } from "../../../app/hooks"
-import { selectPinnedItems, selectUnpinnedItems } from "../../selectors"
+import { selectChatInfo, selectPinnedItems, selectUnpinnedItems } from "../../selectors"
 import { NewGroupButton } from "./components/NewGroupButton"
 import { SearchBar } from "./components/SearchBar"
 import { Section } from "./components/Section"
 import { initLoading } from "../../slice"
 import { requestUsers } from "../../../users/slice"
-import { selectIsOnSearch, selectSearchResultItems } from "../../../users/selectors"
+import { selectAllUsers, selectIsOnSearch, selectSearchResultItems } from "../../../users/selectors"
 import { SearchCard } from "./components/SearchCard"
 import { initSocket } from "../../../features/socket/socketSlice"
 import { UserBar } from "./components/UserBar"
+import { selectConnectionStatus } from "../../../features/socket/selectors"
 
 export const ChatList = () => {
 
@@ -18,16 +19,29 @@ export const ChatList = () => {
     const pinned = useAppSelector(selectPinnedItems)
     const unpinned = useAppSelector(selectUnpinnedItems)
 
+    // console.log('SEARCH RESULT', searchResult)
+
     const dispatch = useApDispatch()
 
+    const users = useAppSelector(selectAllUsers)
+    const chatInfos = useAppSelector(selectChatInfo)
+    const isConnected = useAppSelector(selectConnectionStatus)
+
     useEffect(() => {
-        setTimeout(() => dispatch(initSocket()), 100)
-        setTimeout(() => {
-            dispatch(requestUsers())
-            dispatch(initLoading())
-        }, 400)
+        if(!isConnected){
+            dispatch(initSocket())
+        }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
+
+    useEffect(() => {
+        if(isConnected && Object.keys(users).length > 0 && Object.keys(chatInfos).length > 0){
+            return
+        }
+        dispatch(requestUsers())
+        dispatch(initLoading())
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isConnected])
 
     return (
         <div 
