@@ -1,61 +1,70 @@
 import type {Knex} from 'knex'
-import userModel from '@models/users'
-import { hash } from 'bcrypt'
+import { faker } from '@faker-js/faker'
+import { hash } from 'bcryptjs';
 import { v4 as uuid } from 'uuid'
-
-import { TokenPayload } from '@shared/Types'
-import jwt from 'jsonwebtoken'
+import dayjs from 'dayjs';
+import { Chat,Membership, Message } from '../../../models/models';
 
 export async function seed(knex: Knex): Promise<void> {
-    await knex('users').del()
 
-    const user1 = await getUser('user1', '1234')
-    const user2 = await getUser('user2', '1234')
-    const user3 = await getUser('user3', '1234')
-    const john = await getUser('john.doe', '1234')
+    const hash1 = await hash('password', 10)
+    let initTimestamp = dayjs().subtract(10, 'days')
+    const users = ['user1', 'user2', 'user3', 'user4'].map(name => ({
+        id: uuid(),
+        username: name,
+        hash: hash1,
+        created: initTimestamp.toDate()
+    }))
 
-    const dmChat = {id: uuid(), isDm: true}
-    const dm = {id: dmChat.id, user1Id: user1.id, user2Id: user2.id}
-    
-    const dudesChat = {id: uuid(), isDm: false}
-    const dudes = {id: dudesChat.id, name: 'dudes'}
+    const dms: Chat[] = []
+    const mems: Membership[] = []
+    const msgs: Message[] = []
 
-    const membership1 = {id: uuid(), groupId: dudes.id, userId: user1.id}
-    const membership2 = {id: uuid(), groupId: dudes.id, userId: user2.id}
-    const membership3 = {id: uuid(), groupId: dudes.id, userId: user3.id}
+    for(let i = 1; i < users.length; i++){
+        
+        const u1 = users[i - 1]
+        const u2 = users[i]
 
-    const dmMsg1 = {id: uuid(), userId: user1.id, chatId: dm.id, content: 'hey'}
-    const dmMsg2 = {id: uuid(), userId: user2.id, chatId: dm.id, content: 'whats up'}
+        initTimestamp = initTimestamp.add(1, 'hour')
+        const dm: Chat = { id: uuid(), isGroup: false, created: initTimestamp.toDate() }
+        dms.push(dm)
 
-    const dudesMsg1 = {id: uuid(), userId: user1.id, chatId: dudes.id, content: 'first'}
-    const dudesMsg2 = {id: uuid(), userId: user2.id, chatId: dudes.id, content: 'second'}
-    const dudesMsg3 = {id: uuid(), userId: user3.id, chatId: dudes.id, content: 'third'}
-    // three users
-
-    await knex.transaction(async trx => {
-        await trx('users').insert([user1, user2, user3, john])
-        await trx('chats').insert([dmChat, dudesChat])
-        await trx('dms').insert([dm])
-        await trx('groups').insert([dudes])
-        await trx('memberships').insert([membership1, membership2, membership3])
-        await trx('messages').insert([
-            dmMsg1, dmMsg2,
-            dudesMsg1, dudesMsg2, dudesMsg3
-        ])
-    })
-
-}
-
-function getDateGen() {
-    const now = Date.now()
-    let counter = 0
-    return function getDate() {
-        return new Date(now - 1000 * 60 * 60 * (24 * 200 - (12 * counter++)))
+        const memberships: Membership[] = [u1, u2].map(user => 
+            ({id: uuid(), chatId: dm.id, userId: user.id, isAdmin: false, created: initTimestamp.toDate()}))
+        memberships.forEach(m => mems.push(m))
+        
+        const messages: Message[] = Array.from({length: 10}, (_,i) => ({
+            id: uuid(),
+            chatId: dm.id,
+            userId: i % 2 === 0 ? u1.id : u2.id,
+            content: faker.lorem.sentence(),
+            timestamp: initTimestamp.add(i,'hour').toDate()
+        }))
+        messages.forEach(m => msgs.push(m))
     }
+
+
+    await knex.transaction(async trx =>  {
+        await trx('users').insert(users)
+        await trx('chats').insert(dms)
+        await trx('memberships').insert(mems)
+        await trx('messages').insert(msgs)
+    }) 
+
+
+
 }
 
-async function getUser(username: string, password: string){
-    const saltRounds = 10
-    const hashed = await hash(password, saltRounds)
-    return {id: uuid(), username, hashed}
-}
+// function getDateGen() {
+//     const now = Date.now()
+//     let counter = 0
+//     return function getDate() {
+//         return new Date(now - 1000 * 60 * 60 * (24 * 200 - (12 * counter++)))
+//     }
+// }
+
+// async function getUser(username: string, password: string){
+//     const saltRounds = 10
+//     const hashed = await hash(password, saltRounds)
+//     return {id: uuid(), username, hashed}
+// }

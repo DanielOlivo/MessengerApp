@@ -5,6 +5,8 @@ import { v4 as uuid } from "uuid";
 export interface ChatInfo {
     id: ChatId
     name: string
+    iconSrc: string
+    isGroup: boolean
 }
 
 export type ChatInfoCollection = { [P: ChatId]: ChatInfo }

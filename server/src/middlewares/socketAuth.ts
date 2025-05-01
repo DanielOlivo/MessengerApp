@@ -7,7 +7,6 @@ export const verifyToken = async (
     socket: Socket<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>, 
     next: (err?: ExtendedError) => void) => 
     {
-
         try {
 
             const token = socket.handshake.auth.token

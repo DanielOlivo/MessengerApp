@@ -7,7 +7,7 @@
     "start": "nodemon -r tsconfig-paths/register ./src/run.ts",
     "test": "jest --detectOpenHandles --forceExit",
     "testdb": "pnpm dlx knex migrate:down --env test && pnpm dlx knex migrate:up --env test && pnpm dlx knex seed:run --env test",
-    "devdb": "npx knex migrate:down --env development && npx knex migrate:up --env development && npx knex seed:run --env development",
+    "devdb": "pnpm dlx knex migrate:down --env development && pnpm dlx knex migrate:up --env development && pnpm dlx knex seed:run --env development",
     "proddb": "npx knex migrate:down --env production && npx knex migrate:up --env production && npx knex seed:run --env production",
     "devdbdown": "ts-node -r tsconfig-paths/register ./node_modules/.bin/knex --knexfile ./knexfile.ts \"migrate:down\""
   },

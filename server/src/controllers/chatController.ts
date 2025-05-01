@@ -21,7 +21,6 @@ import { getChatCache } from '../cache/chats'
 import { getPinCache } from '../cache/pins'
 import { getChatInfoCache } from '../cache/chatInfo'
 import { getMessageCache } from '../cache/messages'
-import { intersection } from '../utils/intersection';
 
 // export to enable testing
 export const userCache = getUserCache()
@@ -42,11 +41,11 @@ export const controller = {
 
         // caching 
         // const info = await chatInfoCache.getChatInfoOfUser(userId, chatIds)
-        const info = await chatInfoCache.getChatInfoOfUser(userId)
-        const chats = await chatCache.getUserChats(userId, chatIds)
-        const pins = await pinCache.getUserPins(userId)
+        await chatInfoCache.getChatInfoOfUser(userId)
+        await chatCache.getUserChats(userId, chatIds)
+        await pinCache.getUserPins(userId)
         // const messages = await messageCache.getMessagesForUser(userId, chatIds)
-        const messages = await messageCache.getMessagesForUser(userId)
+        await messageCache.getMessagesForUser(userId)
 
         return Object.fromEntries( contacts.map(user => ([user.id, {
             id: user.id,
@@ -75,7 +74,9 @@ export const controller = {
         const contactMap = new Map( contacts.map(c => [c.id, c]) )
     
 
-        // const chats = await chatCache.getChatsOfUser(userId, chatIds)
+        await chatCache.getChatsOfUser(userId, chatIds)
+        // const chatMap = new Map( chats.map(c => [c.id, c]) )
+
         // const groupedChats = new Map( chats.map(c => [c.id, c]) )        
 
         // it is only groups
@@ -100,14 +101,18 @@ export const controller = {
                 const i = groupInfoMap.get(chatId)!
                 infos.set(chatId, {
                     id: i.chatId,
-                    name: i.name
+                    name: i.name,
+                    iconSrc: i.iconSrc,
+                    isGroup: true
                 })
             }
             else { // dm
-                const name = contactMap.get(mems[0])!.username // it is not name, it is id!
+                const other = contactMap.get(mems[0])!
                 infos.set(chatId, { 
                     id: chatId,
-                    name
+                    name: other?.username,
+                    iconSrc: other.iconSrc,
+                    isGroup: false
                 })
             }
         }
@@ -205,7 +210,7 @@ export const controller = {
             const ci = infos[0]
             return [{
                 message: newMessage,
-                chatInfo: { id: ci.chatId, name: ci.name},
+                chatInfo: { id: ci.chatId, name: ci.name, isGroup: true, iconSrc: ci.iconSrc},
                 users: userCollection,
 
                 target: 'group',
@@ -219,14 +224,14 @@ export const controller = {
             {
                 message: newMessage,
                 users: userCollection,
-                chatInfo: { id: chatId, name: userCollection[otherId].name},
+                chatInfo: { id: chatId, name: userCollection[otherId].name, isGroup: false, iconSrc: userCollection[otherId].iconSrc},
                 target: 'user',
                 targetId: userId
             },
             {
                 message: newMessage,
                 users: userCollection,
-                chatInfo: { id: chatId, name: userCollection[userId].name},
+                chatInfo: { id: chatId, name: userCollection[userId].name, isGroup: false, iconSrc: userCollection[userId].iconSrc},
                 target: 'user',
                 targetId: otherId
             }
@@ -261,7 +266,7 @@ export const controller = {
         }
 
         const [ other ] = await userCache.getUserById(req)
-        const chatInfo: ChatInfo = {id: chat.id, name: other.username} 
+        const chatInfo: ChatInfo = {id: chat.id, name: other.username, iconSrc: other.iconSrc, isGroup: false} 
         const messages: Message[] = dbMessages.map(m => ({
             messageId: m.id,
             sender: m.userId,

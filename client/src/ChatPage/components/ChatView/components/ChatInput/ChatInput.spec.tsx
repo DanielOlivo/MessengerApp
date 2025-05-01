@@ -5,6 +5,7 @@ import { ChatInput } from "./ChatInput";
 import { createStore } from "../../../../../app/store";
 import { getState } from "../../../../../utils/getState";
 import { Provider } from "react-redux";
+import { Commands } from "shared/src/MiddlewareCommands";
 
 describe('ChatInput', () => {
 
@@ -13,13 +14,15 @@ describe('ChatInput', () => {
         let id = ''
         const io = getSocketServer()
         io.on('connection', socket => {
-            socket.on('msg', ({chatId, content}) => {
+            socket.on(Commands.MessagePostReq, ({chatId, content}) => {
                 text = content
                 id = chatId
             })
         })
 
-        const store = createStore(getState(), true)
+        const { state } = getState()
+        state.chat.displayedChatId = 'someId'
+        const store = createStore(state, true)
         render(<Provider store={store}><ChatInput /></Provider>) 
         await waitFor(() => expect(store.getState().socket.isConnected).toBeTruthy())
 

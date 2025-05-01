@@ -46,17 +46,26 @@ const controller = {
 
         const {username, password}: Credentials = req.body
 
-        const [ dbUser ] = await userModel.getByUsername(username)
-        if(!dbUser){
+        console.log('hey')
+        const dbUsers = await userModel.getByUsername(username)
+        console.log('dbUsers', dbUsers)
+        if(dbUsers.length === 0){
+            console.log('user not found')
+            res.status(404).json({message: 'username or password not match'})
+            return
+        }
+        const dbUser = dbUsers[0]
+
+        console.log('hey')
+
+        const passwordMatch = await compare(password, dbUser.hash)
+        if(!passwordMatch){
+            console.log('password not match')
             res.status(404).json({message: 'username or password not match'})
             return
         }
 
-        const passwordMatch = await compare(password, dbUser.hash)
-        if(!passwordMatch){
-            res.status(404).json({message: 'username or password not match'})
-            return
-        }
+        console.log('all good')
 
         const authPayload: TokenPayload = {
             id: dbUser.id,

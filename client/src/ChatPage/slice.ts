@@ -1,10 +1,11 @@
 import { PayloadAction } from "@reduxjs/toolkit";
 import { createSlice } from "@reduxjs/toolkit";
 import { ChatId, ChatPinStatus, MessageId, Typing, UserData, UserId } from "@shared/Types";
-import { Message, MessagePostReq } from "shared/src/Message";
+import { Message, MessagePostReq, MessagePostRes } from "shared/src/Message";
 import { TextMessageProps } from "./components/ChatView/components/TextMessage/TextMessage";
 import { MessageStatusUpdate } from "@shared/Types";
 import { GroupCreateRes } from "shared/src/ChatControl";
+import { ChatInfo } from "shared/src/ChatInfo";
 
 import { addInputHandler, addOutputHandler } from "../utils/socketActions";
 import { EditChanges } from "../ChatControl/slice";
@@ -12,12 +13,12 @@ import { Commands } from "shared/src/MiddlewareCommands";
 
 export type ContainerItem = TextMessageProps
 
-export interface ChatInfo {
-    name: string
-    iconSrc: string
-    status: string // (n) online | offline 
-    isGroup: boolean
-}
+// export interface ChatInfo {
+//     name: string
+//     iconSrc: string
+//     status: string // (n) online | offline 
+//     isGroup: boolean
+// }
 
 export interface ChatData {
     chatId: ChatId
@@ -120,9 +121,10 @@ const slice = createSlice({
             const { name, members, admins, id, chatMessageIds, messages } = action.payload
 
             state.chatInfo[id] =  {
+                id,
                 name,
                 iconSrc: '',
-                status: 'group',
+                // status: 'group',
                 isGroup: true
             }
 
@@ -176,15 +178,16 @@ const slice = createSlice({
             console.log('send')
         },
 
-        handleMessage: (state, action: PayloadAction<Message>) => {
-            console.log('------------- handling message ---------------')
-            const { chatId, sender: userId, messageId, content, timestamp } = action.payload
+        handleMessage: (state, action: PayloadAction<MessagePostRes>) => {
+            // console.log('------------- handling message ---------------')
+            const { message, chatInfo } = action.payload
+            const { chatId, sender: userId, messageId, content, timestamp } = message
 
             state.messages[messageId] ={
                 messageId, chatId, sender: userId, timestamp, content
             }
-            // state.chatMessageIds[chatId] = [messageId].concat(state.chatMessageIds[chatId])
             state.chatMessageIds[chatId].unshift(messageId)
+            state.chatInfo[chatInfo.id] = chatInfo
         },
 
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -226,6 +229,9 @@ const slice = createSlice({
 
         handleChatDeletion: (state, action: PayloadAction<ChatId>) => {
             const chatId = action.payload
+            if(state.displayedChatId === chatId){
+                state.displayedChatId = ''
+            }
             if(chatId in state.chatMessageIds){
                 for(const msgId of state.chatMessageIds[chatId]){
                     delete state.messages[msgId]
@@ -240,11 +246,6 @@ const slice = createSlice({
             }
             state.pinned = state.pinned.filter(id => id !== chatId)
         },
-
-        // ----------------- testing ---------------
-
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        sendNumber: (state, action: PayloadAction<number>) => {}
     }
 })
 
@@ -258,7 +259,6 @@ export const {
     togglePin, handleToggle,
     sendTyping, handleTyping,
     deleteChat, handleChatDeletion,
-    sendNumber,
     handleChatSelection
 } = slice.actions
 
@@ -274,7 +274,7 @@ addInputHandler(Commands.GroupDeleteRes, (arg: ChatId, store) => store.dispatch(
 addOutputHandler(deleteChat, Commands.GroupDeleteReq)
 
 addOutputHandler(sendMessage, Commands.MessagePostReq)
-addInputHandler(Commands.MessagePostRes, (msg: Message, store) => 
+addInputHandler(Commands.MessagePostRes, (msg: MessagePostRes, store) => 
     store.dispatch(handleMessage(msg)))
 
 addOutputHandler(reqChatWithUser,Commands.ChatWithUserReq)

@@ -66,13 +66,16 @@ export const authSlice = createSlice({
         builder 
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             .addCase(fetchToken.pending, (state, action) => {
+                console.log('gonna fetch...')
                 state.onWaiting = true
             })
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             .addCase(fetchToken.rejected, (state, action) => {
+                console.log('error: ', action.error)
                 state.onWaiting = false
             })
             .addCase(fetchToken.fulfilled, (state, action) => {
+                console.log('fetching data', action.payload)
                 state.onWaiting = false
                 state.data = action.payload as UserAuthData 
                 state.authenticated = true

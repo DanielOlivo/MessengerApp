@@ -274,6 +274,9 @@ describe('chat controller', () => {
     })
 
      
+    it('user1 creates groups with user2 and user3', async () => {
+          
+    })
 
     it('sanity', () => expect(true).toBeTruthy()) 
 

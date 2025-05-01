@@ -9,8 +9,6 @@ import {
 import SocketFactory from "@features/socket/SocketFactory";
 import type { SocketInterface } from "@features/socket/SocketFactory";
 
-import { sendNumber } from "../ChatPage/slice";
-
 import { inputHandlers, outputHandlers } from "../utils/socketActions";
 
 enum SocketEvent {
@@ -51,10 +49,10 @@ const socketMiddleware: Middleware = (store) => {
         }
 
 
-        if(sendNumber.match(action) && socket){
-            console.log('sending number')
-            socket.socket.emit('number', action.payload)
-        } 
+        // if(sendNumber.match(action) && socket){
+        //     console.log('sending number')
+        //     socket.socket.emit('number', action.payload)
+        // } 
 
 
         for(const handler of outputHandlers){

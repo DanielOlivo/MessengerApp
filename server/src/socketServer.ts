@@ -8,11 +8,6 @@ import { verifyToken } from './middlewares/socketAuth'
 import { ChatId, MessagePostReq, TokenPayload, UserId } from '@shared/Types'
 import Sockets from './controllers/sockets'
 
-import socketController from './controllers/socket'
-import { ChatListItem, ChatListReq, ChatSelect, 
-    ChatSelectRes, GroupInfoReq, GroupRemoveReq, 
-    HeaderInfo, NewGroupReq, SearchReq, SendReq, 
-    SendRes, Typing, UserInfoReq } from '@shared/Types'
 import { Commands } from '@shared/MiddlewareCommands'
 import { controller as chatController} from './controllers/chatController'
 import { Message as DbMessage } from './models/models'
@@ -34,15 +29,14 @@ export const io = new Server(httpServer, {
 
 const sockets = new Sockets()
 
-export const Cmd = {
-    SearchReq: 'schrq',
-    SearchRes: 'schrs',
-}
+const userSockets = new Map<string, string>()
 
-// FOR TESTING
+
 io.use(verifyToken)
 
 io.on('connection', async (socket) => {
+
+    userSockets.set(socket.data.id, socket.id)
 
     console.log('connection', socket.id)
 
@@ -95,8 +89,18 @@ io.on('connection', async (socket) => {
 
     socket.on(Commands.MessagePostReq, async (req: MessagePostReq) => {
         const { id } = socket.data as TokenPayload
-        const message: Message = await chatController.postMessage(id, req)
-        io.to(message.chatId).emit(Commands.MessagePostRes, message)
+        const responses= await chatController.postMessage(id, req)
+        for(const res of responses){
+            const { target, targetId } = res
+            switch(target){
+                case 'group': io.to(targetId).emit(Commands.MessagePostRes, res); break;
+                case 'user': {
+                    if(userSockets.has(targetId)){
+                        io.to(userSockets.get(targetId)!).emit(Commands.MessagePostRes, res); break
+                    }
+                }
+            } 
+        }
     })
 
     socket.on(Commands.ChatWithUserReq, async (userId: UserId) => {

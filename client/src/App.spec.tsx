@@ -130,9 +130,10 @@ describe('App', () => {
             const chatInfo: ChatData = {
                 chatId,
                 info: {
+                    id: chatId,
                     name: serverState.users.users[userIdToSearch].name,
                     iconSrc: '',
-                    status: 'online',
+                    // status: 'online',
                     isGroup: false
                 },
                 messages: {},

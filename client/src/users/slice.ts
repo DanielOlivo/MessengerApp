@@ -2,6 +2,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { UserId, UserInfo } from "shared/src/Types";
 import { addInputHandler, addOutputHandler } from "../utils/socketActions";
 import { Commands } from "shared/src/MiddlewareCommands";
+import { MessagePostRes } from "shared/src/Message";
 
 export type UserInfoCollection = { [P: UserId]: UserInfo }
 
@@ -62,3 +63,5 @@ addInputHandler(Commands.UsersResponse, (users: UserInfoCollection, store) => st
 
 addOutputHandler(search, Commands.SearchReq)
 addInputHandler(Commands.SearchRes, (users: UserInfoCollection, store) => store.dispatch(handleSearch(users)))
+
+addInputHandler(Commands.MessagePostRes, ({users}: MessagePostRes, store) => store.dispatch(handleUsers(users)))

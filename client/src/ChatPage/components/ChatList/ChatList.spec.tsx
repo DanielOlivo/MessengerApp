@@ -8,11 +8,21 @@ import { Provider } from "react-redux";
 import { ChatList } from "./ChatList";
 import { getSocketServer } from "../../../utils/getSocketServer";
 import { wait } from "../../../utils/wait";
-import { UserInfo } from '@shared/Types'
+import { ChatPinStatus, UserInfo } from '@shared/Types'
 import { faker } from "@faker-js/faker";
+import { Commands } from 'shared/src/MiddlewareCommands';
+import userEvent from '@testing-library/user-event';
 // import { Commands } from "shared/src/MiddlewareCommands";
 
 describe('ChatList', () => {
+
+    let io: ReturnType<typeof getSocketServer>
+
+    afterEach(() => {
+        if(io){
+            io.close()
+        }
+    })
 
     test('render', () => {
         const { state, makeUser, addChat } = getState()
@@ -29,15 +39,19 @@ describe('ChatList', () => {
         expect(screen.queryByText(new RegExp(state.chat.chatInfo[id2].name, 'i'))).toBeInTheDocument()
     })
 
+
     test('pin/unpin', async () => {
-        const io = getSocketServer()
+        io = getSocketServer()
 
         io.on('connection', socket => {
             let pinned = false
 
-            socket.on('togglePin', chatId => {
+            socket.on(Commands.TogglePinReq, chatId => {
                 pinned = !pinned
-                socket.emit('handleToggle', {chatId, pinned})
+                const res: ChatPinStatus = {
+                    chatId, pinned
+                }
+                socket.emit(Commands.TogglePinRes, res)
             })
         })
 
@@ -46,6 +60,8 @@ describe('ChatList', () => {
         const chatInfo = state.chat.chatInfo[chatId]
 
         const store = createStore(state, true)
+        const user = userEvent.setup()
+
         render(<Provider store={store}><ChatList /></Provider>)
 
         await waitFor(() => expect(store.getState().socket.isConnected).toBeTruthy())
@@ -53,12 +69,12 @@ describe('ChatList', () => {
         let item = screen.getByText(new RegExp(chatInfo.name, 'i'))
         expect(item).toBeInTheDocument()
 
-        fireEvent.contextMenu(item)
+        await user.pointer({keys: '[MouseRight]', target: item})
 
         let toggleBtn = screen.getByText(/Pin/)
         expect(toggleBtn).toBeInTheDocument()
 
-        fireEvent.click(toggleBtn)
+        await user.click(toggleBtn)
 
         await waitFor(() => expect(screen.queryByText(/pinned/i)).toBeInTheDocument())
 
@@ -73,17 +89,15 @@ describe('ChatList', () => {
         await waitFor(() => expect(screen.queryByText(/Pinned/)).not.toBeInTheDocument())
         expect(screen.queryByText(/Delete/)).not.toBeInTheDocument()
         expect(screen.queryByText(/Unpin/)).not.toBeInTheDocument()
-
-        io.close()
     })
 
 
     test('delete chat', async() => {
-        const io = getSocketServer()
+        io = getSocketServer()
 
         io.on('connection', socket => {
-            socket.on('deleteChat', chatId => {
-                socket.emit('handleChatDeletion', chatId)  
+            socket.on(Commands.GroupDeleteReq, chatId => {
+                socket.emit(Commands.GroupDeleteRes, chatId)  
             })
         })
 
@@ -92,32 +106,32 @@ describe('ChatList', () => {
         const chatInfo = state.chat.chatInfo[chatId]
 
         const store = createStore(state, true)
-        await act(() => render(<Provider store={store}><ChatList /></Provider>))
-        // await wait(100)
+        const user = userEvent.setup()
+        render(<Provider store={store}><ChatList /></Provider>)
         await waitFor(() => expect(store.getState().socket.isConnected))
 
         const item = screen.getByText(new RegExp(chatInfo.name, 'i'))
         expect(item).toBeInTheDocument()
 
-        await act(() => fireEvent.contextMenu(item))
+        await user.pointer({keys: '[MouseRight]', target: item})
         const deleteBtn = screen.getByText(/Delete/)
         expect(deleteBtn).toBeInTheDocument()
-        await act(() => fireEvent.click(deleteBtn))
-        await wait(200)
+        await user.click(deleteBtn)
 
         await waitFor(() => expect(screen.queryByText(new RegExp(chatInfo.name, 'i'))).not.toBeInTheDocument())
 
         io.close()
     })  
 
+
     test('search', async() => {
-        const io = getSocketServer()
+        io = getSocketServer()
         const infos = Array.from({length: 4}, () => getRandomUserInfo())
         const collection = Object.fromEntries(infos.map(info => [info.id, info]))
 
         io.on('connection', (socket) => {
-            socket.on('search', () => {
-                socket.emit('handleSearch', collection)
+            socket.on(Commands.SearchReq, () => {
+                socket.emit(Commands.SearchRes, collection)
             })
         })
 
@@ -142,7 +156,6 @@ describe('ChatList', () => {
 
         expect(screen.queryByText(/Search result/)).not.toBeInTheDocument()
 
-        io.close()
     })
 
     function getRandomUserInfo(): UserInfo {
