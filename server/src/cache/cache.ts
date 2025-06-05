@@ -1,214 +1,242 @@
-import db from '@config/db'
-import { Chat, DbUser, Message, UserId } from "@shared/Types"
+import dayjs from 'dayjs'
 
-type User = {
-    id: string
-    username: string
-    age: number
-}
-let user: User = { id: '1234', username: 'john.doe', age: 20}
-const tableName = 'users'
-// console.log('user', user)
+type Tag = string
+type ID = string | number
 
-type Getter<T> = { get(): T }
-type Setter<T> = { set(a: T): void }
-type Prop<T> = (Getter<T> & Setter<T>)
+export class Cache<T> {
 
-type Getters<T> = { [K in keyof T]: Getter<T[K]> }
-type Props<T> = { [K in keyof T]: Prop<T[K]> }
+    getIdFn: (item: T) => ID
+    items: Map<ID, T>
+    tagIds: Map<Tag, Set<ID>>
+    idTags: Map<ID, Set<Tag>>
+    requests: Map<Tag, number>
 
-type Plainer<T> = {
-    getPlain(): T
-}
+    constructor(getIdFn: (item: T) => ID){
+        this.getIdFn = getIdFn
+        this.items = new Map()
+        this.tagIds = new Map()
+        this.idTags = new Map() 
+        this.requests = new Map()
+    }
 
-export type Status = 'none' | 'create' | 'update' | 'delete'
-type HasStatus = {
-    getStatus(): Status
-    setStatus(st: Status): void
-}
-
-type Pushable = {
-    push(trx: any): Promise<void>
-}
-
-function splitObject<T extends object, K extends keyof T>(obj: T, keys: K[]): [Pick<T,K>, Omit<T,K>] {
-    const picked = {} as Pick<T, K>;
-    const omitted = {} as Omit<T, K>;
-
-    for (const key of Object.keys(obj) as Array<keyof T>) {
-        if (keys.includes(key as K)) {
-            picked[key as K] = obj[key as K];
-        } else {
-            omitted[key as Exclude<keyof T, K>] = obj[key as Exclude<keyof T, K>];
+    async get(
+        tag: Tag,
+        extractFn: () => Promise<T[]>,
+        createTagFn: (item: T) => Tag[]
+    ){
+        this.requests.set(tag, this.now())
+        if( this.tagIds.has(tag) ){
+            return Array.from( this.tagIds.get(tag)! ).map(id => this.items.get(id)!)
         }
-    }
 
-    return [picked, omitted];
-}
+        const extracted = await extractFn()
+        const result: T[] = []
 
+        for(const item of extracted){
+            const id = this.getIdFn(item)
+            const tags = createTagFn(item)
 
-// const [incl, excl] = splitObject<User, 'id'>(user, ['id'])
-// console.log('incl', incl, 'excl', excl)
+            if(this.items.has(id)){
+                result.push(this.items.get(id)!)
+            }  
+            else {
+                this.items.set(id, item)
+                result.push(item)
+            }
 
-function getGetters<T extends object>(o: T, requestedFn: () => void): Getters<T> & Plainer<T>{
-    const result = {} as { [K in keyof T]: Getter<T[K]>}
-    for(const key in o){
-        result[key] = { get: () => {
-            requestedFn()
-            return o[key]
-        }}
-    }
-    const getPlain = () => o
-    return {...result, getPlain}
-}
-
-function getProps<T extends object>(o: T, requestedFn: () => void, initStatus: Status = 'none'): Props<T> & HasStatus & Plainer<T>{
-    const result = {} as { [K in keyof T]: Prop<T[K]>}
-    let status: Status = initStatus
-
-    for(const key in o){
-        let raw = o[key]
-        result[key] = { 
-            get: () => raw,
-            set: (a: T[Extract<keyof T, string>]) => {
-                raw = a
-                if(status === 'none'){
-                    status = 'update'
-                }
-                requestedFn()
+            const currentTags = this.getIdTagsOrDefault(id)
+            tags.forEach(tag => currentTags.add(tag))
+            // this.idTags.set(id, new Set([...currentTags, ...tags]))
+            
+            for(const tag of tags){
+                const ids = this.getTagIdsOrDefault(tag)
+                ids.add(id)
             }
         }
+
+        return result
     }
 
-    const getPlain = () => {
-        const plained = {} as {[K in keyof T]: T[K]}
-        for(let key in result){
-            plained[key] = result[key].get()
+    insert(
+        item: T,
+        tags: Tag[],
+        insertFn: (i: T) => Promise<void>
+    ): void {
+        const id = this.getIdFn(item)
+        this.items.set(id, item)
+        tags.forEach(tag => this.getTagIdsOrDefault(tag).add(id))
+        this.idTags.set(id, new Set(tags))
+        insertFn(item) 
+    }
+
+    update(
+        item: T,
+        updateFn: (item: T) => Promise<void>
+    ) {
+        const id = this.getIdFn(item)
+        const tags = this.idTags.get(id)! 
+        this.items.set(id, item)
+        tags.forEach(tag => this.requests.set(tag, this.now()))
+        updateFn(item)
+    }
+
+    remove(
+        item: T,
+        removeFn: (item: T) => Promise<void>
+    ) {
+        const id = this.getIdFn(item)
+        this.items.delete(id) 
+        const tags = this.idTags.get(id)!
+        this.idTags.delete(id)
+
+        for(const tag of tags){
+            const ids = this.tagIds.get(tag)!
+            if(ids.size === 1){
+                this.tagIds.delete(tag)
+            }
+            else {
+                ids.delete(id)
+            }
         }
-        return plained
-    } 
-
-
-    const hasStatusInstance: HasStatus = {
-        getStatus: () => status,
-        setStatus: (st: Status) => status = st
+        removeFn(item)
     }
 
-    return {...result, ...hasStatusInstance, getPlain}
+    now(){ return dayjs().valueOf() }
+
+    getAllTags(){ return this.tagIds.keys() }
+    getAllIds(){ return this.idTags.keys() }
+
+    getTagIdsOrDefault(tag: Tag): Set<ID> {
+        if( this.tagIds.has(tag) ) return this.tagIds.get(tag)!
+        const s = new Set<ID>()
+        this.tagIds.set(tag, s)
+        return s
+    }
+
+    getIdTagsOrDefault(id: ID): Set<Tag>{
+        if( this.idTags.has(id) ) return this.idTags.get(id)!
+        const s = new Set<Tag>()
+        this.idTags.set(id, s)
+        return s
+    }
+
 }
 
+export function getCache<T extends object>(getIdFn: (item: T) => ID){
 
-async function push<T extends object>(o: T, byKey: Partial<T>, trx: any, status: Status){
-    if(status == 'create'){
-        await db('users').insert(o).transacting(trx)
-        return
-    } 
-    await db('users').where(byKey).update(o).transacting(trx)
-    return
-}
+    const now = () => dayjs().valueOf()
+    const map = new Map<ID, T>() 
+    const tagIds = new Map<Tag, Set<ID>>()
+    const idTags = new Map<ID, Set<Tag>>()
 
-// const {getPlain: getPlain1, ...getters} = getGetters(incl)
-// const {getPlain: getPlain2, ...props} = getProps(excl)
+    const getIdTagsOrDefault = (id: ID): Set<string> => {
+        if(idTags.has(id)) return idTags.get(id)!
+        const s = new Set<string>()
+        idTags.set(id, s)
+        return s
+    }
 
-function getPush<T extends object>(tableName: string, hasStatus: HasStatus, getPlain: () => T, getKey: (a: T) => Partial<T>){
-    return async function push(trx: any){
-        const status = hasStatus.getStatus()
-        const plained = getPlain()
-        if(status == 'create'){
-            await db(tableName).insert(plained).transacting(trx)
-            hasStatus.setStatus('none')
-            return 
-        }          
-        else if(status == 'update'){
-            const key = getKey(plained)
-            hasStatus.setStatus('none')
-            await db(tableName).where(key).update(plained)
+    const requests = new Map<Tag, number>()
+
+    const getAllTags = () => new Set( tagIds.keys() )
+    const getReqTimestamp = (tag: Tag) => requests.get(tag)
+
+    const getLifeTime = (id: ID) => { 
+        const n = now()
+        const accessTimestamps = Array.from( idTags.get(id)! ).map(tag => n - requests.get(tag)!)
+        const min = accessTimestamps.reduce((m, i) => i < m ? i : m, accessTimestamps[0])
+        return min
+    }
+
+    const count = () => map.size
+
+    const get = async (
+        tag: Tag | null,                        // tag associated with item id
+        extractFn: () => Promise<T[]>,          // called in case of absense in cache
+        createTagFn: (item: T) => Set<Tag>      // called in case of absense in cache
+    ): Promise<T[]> => {
+
+        if(tag && tagIds.has(tag)){
+            requests.set(tag, now())
+            return Array.from( tagIds.get(tag)! )
+                .map(id => map.get(id)!)
         }
-        else if(status == 'delete'){
-            const key = getKey(plained)
-            await db(tableName).where(key).del()
+
+        const extracted = await extractFn()
+        const result: T[] = []
+        for(const item of extracted){
+            const id = getIdFn(item)
+            const tags = createTagFn(item)
+
+            // if(!idTags.has(id)){
+            //     idTags.set(id, new Set())
+            // }
+            // const existingTags = idTags.get(id) 
+            const existingTags = getIdTagsOrDefault(id)
+
+            tags.forEach(t => existingTags?.add(t))
+            
+            for(const tag of tags){
+                if(!tagIds.has(tag)){
+                    tagIds.set(tag, new Set())
+                }
+                tagIds.get(tag)!.add(id)
+            }
+
+            if(!map.has(id)){
+                map.set(id, item)
+            }
+            result.push(map.get(id)!)
         }
-    }
-}
 
-export type Cached<T extends object, K extends keyof T> = 
-    HasStatus & Pushable & Plainer<T>
-    & Getters<Pick<T,K>> & Props<Omit<T, K>>
-
-export function create<T extends object, K extends keyof T>(obj: T, readOnlyFields: K[], tableName: string, getKey: (a: T) => Partial<T>){
-    const [toRead, toReadWrite] = splitObject(obj, readOnlyFields)
-
-    let requestedTime = new Date()
-    const getRequestedTime = () => requestedTime
-    const updateRequestedTime = () => requestedTime = new Date()
-
-    const {getPlain: getPlain1, ..._getters} = getGetters(toRead, updateRequestedTime) 
-    const {getPlain: getPlain2, getStatus, setStatus,  ..._props} = getProps(toReadWrite, updateRequestedTime, 'create')
-
-    const getters: Getters<Pick<T,K>> = _getters as any
-    const props: Props<Omit<T,K>> = _props as any
-
-    const getPlain = ():T => {
-        const result1 = getPlain1()
-        const result2 = getPlain2()
-        return {...result1, ...result2} as T
+        return result
     }
 
-    const plainer: Plainer<T> = { getPlain }
+    const insert = async (item: T, tags: Set<Tag>, insertFn: (i: T) => Promise<void>) => {
+        const id = getIdFn(item)
+        map.set(id, item)
+        idTags.set(id, tags)
 
-    const hasStatus: HasStatus = {getStatus, setStatus}
-
-    const push = getPush(tableName, hasStatus, getPlain, getKey)
-    const result: Cached<T,K> = {push, ...hasStatus, ...plainer, ...getters, ...props}
-    return result
-}
-
-export async function load<T extends object, K extends keyof T>(key: Partial<T>, readOnlyFields: K[], tableName: string, getKey: (a: T) => Partial<T>){
-    const fields = await db(tableName).where(key).first() as T
-    const proxy = create(fields, readOnlyFields, tableName, getKey)
-    proxy.setStatus('none')
-    return proxy
-}
-
-
-export type Cache<T extends object, K extends keyof T> = {
-    items: {K: Cached<T,K>} 
-    expirationTime: Date
-    add(a: Cached<T,K>): void
-}
-
-export function getCache<T extends object, K extends keyof T>(expTime: Date, getKeyFn: (a: Cached<T,K>) => Extract<T[K], string | number | symbol>): Cache<T,K>{
-
-    const items = {} as { [Key in Extract<T[K], string | number | symbol >]: Cached<T,K>}
-     
-    const add = (cached: Cached<T,K>) => {
-        const key: Extract<T[K], string | number | symbol > = getKeyFn(cached)
-        items[key] = cached
+        for(const tag of tags){
+            if(!tagIds.has(tag)){
+                tagIds.set(tag, new Set())
+            }
+            tagIds.get(tag)!.add(id)
+        }
+        await insertFn(item)
     }
 
-    const cache: Cache<T,K> = {
-        expirationTime: expTime,
-        items: {} as {K: Cached<T,K>},
-        add
+    const remove = async (item: T, fn: (i: T) => Promise<void>) => {
+        const id = getIdFn(item)
+        const tags = idTags.get(id)!
+        idTags.delete(id)
+        for(const tag of tags){
+            const ids = tagIds.get(tag)!
+            if(ids.size === 1){
+                tagIds.delete(tag)
+                requests.delete(tag)
+            }
+            else {
+                ids.delete(id)
+            }
+        }
+        map.delete(id)
+        await fn(item)
     }
-    return cache
-}
 
+    const update = (item: T, tags: Set<Tag>, updateFn: (i: T) => Promise<void>) => {
+        throw new Error()
+    }
 
-type CachedChat = {
-    users: { string : Cached<DbUser,'id' | 'username' | 'created'> }
-    chat: Cached<Chat, 'id'>
-    messages: Cached<Message, 'id' | 'created' | 'chatId' | 'userId'>[]
-}
+    const removeById = (id: ID, removeFn: (id: ID) => Promise<void>) => {
+        map.delete(id)
+        const tags = idTags.get(id)!
+        idTags.delete(id) 
+        for(const tag of tags){
+            tagIds.get(tag)?.delete(id)
+        }
+        removeFn(id)
+    }
 
-type Environment = {
-    chats: { string: CachedChat }
-    loadContext(userId: UserId): void
-}
-
-function getEnvironment(): Environment {
-
-     
-
-    throw new Error()
+    return { get, getAllTags, getReqTimestamp, getLifeTime, insert, update, remove, removeById, count }
 }
