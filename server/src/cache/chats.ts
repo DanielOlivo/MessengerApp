@@ -1,6 +1,6 @@
 import db from "../config/db";
 import { Chat } from "../models/models";
-import { getCache } from "../cache1";
+import { getCache } from "./cache";
 import { ChatId, UserId } from "shared/src/Types";
 import chatModel from '../models/chats'
 

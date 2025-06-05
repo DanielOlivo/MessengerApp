@@ -1,5 +1,5 @@
 import db from "../config/db";
-import { getCache } from "../cache1";
+import { getCache } from "./cache";
 import { UserId, ChatId, MembershipId } from '@shared/Types'
 import membershipModel from '../models/memberships'
 import { Membership } from "../models/models";

@@ -1,6 +1,6 @@
 import { v4 as uuid } from 'uuid'
 import db from "../config/db";
-import { getCache } from "../cache1";
+import { getCache } from "./cache";
 import { UserId, ChatId } from "shared/src/Types";
 import { ChatPin } from "../models/models";
 

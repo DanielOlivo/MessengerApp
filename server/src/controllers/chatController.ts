@@ -1,5 +1,5 @@
 import { v4 as uuid } from 'uuid'
-import { getCache } from "../cache1";
+import { getCache } from "../cache/cache";
 import { ChatId, DbUser, UserId, MessageId, ChatPinStatus, User } from "shared/src/Types";
 import { UserInfo as DbUserInfo, UserInfoCollection } from "shared/src/UserInfo";
 import { MessagePostReq, MessagePostRes } from "shared/src/Message";
@@ -15,7 +15,7 @@ import { UserInfo } from 'shared/src/UserInfo';
 
 
 // import userCache from '../cache/users'
-import { getUserCache } from '../cache/users';
+import { UserCache } from '../cache/users';
 import { getMembershipCache } from '../cache/memberships'
 import { getChatCache } from '../cache/chats'
 import { getPinCache } from '../cache/pins'
@@ -23,7 +23,7 @@ import { getChatInfoCache } from '../cache/chatInfo'
 import { getMessageCache } from '../cache/messages'
 
 // export to enable testing
-export const userCache = getUserCache()
+export const userCache = new UserCache(u => u.id)
 export const membershipCache = getMembershipCache()
 export const chatCache = getChatCache()
 export const pinCache = getPinCache()
