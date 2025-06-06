@@ -1,34 +1,28 @@
 import { v4 as uuid } from 'uuid'
-import { getCache } from "../cache/cache";
 import { ChatId, DbUser, UserId, MessageId, ChatPinStatus, User } from "shared/src/Types";
 import { UserInfo as DbUserInfo, UserInfoCollection } from "shared/src/UserInfo";
 import { MessagePostReq, MessagePostRes } from "shared/src/Message";
 import dayjs from "dayjs";
 import { EditChanges, GroupCreateReq } from 'shared/src/Group';
 import { GroupCreateRes } from 'shared/src/ChatControl';
-
-import { Chat, ChatInfo as DbChatInfo, Message as DbMessage, Membership } from '../models/models';
-
+import { Chat, ChatPin, ChatInfo as DbChatInfo, Message as DbMessage, Membership } from '../models/models';
 import { ChatInfo } from 'shared/src/ChatInfo';
 import { Message } from 'shared/src/Message';
-import { UserInfo } from 'shared/src/UserInfo';
 
-
-// import userCache from '../cache/users'
 import { UserCache } from '../cache/users';
-import { getMembershipCache } from '../cache/memberships'
-import { getChatCache } from '../cache/chats'
-import { getPinCache } from '../cache/pins'
-import { getChatInfoCache } from '../cache/chatInfo'
-import { getMessageCache } from '../cache/messages'
+import { ChatCache } from '../cache/chats'
+import { ChatInfoCache } from '../cache/chatInfo'
+import { MembershipCache } from '../cache/memberships'
+import { PinCache } from '../cache/pins'
+import { MessageCache } from '../cache/messages'
 
-// export to enable testing
 export const userCache = new UserCache(u => u.id)
-export const membershipCache = getMembershipCache()
-export const chatCache = getChatCache()
-export const pinCache = getPinCache()
-export const chatInfoCache = getChatInfoCache()
-export const messageCache = getMessageCache()
+export const chatCache = new ChatCache(c => c.id)
+export const chatInfoCache = new ChatInfoCache(c => c.id)
+export const membershipCache = new MembershipCache(m => m.id)
+export const pinCache = new PinCache(p => p.id)
+export const messageCache = new MessageCache(m => m.id)
+
 
 export const controller = {
 
@@ -39,12 +33,10 @@ export const controller = {
         const contactIds = memberships.map(m => m.userId).filter(id => id !== userId)
         const contacts = await userCache.getUsersAsContacts(userId, contactIds)
 
-        // caching 
-        // const info = await chatInfoCache.getChatInfoOfUser(userId, chatIds)
-        await chatInfoCache.getChatInfoOfUser(userId)
+        // preparing cache
+        await chatInfoCache.getForUserId(userId, chatIds)
         await chatCache.getUserChats(userId, chatIds)
         await pinCache.getUserPins(userId)
-        // const messages = await messageCache.getMessagesForUser(userId, chatIds)
         await messageCache.getMessagesForUser(userId)
 
         return Object.fromEntries( contacts.map(user => ([user.id, {
@@ -53,6 +45,7 @@ export const controller = {
             name: user.username
         }])) )
     },
+
 
     handleSearch: async (userId: UserId, term: string): Promise<UserInfoCollection> => {
         const users = await userCache.search(term)
@@ -63,6 +56,7 @@ export const controller = {
             name: user.username
         }])) )
     },
+
 
     handleInitLoading: async (userId: UserId) => {
         const userMemberships = await membershipCache.getUserMemberships(userId)
@@ -81,7 +75,7 @@ export const controller = {
 
         // it is only groups
         // const groupInfos = await chatInfoCache.getChatInfoOfUser(userId, chatIds)
-        const groupInfos = await chatInfoCache.getChatInfoOfUser(userId)
+        const groupInfos = await chatInfoCache.getForUserId(userId, chatIds)
         const groupInfoMap = new Map( groupInfos.map(i => [i.chatId, i]) )
 
 
@@ -163,11 +157,12 @@ export const controller = {
         const pin = pins.find(p => p.chatId === chatId)
         let pinned = false
         if(!pin){
-            (async () => await pinCache.createPin(userId, chatId))()
+            const newPin: ChatPin  = {id: uuid(), chatId, userId}
+            pinCache.insertPin(newPin)
             pinned = true
         }
         else {
-            pinCache.removePin(pin)
+            pinCache.removePin(pin.id)
         }
         return {chatId, pinned}
     },

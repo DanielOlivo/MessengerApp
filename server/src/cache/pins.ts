@@ -1,41 +1,34 @@
-import { v4 as uuid } from 'uuid'
-import db from "../config/db";
-import { getCache } from "./cache";
-import { UserId, ChatId } from "shared/src/Types";
+import { Cache } from "./cache";
+import { UserId } from "shared/src/Types";
 import { ChatPin } from "../models/models";
+import pinModel from '../models/pins'
 
 const queries = {
     id: (id: string) => `id=${id}`,
     ofUser: (userId: UserId) => `ofuser=${userId}`
 }
 
-const cache = getCache<ChatPin>(p => p.id)
+export class PinCache extends Cache<ChatPin> {
 
-const getUserPins = async (userId: UserId) => await cache.get(
-    queries.ofUser(userId),
-    () => db('pins').where({userId}).select('*'),
-    (pin: ChatPin) => new Set( [ queries.id(pin.id), queries.ofUser(pin.userId)] )
-)
-
-const createPin = async (userId: UserId, chatId: ChatId) => {
-    const item: ChatPin = {id: uuid(), userId, chatId}
-    await cache.insert(
-        item,
-        new Set( [ queries.id(item.id), queries.ofUser(userId) ] ),
-        async (i: ChatPin) => await db('pins').insert(i)
-    )
-}
-
-const removePin = async (pin: ChatPin) => await cache.remove(
-    pin,
-    (i: ChatPin) => db('pins').where({id: i.id}).del()
-)
-
-export function getPinCache(){
-    return {
-        getUserPins,
-        cache,
-        createPin,
-        removePin
+    constructor(fn: (pin: ChatPin) => string) {
+        super(fn)
     }
+
+    getUserPins = async (userId: UserId) => await this.get(
+        queries.ofUser(userId),
+        async () => await pinModel.getByUserId(userId),
+        (pin: ChatPin) => [ queries.id(pin.id), queries.ofUser(pin.userId)]
+    )
+
+    insertPin = (pin: ChatPin) => this.insert(
+        pin,
+        [ queries.id(pin.id), queries.ofUser(pin.userId) ],
+        async () => await pinModel.create(pin)
+    )
+
+    removePin = async (id: string) => this.removeById(
+        id,
+        async () => await pinModel.remove(id)
+    )
+
 }

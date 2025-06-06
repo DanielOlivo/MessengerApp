@@ -1,7 +1,7 @@
 import db from "../config/db";
 import { UserId, ChatId } from "shared/src/Types";
-import { getCache } from "./cache";
-import infoModel from '../models/chatInfo'
+import { Cache, getCache } from "./cache";
+import chatInfoModel from '../models/chatInfo'
 import { ChatInfo } from "../models/models";
 
 const queries = {
@@ -10,34 +10,41 @@ const queries = {
     ofUser: (userId: UserId) => `ofuser=${userId}`
 }
 
-const cache = getCache<ChatInfo>(i => i.id)
-
-const getChatInfoOfUser = async (userId: UserId) => await cache.get(
-    queries.ofUser(userId),
-    // () => infoModel.getByChatIds(ids),
-    async () => await db 
-        .with('m', db('memberships').where({userId}).select('chatId as id'))
-        .select(['ci.id', 'ci.chatId', 'ci.name', 'ci.iconSrc']).from('chatinfo as ci').whereIn('chatId', db('m')),
-    (i: ChatInfo) => new Set( [queries.id(i.id), queries.ofUser(userId)] )
-)
-
-const getChatInfo = async (chatId: ChatId) => await cache.get(
-    queries.ofChat(chatId),
-    () => db('chatinfo').where({chatId}).select('*'),
-    (info: ChatInfo) => new Set( [queries.id(info.id), queries.ofChat(info.chatId)] )
-)
-
-const insert = async (info: ChatInfo) => await cache.insert(
-    info,
-    new Set( [ queries.id(info.id) ] ),
-    async (i) => await db('chatinfo').insert(i)
-)
-
-export function getChatInfoCache(){
-    return {
-        getChatInfoOfUser,
-        getChatInfo,
-        insert,
-        cache
+export class ChatInfoCache extends Cache<ChatInfo> {
+    constructor(fn: (c: ChatInfo) => string){
+        super(fn)
     }
+
+    getForUserId = async(userId: UserId, chatIds: ChatId[]) => await this.get(
+        queries.ofUser(userId),
+        async () => chatInfoModel.getByChatIds(chatIds),
+        (ci: ChatInfo) => [
+            queries.ofChat(ci.chatId),
+            queries.ofUser(userId)
+        ]
+    )
+    // getChatInfoOfUser = async (userId: UserId) => await this.get(
+    //     queries.ofUser(userId),
+    //     async () => await db 
+    //         .with('m', db('memberships').where({userId}).select('chatId as id'))
+    //         .select(['ci.id', 'ci.chatId', 'ci.name', 'ci.iconSrc']).from('chatinfo as ci').whereIn('chatId', db('m')),
+    //     (i: ChatInfo) => [
+    //         queries.id(i.id), 
+    //         queries.ofUser(userId)]
+    // )
+
+    getChatInfo = async (chatId: ChatId) => await this.get(
+        queries.ofChat(chatId),
+        async () => await chatInfoModel.getById(chatId),
+        (info: ChatInfo) => [
+            queries.id(info.id), 
+            queries.ofChat(info.chatId)]
+    )
+
+    insertChatInfo = (info: ChatInfo) => this.insert(
+        info,
+        [ queries.id(info.id), queries.ofChat(info.chatId) ],
+        () => chatInfoModel.create(info)
+    )
+
 }

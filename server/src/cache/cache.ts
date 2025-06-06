@@ -80,6 +80,7 @@ export class Cache<T> {
         updateFn(item)
     }
 
+
     remove(
         item: T,
         removeFn: (item: T) => Promise<void>
@@ -99,6 +100,33 @@ export class Cache<T> {
             }
         }
         removeFn(item)
+    }
+
+    removeById(
+        id: ID,
+        removeFn: (id: ID) => Promise<void>
+    ) {
+        this.items.delete(id) 
+        const tags = this.idTags.get(id)!
+        this.idTags.delete(id)
+
+        for(const tag of tags){
+            const ids = this.tagIds.get(tag)!
+            if(ids.size === 1){
+                this.tagIds.delete(tag)
+            }
+            else {
+                ids.delete(id)
+            }
+        }
+        removeFn(id)
+    }
+
+    reset(){
+        this.items.clear()
+        this.tagIds.clear()
+        this.idTags.clear()
+        this.requests.clear()
     }
 
     now(){ return dayjs().valueOf() }
