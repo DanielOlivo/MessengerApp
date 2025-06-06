@@ -142,12 +142,53 @@ describe('chat controller specs', () => {
         expect(_pins.length).toEqual(0)
     })
 
-    it('post message', async () => {
+    it('post message: dm', async () => {
         const [user1, user2] = await utils.addRandomUsers(2)
         const { chat } = await utils.getDm(user1.id, user2.id)
         const msgs = await utils.addRandomMessages(chat.id, 3)
 
-            
+        const req: MessagePostReq = {
+            chatId: chat.id,
+            content: faker.lorem.sentence()
+        }
+
+        const res = await controller.postMessage(user1.id, req)
+
+        expect(res).toBeDefined()
+        const [ res1, res2 ] = res        
+        expect(res1).toBeDefined()
+        expect(res2).toBeDefined()
+
+
+        {
+            const { users, chatInfo, target, targetId } = res1
+            expect(user2.id in users).toBeTruthy()
+            expect(chatInfo.name).toEqual(user2.username)
+            expect(target).toEqual('user')
+            expect(targetId).toEqual(user1.id)
+
+        } 
+
+        {
+            const { users, chatInfo, target, targetId } = res2
+            expect(user1.id in users).toBeTruthy()
+            expect(chatInfo.name).toEqual(user1.username)
+            expect(target).toEqual('user')
+            expect(targetId).toEqual(user2.id)
+        }
+
+        {
+            const {messageId, chatId, sender, content} = res1.message
+            expect(sender).toEqual(user1.id)
+            expect(content).toEqual(req.content)
+            expect(chatId).toEqual(req.chatId)
+            expect(messageCache.items.has(messageId)).toBeTruthy()
+        }
+
+        expect(messageCache.items.size).toEqual(msgs.length + 1)
+
+        const _msgs = await messageCache.getMessagesForUser(user1.id)  
+        expect(_msgs.length).toEqual(messageCache.items.size)
     })    
 })
 
