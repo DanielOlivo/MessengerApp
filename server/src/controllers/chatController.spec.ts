@@ -264,6 +264,24 @@ describe('chat controller specs', () => {
         expect(members.length).toEqual(2) 
         expect(admins.length).toEqual(0)
     })
+
+    it('handleChatWithUser: exists', async() => {
+        const [user1, user2] = await utils.addRandomUsers(2)
+        const { chat } = await utils.getDm(user1.id, user2.id)
+        const msgs = await utils.addRandomMessages(chat.id)
+
+        const res = await controller.handleChatWithUser(user1.id, user2.id)
+        expect(res).toBeDefined()
+
+        const { chatId, info, chatMessageIds, messages, members, admins } = res
+        expect(chatId).toEqual(chat.id)
+        expect(info.name).toEqual(user2.username)
+        expect(chatId in chatMessageIds).toBeTruthy()
+        expect(Object.keys(messages).length).toEqual(msgs.length)
+        expect(members.length).toEqual(2)
+        expect(admins.length).toEqual(0)
+    })
+
 })
 
 
