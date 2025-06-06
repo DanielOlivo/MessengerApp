@@ -174,12 +174,13 @@ export const controller = {
         const { chatId, content } = req
         
         // reload
-        // await messageCache.getMessageForChat(chatId)
-        await messageCache.getMessagesForUser(userId)
+        // await messageCache.getMessagesForUser(userId)
+        await messageCache.getMessageForChat(chatId)
 
         const memberships = await membershipCache.getChatMemberships(chatId)
         const users = await userCache.getAsChatMembers(chatId)
-        const userCollection: UserInfoCollection = Object.fromEntries( users.map(u => [u.id, {id: u.id, name: u.username, iconSrc: u.iconSrc}]))
+        const userCollection: UserInfoCollection = Object.fromEntries( users.map(u => 
+            [u.id, {id: u.id, name: u.username, iconSrc: u.iconSrc}]))
 
         const newMessage: Message = {
             messageId: uuid(),
@@ -196,16 +197,22 @@ export const controller = {
             timestamp: dayjs().toDate()
         };
 
-
+        // const chat = await chatCache.getChatById(chatId)
         const infos = await chatInfoCache.getChatInfo(chatId);
 
-        (async () => await messageCache.insertMessage(dbMessage))()
+        // (async () => await messageCache.insertMessage(dbMessage))()
+        messageCache.insertMessage(dbMessage)
 
-        if(infos.length === 1){
+        if(infos.length > 0){
             const ci = infos[0]
             return [{
                 message: newMessage,
-                chatInfo: { id: ci.chatId, name: ci.name, isGroup: true, iconSrc: ci.iconSrc},
+                chatInfo: { 
+                    id: ci.chatId, 
+                    name: ci.name, 
+                    isGroup: true, 
+                    iconSrc: ci.iconSrc
+                },
                 users: userCollection,
 
                 target: 'group',
@@ -247,10 +254,13 @@ export const controller = {
             const member1: Membership = {id: uuid(), userId, chatId: chat.id, isAdmin: false, created: chat.created}
             const member2: Membership = {id: uuid(), userId: req, chatId: chat.id, isAdmin: false, created: chat.created}
 
-            await (async () => {
-                await chatCache.insert(chat)
-                await Promise.all([membershipCache.insert(member1), membershipCache.insert(member2)])
-            })()
+            chatCache.insertChat(chat)
+            membershipCache.insertMembership(member1)
+            membershipCache.insertMembership(member2)
+            // await (async () => {
+            //     await chatCache.insert(chat)
+            //     await Promise.all([membershipCache.insert(member1), membershipCache.insert(member2)])
+            // })()
 
             dbMessages = []
         }
@@ -276,7 +286,7 @@ export const controller = {
             chatMessageIds: { [chat.id]: messages.sort((m1, m2) => 
                 m1.timestamp > m2.timestamp ? 1 : -1).map(m => 
                     m.messageId) },
-            messages: Object.fromEntries( messages.map(m => [m.messageId, m]) ),
+            messages: messages.length > 0 ? Object.fromEntries( messages.map(m => [m.messageId, m]) ) : {} ,
             members: [userId, req],
             admins: []
         }
