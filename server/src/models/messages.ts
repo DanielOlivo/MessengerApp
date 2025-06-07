@@ -1,19 +1,26 @@
 import db from '../config/db'
-import { ChatId, MessageId } from "@shared/Types"
+import { ChatId, MessageId, UserId } from "@shared/Types"
 import { Message } from './models'
 
 const model = {
 
     create: async (m: Message): Promise<void> => {
-        await db('messages').insert(m)
+        // await db('messages').insert(m)
+        await db.transaction(trx => trx('messages').insert(m))
     },
 
     update: async (m: Message): Promise<void> => {
-        await db('messages').where({id: m.id}).update(m)
+        // await db('messages').where({id: m.id}).update(m)
+        await db.transaction(trx =>
+            trx('messages').where({id: m.id}).update(m)
+        )
     },
 
     remove: async (m: Message): Promise<void> => {
-        await db('messages').where({id: m.id}).del()
+        // await db('messages').where({id: m.id}).del()
+        await db.transaction(trx =>
+            trx('messages').where({id: m.id}).del()
+        )
     },
 
     getById: async(id: MessageId): Promise<Message[]> => {
@@ -22,7 +29,10 @@ const model = {
     },
 
     getByChatId: async (chatId: ChatId): Promise<Message[]> => {
-        const messages = await db('messages').where({chatId}).select('*')
+        const messages = await db('messages')
+            .where({chatId})
+            .orderBy('timestamp', 'desc')
+            .select('*')
         return messages
     },
 
@@ -30,6 +40,14 @@ const model = {
         const messages = await db('messages').whereIn('chatId', ids).select('*')
         return messages
     },
+
+    getForUser: async (userId: UserId): Promise<Message[]> => {
+        const messages = await db
+            .with('chatIds', db('memberships').where({userId}).select('chatId as id'))
+            .with('msgs', db('messages').whereIn('chatId', db('chatIds')))
+            .select(['msgs.id', 'msgs.chatId', 'msgs.userId', 'msgs.timestamp', 'msgs.content']).from('msgs'),
+        return messages
+    }
 
 }
 

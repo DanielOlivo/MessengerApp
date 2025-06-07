@@ -35,7 +35,7 @@ export class ChatInfoCache extends Cache<ChatInfo> {
 
     getChatInfo = async (chatId: ChatId) => await this.get(
         queries.ofChat(chatId),
-        async () => await chatInfoModel.getById(chatId),
+        async () => await chatInfoModel.getByChatId(chatId),
         (info: ChatInfo) => [
             queries.id(info.id), 
             queries.ofChat(info.chatId)]

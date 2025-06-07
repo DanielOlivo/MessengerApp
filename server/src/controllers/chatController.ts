@@ -309,14 +309,14 @@ export const controller = {
             isAdmin: admins.includes(id)
         }))
 
-        chatCache.insert(chat)  
-        chatInfoCache.insert(chatInfo)
-        memberships.forEach(m => membershipCache.insert(m))
+        chatCache.insertChat(chat)  
+        chatInfoCache.insertChatInfo(chatInfo)
+        memberships.forEach(m => membershipCache.insertMembership(m))
 
         const result: GroupCreateRes = {
-            id: uuid(),
+            id: chat.id,
             created: created.valueOf(),
-            chatMessageIds: [],
+            chatMessageIds: { [chat.id]: []},
             messages: {},
             name, 
             admins, 

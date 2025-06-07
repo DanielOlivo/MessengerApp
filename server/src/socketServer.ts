@@ -10,9 +10,7 @@ import Sockets from './controllers/sockets'
 
 import { Commands } from '@shared/MiddlewareCommands'
 import { controller as chatController} from './controllers/chatController'
-import { Message as DbMessage } from './models/models'
-
-import { Message } from 'shared/src/Message'
+import { GroupCreateReq } from '@shared/Group'
 
 
 export const httpServer = createServer(app)
@@ -27,7 +25,7 @@ export const io = new Server(httpServer, {
 
 
 
-const sockets = new Sockets()
+// const sockets = new Sockets()
 
 const userSockets = new Map<string, string>()
 
@@ -109,6 +107,18 @@ io.on('connection', async (socket) => {
         socket.emit(Commands.ChatWithUserRes, res) 
     })  
 
+    socket.on(Commands.GroupCreateReq, async(req: GroupCreateReq) => {
+        const { id } = socket.data as TokenPayload
+        const res = await chatController.handleGroupCreate(id, req)
 
+        for(const member of res.members){
+            if(userSockets.has(member)){
+                const socket = io.sockets.sockets.get(userSockets.get(member)!)
+                socket?.join(res.id)
+            }
+        }
+
+        io.to(res.id).emit(Commands.GroupCreateRes, res)
+    })
 
 })

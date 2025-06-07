@@ -17,7 +17,12 @@ const model = {
     },
 
     getById: async (id: string): Promise<ChatInfo[]> => {
-        const info = db('chatinfo').where({id}).select('*')
+        const info = await db('chatinfo').where({id}).select('*')
+        return info
+    },
+
+    getByChatId: async(chatId: string): Promise<ChatInfo[]> => {
+        const info = await db('chatinfo').where({chatId}).select('*')
         return info
     },
 

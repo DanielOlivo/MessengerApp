@@ -49,6 +49,11 @@ export function getContacts(userId: UserId) {
         .join('users', 'userId', 'users.id')
 }
 
+export async function getChatById(id: ChatId) {
+    const result = await db('chats').where({id}).select('*')
+    return result
+}
+
 
 export function getDm(user1Id: UserId, user2Id: UserId){
     return db.transaction(async trx => {

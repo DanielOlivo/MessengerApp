@@ -14,6 +14,11 @@ const model = {
         return id as UserId
     },
 
+    update: async(user: User): Promise<void> => {
+        const { hash, iconSrc } = user
+        await db('users').where({id: user.id}).update({hash, iconSrc})
+    },
+
     updatePassword: async(id: UserId, newHash: string): Promise<void> => {
         await db('users').where({id}).update({hash: newHash})
         return
@@ -28,6 +33,12 @@ const model = {
         const all: User[] = await db('users').select('*')
         return all
     },
+
+    getChatMembers: async(chatId: string) => 
+        await db('memberships')
+            .join('users', 'users.id', '=', 'memberships.userId')
+            .where('memberships.chatId', '=', chatId)
+            .select('users.*'),
 
     getByUsername: async(username: string): Promise<User[]> => {
         const user = await db('users').where({username}).select('*')

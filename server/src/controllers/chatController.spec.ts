@@ -18,6 +18,7 @@ import { Message, MessagePostReq, isMessage } from 'shared/src/Message'
 import { faker } from '@faker-js/faker/.'
 import userModel from "../models/users"
 import { DbUtils } from '../utils/db'
+import { GroupCreateReq } from '@shared/ChatControl'
 
 
 // maybe it would be way easier to create db in the beginning of test here
@@ -281,6 +282,29 @@ describe('chat controller specs', () => {
         expect(members.length).toEqual(2)
         expect(admins.length).toEqual(0)
     })
+
+    it('handleGroupCreate', async () => {
+        const [user1, user2, user3] = await utils.addRandomUsers(3)
+
+        const req: GroupCreateReq = {
+            name: faker.lorem.word(),
+            members: [user1,user2,user3].map(u => u.id),
+            admins: [user1.id]
+        }
+
+        const res = await controller.handleGroupCreate(user1.id, req)
+        expect(res).toBeDefined()
+        const { id, created, chatMessageIds, messages, name, admins, members } = res
+        expect(id).toBeDefined()
+        expect(created).toBeDefined()
+        expect(id in chatMessageIds).toBeTruthy()
+        expect(chatMessageIds[id].length).toEqual(0)
+        expect(Object.keys(messages).length).toEqual(0)
+        expect(name).toEqual(req.name)
+        expect(admins.length).toEqual(1)
+        expect(admins.includes(user1.id)).toBeTruthy()
+        expect(members.length).toEqual(3)
+    })  
 
 })
 

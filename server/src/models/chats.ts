@@ -1,5 +1,5 @@
 import db from '@config/db'
-import { ChatId } from '@shared/Types'
+import { ChatId, UserId } from '@shared/Types'
 import { Chat } from './models'
 
 const model = {
@@ -22,13 +22,28 @@ const model = {
     },
 
     getById: async(id: ChatId): Promise<Chat[]> => {
-        const chats = await db('chats').where({id})
+        const chats = await db('chats').where({id}).select('*')
         return chats
     },
 
     getByIds: async(ids: ChatId[]): Promise<Chat[]> => {
         const chats = await db('chats').whereIn('id', ids).select('*')
         return chats
+    },
+
+    getDmBetween: async (id1: UserId, id2: UserId): Promise<Chat[]> => {
+        const result = await db
+            .with('user1m', db('memberships').where({userId: id1}))
+            .with('user2m', db('memberships').where({userId: id2}))
+            .with('joined',
+                db('user1m')
+                .innerJoin('user2m', 'user1m.chatId', '=', 'user2m.chatId')
+                .select('user1m.chatId as id')
+            )
+            .select('chats.*').from('joined')
+            .join('chats', 'chats.id', '=', 'joined.id')
+            .where('isGroup', false)
+        return result
     }
 }
 
