@@ -1,3 +1,5 @@
+process.env.NODE_ENV = 'test'
+
 import { describe, it, expect, beforeAll, afterAll, afterEach, jest, beforeEach } from "@jest/globals";
 import db from './config/db'
 import { httpServer } from "./socketServer";
@@ -18,7 +20,8 @@ import {
     messageCache,
     chatCache,
     chatInfoCache,
-    membershipCache
+    membershipCache,
+    queue
 } from './controllers/chatController'
 import { Client, waitFor as waitFor2 } from "./utils/clientSocket";
 import { MessagePostReq } from "@shared/Message";
@@ -372,6 +375,8 @@ describe('socketServer', () => {
         expect(emits).toEqual(messageCount)
         expect(count1 - count2).toEqual(0)
 
+        await wait(2000)
+        expect(queue.count).toEqual(0)
         expect(messageCache.items.size).toEqual(messageCount)
     })
 

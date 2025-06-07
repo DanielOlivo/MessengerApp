@@ -2,6 +2,7 @@ import { Cache } from "./cache";
 import { UserId } from "shared/src/Types";
 import { ChatPin } from "../models/models";
 import pinModel from '../models/pins'
+import { AsyncQueue } from "utils/taskQueue";
 
 const queries = {
     id: (id: string) => `id=${id}`,
@@ -10,8 +11,8 @@ const queries = {
 
 export class PinCache extends Cache<ChatPin> {
 
-    constructor(fn: (pin: ChatPin) => string) {
-        super(fn)
+    constructor(queue: AsyncQueue | undefined = undefined) {
+        super(pin => pin.id, queue)
     }
 
     getUserPins = async (userId: UserId) => await this.get(

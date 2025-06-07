@@ -9,9 +9,10 @@ import {
     chatCache,
     controller, 
     chatInfoCache,
-    membershipCache
+    membershipCache,
+    queue
 } from './chatController'
-import { User } from '../models/models'
+import { ChatInfo, User } from '../models/models'
 import { chatMessages } from '../models/chat'
 import { wait } from 'shared/src/utils'
 import { Message, MessagePostReq, isMessage } from 'shared/src/Message'
@@ -19,6 +20,7 @@ import { faker } from '@faker-js/faker/.'
 import userModel from "../models/users"
 import { DbUtils } from '../utils/db'
 import { GroupCreateReq } from '@shared/ChatControl'
+import { EditChanges } from '@shared/Group'
 
 
 // maybe it would be way easier to create db in the beginning of test here
@@ -144,6 +146,9 @@ describe('chat controller specs', () => {
 
         // check pinCache
         expect(pinCache).toBeDefined()
+        while(queue.count > 0){
+            await wait(100)
+        }
         expect(pinCache.items.size).toEqual(2)
 
         // check db
@@ -306,6 +311,41 @@ describe('chat controller specs', () => {
         expect(members.length).toEqual(3)
     })  
 
+    it('handleGroupEdit: change name', async () => {
+        const [user1, user2, user3] = await utils.addRandomUsers(3) 
+        const userIds = [user1, user2, user3].map(u => u.id)
+        const {chat, info, memberships } = await utils.getGroup(userIds)
+
+        const req: EditChanges = {
+            chatId: chat.id,
+            name: faker.lorem.word(),
+            iconSrc: info.iconSrc,
+            members: memberships.map(m => m.userId),
+            admins: []
+        }  
+
+        const res = await controller.handleGroupEdit(user1.id, req)
+
+        expect(res).toBeDefined()
+
+        while(queue.count > 0){
+            await wait(100)
+        }
+
+        const [ chatInfo ] = await db('chatinfo').where({chatId: chat.id}) as ChatInfo[]
+        expect(chatInfo.name).toEqual(req.name)
+    })
+
+    it('handleGroupDelete', async () => {
+        const [user1, user2, user3] = await utils.addRandomUsers(3) 
+        const userIds = [user1, user2, user3].map(u => u.id)
+        const {chat, info, memberships } = await utils.getGroup(userIds)
+
+        const res = await controller.handleGroupDelete(user1.id, chat.id)
+
+        expect(res).toBeDefined()
+        expect(res).toEqual(chat.id)
+    })
 })
 
 

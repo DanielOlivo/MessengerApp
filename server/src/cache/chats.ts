@@ -3,6 +3,7 @@ import { Chat } from "../models/models";
 import { Cache } from "./cache";
 import { ChatId, UserId } from "shared/src/Types";
 import chatModel from '../models/chats'
+import { AsyncQueue } from "utils/taskQueue";
 
 export const queries = {
     id: (id: ChatId) => `id=${id}`,
@@ -12,8 +13,8 @@ export const queries = {
 
 export class ChatCache extends Cache<Chat> {
 
-    constructor(fn: (user: Chat) => string) {
-        super(fn)
+    constructor(queue: AsyncQueue | undefined = undefined) {
+        super(chat => chat.id, queue)
     }
 
     getUserChats = async (userId: UserId, ids: ChatId[]) => await this.get(

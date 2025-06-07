@@ -3,6 +3,7 @@ import { UserId, ChatId } from "shared/src/Types";
 import { Cache, getCache } from "./cache";
 import messageModel from '../models/messages'
 import { Message } from "../models/models";
+import { AsyncQueue } from "utils/taskQueue";
 
 const queries = {
     id: (id: string) => `id=${id}`,
@@ -12,8 +13,8 @@ const queries = {
 
 export class MessageCache extends Cache<Message> {
 
-    constructor(fn: (m: Message) => string) {
-        super(fn)
+    constructor(queue: AsyncQueue | undefined = undefined) {
+        super(m => m.id, queue)
     }
 
     getMessageForChat = async (chatId: ChatId) => await this.get(

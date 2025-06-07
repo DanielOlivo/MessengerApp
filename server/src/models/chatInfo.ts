@@ -9,7 +9,9 @@ const model = {
     },
 
     update: async (info: ChatInfo): Promise<void> => {
-        await db('chatinfo').where({id: info.id}).update(info)
+        // await db('chatinfo').where({id: info.id}).update(info)
+        await db.transaction(trx => 
+            trx('chatinfo').where({id: info.id}).update(info))
     },
 
     remove: async (info: ChatInfo): Promise<void> => {

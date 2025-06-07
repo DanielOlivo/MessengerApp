@@ -4,8 +4,10 @@ import db from '../config/db'
 
 const model = {
     create: async(username: string, hashed: string, bio?: string): Promise<User> => {
-        const [user]: User[] = await db('users')
-            .insert({username, hashed, bio}, ['*'])
+        // const [user]: User[] = await db('users')
+        //     .insert({username, hashed, bio}, ['*'])
+        const [user]: User[] = await db.transaction(trx => 
+            trx('users').insert({username, hashed, bio}, ['*']))
         return user;
     },
 

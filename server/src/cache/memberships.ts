@@ -2,6 +2,7 @@ import { Cache} from "./cache";
 import { UserId, ChatId, MembershipId } from '@shared/Types'
 import membershipModel from '../models/memberships'
 import { Membership } from "../models/models";
+import { AsyncQueue } from "utils/taskQueue";
 
 export const queries = {
     id: (id: string) => `id=${id}`,
@@ -11,8 +12,8 @@ export const queries = {
 }
 
 export class MembershipCache extends Cache<Membership> {
-    constructor(fn: (m: Membership) => string) {
-        super(fn)
+    constructor(queue: AsyncQueue | undefined = undefined) {
+        super(m => m.id, queue)
     }
 
     getUserMemberships = async (userId: UserId) => await this.get(

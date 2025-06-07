@@ -3,6 +3,7 @@ import { Cache } from './cache';
 import { UserId } from "shared/src/Types";
 import { User } from "../models/models";
 import userModel from '../models/users'
+import { AsyncQueue } from 'utils/taskQueue';
 
 
 export const queries = {
@@ -15,8 +16,8 @@ export const queries = {
 
 export class UserCache extends Cache<User> {
 
-    constructor(fn: (user: User) => string) {
-        super(fn)
+    constructor(queue: AsyncQueue | undefined) {
+        super(user => user.id, queue)
     }
 
     getUserById = async (id: UserId) => await this.get(

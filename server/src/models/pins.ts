@@ -5,7 +5,9 @@ import { ChatPin } from "./models";
 const model = {
 
     create: async(pin: ChatPin): Promise<void> => {
-        await db('pins').insert(pin)
+        // await db('pins').insert(pin)
+        await db.transaction(trx =>
+            trx('pins').insert(pin))
     },
 
     update: async(pin: ChatPin): Promise<void> => {
@@ -13,7 +15,9 @@ const model = {
     },
 
     remove: async(id: string): Promise<void> => {
-        await db('pins').where({id}).del()
+        // await db('pins').where({id}).del()
+        await db.transaction(trx => 
+            trx('pins').where({id}).del())
     },
 
     getByUserId: async (userId: UserId): Promise<ChatPin[]> => {

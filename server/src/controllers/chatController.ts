@@ -1,6 +1,6 @@
 import { v4 as uuid } from 'uuid'
 import { ChatId, DbUser, UserId, MessageId, ChatPinStatus, User } from "shared/src/Types";
-import { UserInfo as DbUserInfo, UserInfoCollection } from "shared/src/UserInfo";
+import { UserInfoCollection } from "shared/src/UserInfo";
 import { MessagePostReq, MessagePostRes } from "shared/src/Message";
 import dayjs from "dayjs";
 import { EditChanges, GroupCreateReq } from 'shared/src/Group';
@@ -15,19 +15,22 @@ import { ChatInfoCache } from '../cache/chatInfo'
 import { MembershipCache } from '../cache/memberships'
 import { PinCache } from '../cache/pins'
 import { MessageCache } from '../cache/messages'
+import { AsyncTaskQueue } from '../utils/taskQueue';
 
-export const userCache = new UserCache(u => u.id)
-export const chatCache = new ChatCache(c => c.id)
-export const chatInfoCache = new ChatInfoCache(c => c.id)
-export const membershipCache = new MembershipCache(m => m.id)
-export const pinCache = new PinCache(p => p.id)
-export const messageCache = new MessageCache(m => m.id)
+export const queue = new AsyncTaskQueue()
+
+export const userCache = new UserCache(queue)
+export const chatCache = new ChatCache(queue)
+export const chatInfoCache = new ChatInfoCache(queue)
+export const membershipCache = new MembershipCache(queue)
+export const pinCache = new PinCache(queue)
+export const messageCache = new MessageCache(queue)
 
 
 export const controller = {
 
     handleUsersRequest: async (userId: UserId): Promise<UserInfoCollection> => {
-        const userMemberships = await membershipCache.getUserMemberships(userId)
+        const userMemberships = await membershipCache.getUserMemberships(userId) 
         const chatIds = userMemberships.map(m => m.chatId)
         const memberships = await membershipCache.getMembershipsOfUserContacts(userId, chatIds)
         const contactIds = memberships.map(m => m.userId).filter(id => id !== userId)
@@ -198,7 +201,7 @@ export const controller = {
         };
 
         // const chat = await chatCache.getChatById(chatId)
-        const infos = await chatInfoCache.getChatInfo(chatId);
+        const infos = await chatInfoCache.getChatInfo(chatId)
 
         // (async () => await messageCache.insertMessage(dbMessage))()
         messageCache.insertMessage(dbMessage)
@@ -337,7 +340,7 @@ export const controller = {
 
         for(const userId of toExclude){
             const membership = memberships.find(m => m.userId === userId)!
-            membershipCache.remove(membership)
+            membershipCache.removeMembership(membership.id)
         }    
 
         const created = dayjs().toDate()
@@ -350,20 +353,17 @@ export const controller = {
                 isAdmin: admins.includes(userId),
                 created 
             }
-            membershipCache.insert(membership)
+            membershipCache.insertMembership(membership)
         }
-
         const [ chatInfo ] = await chatInfoCache.getChatInfo(chatId) 
-        chatInfo.name = name
-        chatInfo.iconSrc = iconSrc
-        chatInfoCache.insert(chatInfo) 
-
+        chatInfo.name = req.name
+        chatInfoCache.updateChatInfo(chatInfo)        
         return req
     },
 
     handleGroupDelete: async (userId: UserId, chatId: ChatId): Promise<ChatId> => {
-        const [ chat ] = await chatCache.getChats([chatId])  
-        chatCache.remove(chatId)
+        const [ chat ] = await chatCache.getChatById(chatId)  
+        chatCache.removeChat(chatId)
         return chatId
     }
 }

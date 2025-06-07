@@ -1,4 +1,5 @@
 import dayjs from 'dayjs'
+import { AsyncQueue } from 'utils/taskQueue'
 
 type Tag = string
 type ID = string | number
@@ -10,13 +11,15 @@ export class Cache<T> {
     tagIds: Map<Tag, Set<ID>>
     idTags: Map<ID, Set<Tag>>
     requests: Map<Tag, number>
+    queue: AsyncQueue | undefined
 
-    constructor(getIdFn: (item: T) => ID){
+    constructor(getIdFn: (item: T) => ID, queue: AsyncQueue | undefined){
         this.getIdFn = getIdFn
         this.items = new Map()
         this.tagIds = new Map()
         this.idTags = new Map() 
         this.requests = new Map()
+        this.queue = queue
     }
 
     async get(
@@ -28,8 +31,12 @@ export class Cache<T> {
         if( this.tagIds.has(tag) ){
             return Array.from( this.tagIds.get(tag)! ).map(id => this.items.get(id)!)
         }
+        
+        const extracted = 
+            this.queue 
+            ? await this.queue.enqueue(async () => extractFn()) 
+            : await extractFn()
 
-        const extracted = await extractFn()
         const result: T[] = []
 
         for(const item of extracted){
@@ -62,11 +69,22 @@ export class Cache<T> {
         tags: Tag[],
         insertFn: (i: T) => Promise<void>
     ): void {
-        const id = this.getIdFn(item)
-        this.items.set(id, item)
-        tags.forEach(tag => this.getTagIdsOrDefault(tag).add(id))
-        this.idTags.set(id, new Set(tags))
-        insertFn(item) 
+        const fn = () => {
+            const id = this.getIdFn(item)
+            this.items.set(id, item)
+            tags.forEach(tag => this.getTagIdsOrDefault(tag).add(id))
+            this.idTags.set(id, new Set(tags))
+        }
+
+        if(this.queue){
+            this.queue.enqueue(async () => Promise.resolve(fn()))
+            // fn()
+            this.queue.enqueue(async () => await insertFn(item))
+        }
+        else {
+            fn()
+            insertFn(item) 
+        }
     }
 
     update(
@@ -77,7 +95,13 @@ export class Cache<T> {
         const tags = this.idTags.get(id)! 
         this.items.set(id, item)
         tags.forEach(tag => this.requests.set(tag, this.now()))
-        updateFn(item)
+
+        if(this.queue){
+            this.queue.enqueue(async () => await updateFn(item))
+        }
+        else {
+            updateFn(item)
+        }
     }
 
 
@@ -99,7 +123,12 @@ export class Cache<T> {
                 ids.delete(id)
             }
         }
-        removeFn(item)
+        if(this.queue){
+            this.queue.enqueue(async () => await removeFn(item))
+        }
+        else {
+            removeFn(item)
+        }
     }
 
     removeById(
@@ -119,7 +148,12 @@ export class Cache<T> {
                 ids.delete(id)
             }
         }
-        removeFn(id)
+        if(this.queue){
+            this.queue.enqueue(async () => await removeFn(id))
+        }
+        else {
+            removeFn(id)
+        }
     }
 
     reset(){
