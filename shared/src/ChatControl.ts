@@ -10,6 +10,6 @@ export interface GroupCreateReq {
 export interface GroupCreateRes extends GroupCreateReq {
     id: ChatId
     created: number // timestamp
-    chatMessageIds: MessageId[]
+    chatMessageIds: { [P: ChatId]: MessageId[] }
     messages: { [P: MessageId]: Message}
 }

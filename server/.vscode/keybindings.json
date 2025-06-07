@@ -1,0 +1,18 @@
+[
+    {
+    "key": "alt+1",
+    "command": "extension.runJest"
+    },
+    {
+    "key": "alt+2",
+    "command": "extension.debugJest"
+    },
+    {
+    "key": "alt+3",
+    "command": "extension.watchJest"
+    },
+    {
+    "key": "alt+4",
+    "command": "extension.runPrevJest"
+    }
+]

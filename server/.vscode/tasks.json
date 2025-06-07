@@ -1,0 +1,27 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Server migrate",
+            "type": "shell",
+            "command": "pnpm dlx knex migrate:latest",
+            "options": {
+                "cwd": "${workspaceFolder}/../"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "all",
+            "type": "shell",
+            "command": "pnpm dlx jest"
+        },
+        {
+            "label": "file",
+            "type": "shell",
+            "command": "pnpm dlx jest ${file}",
+            "runOptions": {
+                "reevaluateOnRerun": false
+            }
+        }
+    ]
+}

@@ -3,7 +3,7 @@ process.env.NODE_ENV = 'test'
 import {v4 as uuid} from 'uuid'
 import {describe, test, expect, beforeAll, afterAll} from '@jest/globals'
 import db from "@config/db"
-import { create, getCache, load, Status } from "@cache/cache"
+import { create, getCache, load, Status } from "@cache/cache_toRemove"
 import { DbUser } from '@shared/Types'
 import UserModel from '@models/UserModel'
 

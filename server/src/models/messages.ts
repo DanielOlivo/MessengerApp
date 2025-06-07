@@ -45,7 +45,7 @@ const model = {
         const messages = await db
             .with('chatIds', db('memberships').where({userId}).select('chatId as id'))
             .with('msgs', db('messages').whereIn('chatId', db('chatIds')))
-            .select(['msgs.id', 'msgs.chatId', 'msgs.userId', 'msgs.timestamp', 'msgs.content']).from('msgs'),
+            .select(['msgs.id', 'msgs.chatId', 'msgs.userId', 'msgs.timestamp', 'msgs.content']).from('msgs')
         return messages
     }
 

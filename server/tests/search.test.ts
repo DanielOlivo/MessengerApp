@@ -1,10 +1,10 @@
 process.env.NODE_ENV = 'test'
 
 import {describe, test, expect, beforeAll, afterAll} from '@jest/globals'
-import db from '../config/db'
+import db from '../src/config/db'
 import { search } from '../models/search'
-import { UserId } from '../types/Types'
-import { SearchReq, UserInfo } from '../types/Client'
+import { UserId } from '../src/types/Types'
+import { SearchReq, UserInfo } from '../src/types/Client'
 
 describe('searh query', () => { 
 
