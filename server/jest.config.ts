@@ -7,6 +7,7 @@ const config = {
     testEnvironment: 'node',
     roots: ["<rootDir>", "<rootDir>/src"],
     bail: true,
+    testPathIgnorePatterns: ["<rootDir>/src/config/"],
     // moduleDirectories: ['.', 'node_modules'],
     moduleNameMapper: {
         "^@shared/(.*)$": "<rootDir>/../shared/src/$1",

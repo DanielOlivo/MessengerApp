@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@hookform/error-message": "^2.0.1",
+    "@material-tailwind/react": "^2.1.10",
     "@mswjs/interceptors": "^0.38.0",
     "@mswjs/socket.io-binding": "^0.1.1",
     "@reduxjs/toolkit": "^2.5.0",

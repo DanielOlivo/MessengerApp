@@ -86,18 +86,24 @@ io.on('connection', async (socket) => {
     })
 
     socket.on(Commands.MessagePostReq, async (req: MessagePostReq) => {
-        const { id } = socket.data as TokenPayload
-        const responses= await chatController.postMessage(id, req)
-        for(const res of responses){
-            const { target, targetId } = res
-            switch(target){
-                case 'group': io.to(targetId).emit(Commands.MessagePostRes, res); break;
-                case 'user': {
-                    if(userSockets.has(targetId)){
-                        io.to(userSockets.get(targetId)!).emit(Commands.MessagePostRes, res); break
+        try{
+            const { id } = socket.data as TokenPayload
+            const responses= await chatController.postMessage(id, req)
+            for(const res of responses){
+                const { target, targetId } = res
+                switch(target){
+                    case 'group': io.to(targetId).emit(Commands.MessagePostRes, res); break;
+                    case 'user': {
+                        if(userSockets.has(targetId)){
+                            io.to(userSockets.get(targetId)!).emit(Commands.MessagePostRes, res); break
+                        }
                     }
-                }
-            } 
+                } 
+            }
+        }
+        catch(err){
+            if(err instanceof Error)
+                console.log(err.message)
         }
     })
 

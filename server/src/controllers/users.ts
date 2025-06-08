@@ -53,48 +53,52 @@ const controller = {
     },
 
     login: async(req: Request, res: Response) => {
+        try{
 
-        // console.log('------------someone logins...', req.body)
+            const errors = validationResult(req)
+            if(!errors.isEmpty()){
+                console.log('errors', errors)
+                res.status(400).json('invalid credentials')
+                return
+            }
 
-        const errors = validationResult(req)
-        if(!errors.isEmpty()){
-            console.log('errors', errors)
-            res.status(400).json('invalid credentials')
-            return
+            const {username, password}: Credentials = req.body
+
+            // console.log('hey')
+            const dbUsers = await userModel.getByUsername(username)
+            // console.log('dbUsers', dbUsers)
+            if(dbUsers.length === 0){
+                // console.log('user not found')
+                res.status(404).json({message: 'username or password not match'})
+                return
+            }
+            const dbUser = dbUsers[0]
+
+            // console.log('hey')
+
+            const passwordMatch = await compare(password, dbUser.hash)
+            if(!passwordMatch){
+                // console.log('password not match')
+                res.status(404).json({message: 'username or password not match'})
+                return
+            }
+
+            // console.log('all good')
+
+            const authPayload: TokenPayload = {
+                id: dbUser.id,
+                username
+            }
+
+            const token = jwt.sign(authPayload, process.env.JWT_SECRET as string)
+            console.log('sending token: ', token)
+
+            res.status(200).json({id: dbUser.id, username, token})
         }
-
-        const {username, password}: Credentials = req.body
-
-        // console.log('hey')
-        const dbUsers = await userModel.getByUsername(username)
-        // console.log('dbUsers', dbUsers)
-        if(dbUsers.length === 0){
-            // console.log('user not found')
-            res.status(404).json({message: 'username or password not match'})
-            return
+        catch(err){
+            if(err instanceof Error)
+                console.log(err.message)
         }
-        const dbUser = dbUsers[0]
-
-        // console.log('hey')
-
-        const passwordMatch = await compare(password, dbUser.hash)
-        if(!passwordMatch){
-            // console.log('password not match')
-            res.status(404).json({message: 'username or password not match'})
-            return
-        }
-
-        // console.log('all good')
-
-        const authPayload: TokenPayload = {
-            id: dbUser.id,
-            username
-        }
-
-        const token = jwt.sign(authPayload, process.env.JWT_SECRET as string)
-        // console.log('sending token: ', token)
-
-        res.status(200).json({id: dbUser.id, username, token})
     }
 }
 
