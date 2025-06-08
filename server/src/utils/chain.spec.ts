@@ -57,13 +57,13 @@ describe('chaining', () => {
                         await messageModel.create(m)
                         return m
                     }
-                    console.log('running test for id', m.id)
+                    // console.log('running test for id', m.id)
                     const result = await queue.enqueue(fn)
                     expect(result.id).toEqual(m.id)
                 })()
         ))
 
-        console.log('checking records')
+        // console.log('checking records')
         const records = await db('messages').select('*')
         expect(records.length).toEqual(messages.length)
     })

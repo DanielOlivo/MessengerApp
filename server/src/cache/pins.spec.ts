@@ -4,7 +4,6 @@ import { PinCache } from './pins'
 import { DbUtils } from '../utils/db'
 import { ChatPin } from '@models/models'
 import { v4 as uuid } from 'uuid';
-import { pinCache } from '../controllers/chatController'
 
 describe('pinCache', () => {
 
@@ -33,7 +32,7 @@ describe('pinCache', () => {
         const pin1 = await utils.createPin(user1.id, dm1.id)
         expect(pin1).toBeDefined()
 
-        const cache = new PinCache(p => p.id)
+        const cache = new PinCache()
 
         {
             const pins = await cache.getUserPins(user1.id)

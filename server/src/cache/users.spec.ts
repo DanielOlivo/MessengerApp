@@ -18,7 +18,7 @@ describe('user cache', () => {
     })
 
     beforeEach(() => {
-        cache = new UserCache((u) => u.id)
+        cache = new UserCache()
     })
 
     afterEach(() => {

@@ -16,7 +16,7 @@ export const queries = {
 
 export class UserCache extends Cache<User> {
 
-    constructor(queue: AsyncQueue | undefined) {
+    constructor(queue: AsyncQueue | undefined = undefined) {
         super(user => user.id, queue)
     }
 

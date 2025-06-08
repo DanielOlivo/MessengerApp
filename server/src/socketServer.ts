@@ -36,14 +36,14 @@ io.on('connection', async (socket) => {
 
     userSockets.set(socket.data.id, socket.id)
 
-    console.log('connection', socket.id)
+    // console.log('connection', socket.id)
 
     const chatIds: {id: string}[] = await db('memberships').leftJoin('chats', 'chats.id', '=', 'memberships.chatId')
         .where({userId: socket.data.id})
         .select('chats.id')
 
     chatIds.forEach(id => {
-        console.log(socket.data.username, 'adding to room', id.id)
+        // console.log(socket.data.username, 'adding to room', id.id)
         socket.join(id.id)
     })
 
@@ -69,7 +69,7 @@ io.on('connection', async (socket) => {
     socket.on(Commands.InitLoadingRequest, async () => {
         const { id } = socket.data as TokenPayload
         const res = await chatController.handleInitLoading(id)
-        console.log('init loading', res)
+        // console.log('init loading', res)
         socket.emit(Commands.InitLoadingResponse, res)
     })  
 

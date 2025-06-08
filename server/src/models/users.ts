@@ -3,12 +3,9 @@ import { User } from './models';
 import db from '../config/db'
 
 const model = {
-    create: async(username: string, hashed: string, bio?: string): Promise<User> => {
-        // const [user]: User[] = await db('users')
-        //     .insert({username, hashed, bio}, ['*'])
-        const [user]: User[] = await db.transaction(trx => 
-            trx('users').insert({username, hashed, bio}, ['*']))
-        return user;
+    create: async(user: User): Promise<void> => {
+        await db.transaction(trx => 
+            trx('users').insert(user))
     },
 
     remove: async(userId: UserId): Promise<UserId> => {
@@ -43,8 +40,8 @@ const model = {
             .select('users.*'),
 
     getByUsername: async(username: string): Promise<User[]> => {
-        const user = await db('users').where({username}).select('*')
-        return user
+        const users = await db('users').where({username}).select('*')
+        return users
     },
 
     getById: async(id: UserId): Promise<User[]> => {
